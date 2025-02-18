@@ -2,6 +2,7 @@ import React, { useCallback, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import PropTypes from 'prop-types'; 
 
 const CustomBottomSheet = ({ children, onSheetChange, snapPoints, isOpen }) => {
   const bottomSheetRef = useRef(null);
@@ -42,5 +43,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+// PropTypes 정의
+CustomBottomSheet.propTypes = {
+  children: PropTypes.node.isRequired, // children은 반드시 전달되어야 함
+  onSheetChange: PropTypes.func, // onSheetChange는 함수형 prop
+  snapPoints: PropTypes.arrayOf(PropTypes.string), // snapPoints는 문자열 배열
+  isOpen: PropTypes.bool.isRequired, // isOpen은 boolean 타입, 반드시 전달되어야 함
+};
 
 export default CustomBottomSheet;
