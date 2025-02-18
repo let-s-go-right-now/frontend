@@ -1,33 +1,42 @@
-import React from 'react';
-import { Button, StatusBar, Platform } from 'react-native';
-import styled from 'styled-components/native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useCallback, useRef, useState } from 'react';
+import { Text, StyleSheet, Button } from 'react-native';
+import CustomBottomSheet from '../components/CustomBottomSheet';  // CustomBottomSheet 컴포넌트 import
 
-// 스타일 정의
-const Container = styled(SafeAreaView)`
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-`;
+const Mypage = () => {
+  const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
+  const bottomSheetRef = useRef(null); 
+  const snapPoints = ['40%', '50%']; //첫번째 요소는 가장 처음 보이는 높이, 나머지는 스와이프하면 늘어나는 정도
 
-const StyledText = styled.Text`
-  font-size: 30px;
-  margin-bottom: 10px;
-`;
+  const handleSheetChanges = useCallback((index) => {
+    console.log('handleSheetChanges', index);
+  }, []);
 
-// 🚀 Mypage 컴포넌트
-const Mypage = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
+  // 버튼 클릭 시 BottomSheet를 열기/닫기
+  const openBottomSheet = () => {
+    setIsOpen(!isOpen);
+    bottomSheetRef.current?.expand();  
+  };
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      <Container style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : insets.top }}>
-        <StyledText>Mypage</StyledText>
-        <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
-      </Container>
+      <Button title="열기버튼" onPress={openBottomSheet} />
+      {isOpen ? (
+        <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
+          <Text>Awesome 🎉</Text>
+          <Text>Awesome 🎉</Text>
+          <Text>Awesome 🎉</Text>
+          <Button title="닫기 버튼" onPress={openBottomSheet}></Button>
+        </CustomBottomSheet>
+      ) : null}
     </>
   );
 };
-  export default Mypage;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'grey',
+  },
+});
+
+export default Mypage;

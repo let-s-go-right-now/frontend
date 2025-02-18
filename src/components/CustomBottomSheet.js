@@ -1,0 +1,46 @@
+import React, { useCallback, useRef } from 'react';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+
+const CustomBottomSheet = ({ children, onSheetChange, snapPoints, isOpen }) => {
+  const bottomSheetRef = useRef(null);
+
+  // Callback to handle sheet changes
+  const handleSheetChanges = useCallback((index) => {
+    if (onSheetChange) {
+      onSheetChange(index);
+    }
+  }, [onSheetChange]);
+
+  return (
+    <GestureHandlerRootView style={styles.container}>
+      {isOpen && ( // isOpen이 true일 때만 BottomSheet를 렌더링
+        <BottomSheet
+          ref={bottomSheetRef}
+          onChange={handleSheetChanges}
+          snapPoints={snapPoints || ['50%']}
+          enablePanDownToClose={true} // 스와이프 시 닫히도록 설정
+        >
+          <BottomSheetView style={styles.contentContainer}>
+            {children}
+          </BottomSheetView>
+        </BottomSheet>
+      )}
+    </GestureHandlerRootView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'grey',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 36,
+    alignItems: 'center',
+  },
+});
+
+export default CustomBottomSheet;
