@@ -31,7 +31,7 @@ export const theme = {
     inputPlaceholder: colors.grey_1,
     inputBorder: colors.grey_1,
     inputDisabledBackground: colors.grey_0,
-    buttonBackground: colors.blue,
+    buttonBackground: "#1D1D1F",
     buttonTitle: colors.white,
     buttonUnfilledTitle: colors.blue,
     buttonLogout: colors.red,
