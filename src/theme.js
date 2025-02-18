@@ -8,10 +8,23 @@ const colors = {
 };
 
 export const theme = {
+    colors: {
+        white: colors.white,
+        black: colors.black,
+        grey_0: colors.grey_0,
+        grey_1: colors.grey_1,
+        red: colors.red,
+        blue: colors.blue,
+    },
+    fonts: {
+        regular: 'SUIT-Regular',
+        bold: 'SUIT-Bold',
+        medium: 'SUIT-Medium',
+    },
     background: colors.white,
     text: colors.black,
     errorText: colors.red,
-    imageBackground : colors.grey_0,
+    imageBackground: colors.grey_0,
     imageButtonBackgroud: colors.grey_1,
     imageButtonIcon: colors.white,
     label: colors.grey_1,
@@ -34,4 +47,3 @@ export const theme = {
     sendButtonActive: colors.blue,
     sendButtonInActive: colors.grey_1,
 };
-

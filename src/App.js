@@ -5,7 +5,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import Navigation from './navigations';
 import {theme} from "./theme";
 
-
 const App = () => {
     return (
         <ThemeProvider theme={theme}>
