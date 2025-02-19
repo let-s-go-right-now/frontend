@@ -5,5 +5,8 @@ import CustomBottomSheet from "./CustomBottomSheet";
 import TwoButton from "./TwoButton";
 import GrayButton from "./GrayButton";
 import BigTwoButton from "./BigTwoButton";
-
-export {ImgSlide, BlackButton, PlusButton,CustomBottomSheet, TwoButton, GrayButton,BigTwoButton };
+import { OptionButton, CategoryOptionButton } from "./OptionButton";
+import { OptionButton2, TransportOptionButton } from "./OptionButton2";
+import Profile from "./Profile";
+import ProfileSlide from "./ProfileSlide";
+export {ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide };

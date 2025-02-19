@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components/native';
 import PropTypes from 'prop-types';
 import Plus from '../assets/images/plus.svg';
+import { TouchableOpacity } from 'react-native';
 
-const Container = styled.View`
+const Container = styled(TouchableOpacity)`
     background-color: #FFFFFF;
     width: ${(props) => props.width}px;
     height: ${(props) => props.height}px;
@@ -22,9 +23,9 @@ const Title = styled.Text`
     line-height: 15px;
 `
 
-const PlusButton = ({ text, width, height }) => {
+const PlusButton = ({ text, width, height, onPress }) => {
     return (
-        <Container width={width} height={height}>
+        <Container width={width} height={height} onPress={onPress}>
             <Plus />
             <Title>{text}</Title>
         </Container>

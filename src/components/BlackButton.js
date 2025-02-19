@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import PropTypes from 'prop-types';
+import { TouchableOpacity } from 'react-native';
 
-const Container = styled.View`
+const Container = styled(TouchableOpacity)`
     background-color: #1D1D1F;
     height: 50px;
     width: ${(props) => props.width}px;
@@ -20,9 +21,9 @@ const Title = styled.Text`
     line-height: 23.8px;
 `
 
-const BlackButton = ({ text, width, image }) => {
+const BlackButton = ({ text, width, image, onPress }) => {
     return (
-        <Container width={width}>
+        <Container width={width} onPress={onPress}>
             {image && image}
             <Title>{text}</Title>
         </Container>
@@ -33,6 +34,7 @@ BlackButton.propTypes = {
     text: PropTypes.string.isRequired,
     width: PropTypes.number.isRequired,
     image: PropTypes.string,
+    onPress: PropTypes.func,
 }
 
 export default BlackButton
