@@ -1,23 +1,19 @@
 import React from "react";
-import styled from "styled-components/native";
-
-const Container = styled.View`
-    flex: 1;
-    align-items: center;
-    justify-content: center;
-`
-const Title = styled.Text`
-    font-size: 30px;
-`
+import styled, { ThemeProvider } from "styled-components/native";
+import { StatusBar } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native"; 
+import Navigation from './navigations';
+import {theme} from "./theme";
 
 const App = () => {
     return (
-        <Container>
-            <Title>당장가자</Title>
-        </Container>
-    )
-}
-
-
+        <ThemeProvider theme={theme}>
+          <NavigationContainer>
+            <StatusBar barStyle="dark-content" />
+            <Navigation />
+          </NavigationContainer>
+        </ThemeProvider>
+    );
+};
 
 export default App;

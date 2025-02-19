@@ -1,4 +1,12 @@
-import LineTab from "./LineTab";
-import StackNavigator from "./Stack";
+import React from 'react';
+import BottomTab from './BottomTab';
 
-export { LineTab, StackNavigator };
+const Navigation = () => {
+  return (
+    <>
+    <BottomTab/>
+    </>
+  );
+};
+
+export default Navigation;
