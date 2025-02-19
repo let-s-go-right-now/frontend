@@ -10,12 +10,14 @@ const ButtonContainer = styled.View`
 
 const Button = styled.TouchableOpacity`
   background-color: ${(props) => (props.bgColor ? props.bgColor : '#1D1D1F')};
-  height: ${(props) => props.height || '50px'};  /* height 설정 */
+  height: ${(props) => props.height || '50px'};
   width: ${(props) => props.width}px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding: 10px;
+  position: relative;
   gap: 4px;
   font-weight: bold;
   font-size: 16px;
@@ -31,27 +33,33 @@ const Title = styled.Text`
   line-height: 23.8px;
 `;
 
-const TwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, bgColorLeft, bgColorRight }) => {
+const IconContainer = styled.View`
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+`;
+
+const BigTwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, bgColorLeft, bgColorRight }) => {
   const leftWidth = (width / 2) - 10;
   const rightWidth = (width / 2) - 10;
 
   return (
     <ButtonContainer width={width}>
       <Button width={leftWidth} bgColor={bgColorLeft || '#1D1D1F'} height={height}>
-        {imageLeft && imageLeft}
         <Title color="#FFFFFF">{textLeft}</Title>
+        {imageLeft && <IconContainer>{imageLeft}</IconContainer>}
       </Button>
       <Button width={rightWidth} bgColor={bgColorRight || '#FFFFFF'} height={height}>
-        {imageRight && imageRight}
         <Title color="#1D1D1F">{textRight}</Title>
+        {imageRight && <IconContainer>{imageRight}</IconContainer>}
       </Button>
     </ButtonContainer>
   );
 };
 
-TwoButton.propTypes = {
+BigTwoButton.propTypes = {
   width: PropTypes.number.isRequired,
-  height: PropTypes.string, // height prop 추가
+  height: PropTypes.string,
   textLeft: PropTypes.string.isRequired,
   textRight: PropTypes.string.isRequired,
   imageLeft: PropTypes.node,
@@ -60,4 +68,4 @@ TwoButton.propTypes = {
   bgColorRight: PropTypes.string,
 };
 
-export default TwoButton;
+export default BigTwoButton;
