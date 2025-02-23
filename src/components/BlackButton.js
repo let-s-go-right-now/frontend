@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { TouchableOpacity } from 'react-native';
 
 const Container = styled(TouchableOpacity)`
-    background-color: #1D1D1F;
+    background-color: ${({ready}) => ready ? 'rgba(29, 29, 31, 1)' : 'rgba(29, 29, 31, 0.2)'};
     height: 50px;
     width: ${(props) => props.width}px;
     display: flex;
@@ -12,6 +12,7 @@ const Container = styled(TouchableOpacity)`
     justify-content: center;
     flex-direction: row; 
     gap: 4px;
+    
 `
 
 const Title = styled.Text`
@@ -21,9 +22,9 @@ const Title = styled.Text`
     line-height: 23.8px;
 `
 
-const BlackButton = ({ text, width, image, onPress }) => {
+const BlackButton = ({ text, width, image, onPress, ready = true, style }) => {
     return (
-        <Container width={width} onPress={onPress}>
+        <Container width={width} onPress={onPress} ready={ready} style={[style]}>
             {image && image}
             <Title>{text}</Title>
         </Container>
@@ -35,6 +36,7 @@ BlackButton.propTypes = {
     width: PropTypes.number.isRequired,
     image: PropTypes.string,
     onPress: PropTypes.func,
+    ready: PropTypes.bool,
 }
 
 export default BlackButton

@@ -20,6 +20,9 @@
 		B17E4A00F6324285A2067944 /* SUIT-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D67B61A4F708446897BCE1DE /* SUIT-Regular.ttf */; };
 		98976943B799424892409520 /* SUIT-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E8CB327C831847EF86FCF39C /* SUIT-SemiBold.ttf */; };
 		5FAA0D0D15B54FE69B8B751C /* SUIT-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6925081EC5564F80813A93D7 /* SUIT-Thin.ttf */; };
+		29EEC6EE5244466FB17423A5 /* ONE Mobile OTF Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = D294E45930EE461A9920695E /* ONE Mobile OTF Bold.otf */; };
+		DD34E7416FF74593A1612633 /* ONE Mobile OTF Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = CC2001DA23E344828579FDF5 /* ONE Mobile OTF Light.otf */; };
+		D8324525A49A444293E23384 /* ONE Mobile OTF Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = B1E2BF375948447A99503618 /* ONE Mobile OTF Regular.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +56,9 @@
 		D67B61A4F708446897BCE1DE /* SUIT-Regular.ttf */ = {isa = PBXFileReference; name = "SUIT-Regular.ttf"; path = "../src/assets/fonts/SUIT-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		E8CB327C831847EF86FCF39C /* SUIT-SemiBold.ttf */ = {isa = PBXFileReference; name = "SUIT-SemiBold.ttf"; path = "../src/assets/fonts/SUIT-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		6925081EC5564F80813A93D7 /* SUIT-Thin.ttf */ = {isa = PBXFileReference; name = "SUIT-Thin.ttf"; path = "../src/assets/fonts/SUIT-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		D294E45930EE461A9920695E /* ONE Mobile OTF Bold.otf */ = {isa = PBXFileReference; name = "ONE Mobile OTF Bold.otf"; path = "../src/assets/fonts/ONE Mobile OTF Bold.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		CC2001DA23E344828579FDF5 /* ONE Mobile OTF Light.otf */ = {isa = PBXFileReference; name = "ONE Mobile OTF Light.otf"; path = "../src/assets/fonts/ONE Mobile OTF Light.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		B1E2BF375948447A99503618 /* ONE Mobile OTF Regular.otf */ = {isa = PBXFileReference; name = "ONE Mobile OTF Regular.otf"; path = "../src/assets/fonts/ONE Mobile OTF Regular.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +153,9 @@
 				D67B61A4F708446897BCE1DE /* SUIT-Regular.ttf */,
 				E8CB327C831847EF86FCF39C /* SUIT-SemiBold.ttf */,
 				6925081EC5564F80813A93D7 /* SUIT-Thin.ttf */,
+				D294E45930EE461A9920695E /* ONE Mobile OTF Bold.otf */,
+				CC2001DA23E344828579FDF5 /* ONE Mobile OTF Light.otf */,
+				B1E2BF375948447A99503618 /* ONE Mobile OTF Regular.otf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -230,6 +239,9 @@
 				B17E4A00F6324285A2067944 /* SUIT-Regular.ttf in Resources */,
 				98976943B799424892409520 /* SUIT-SemiBold.ttf in Resources */,
 				5FAA0D0D15B54FE69B8B751C /* SUIT-Thin.ttf in Resources */,
+				29EEC6EE5244466FB17423A5 /* ONE Mobile OTF Bold.otf in Resources */,
+				DD34E7416FF74593A1612633 /* ONE Mobile OTF Light.otf in Resources */,
+				D8324525A49A444293E23384 /* ONE Mobile OTF Regular.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
