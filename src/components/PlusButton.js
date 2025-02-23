@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import PropTypes from 'prop-types';
-import Plus from '../assets/images/plus.svg';
+import Plus from '../assets/icons/travel/plus.svg';
 import { TouchableOpacity } from 'react-native';
 
 const Container = styled(TouchableOpacity)`

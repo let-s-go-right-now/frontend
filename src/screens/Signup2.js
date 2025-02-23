@@ -2,9 +2,9 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components/native';
 import { TextInput, Dimensions, Image, Alert, PermissionsAndroid } from 'react-native';
 import { BlackButton } from '../components';
-import CloseDarkgray from '../assets/images/close_darkgray.svg';
-import DefaultImg from '../assets/images/profile.png';
-import Edit from '../assets/images/edit.png';
+import CloseDarkgray from '../assets/icons/user/close_darkgray.svg';
+import DefaultImg from '../assets/icons/user/profile.png';
+import Edit from '../assets/icons/user/edit.png';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 

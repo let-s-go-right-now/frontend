@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components/native';;
 import { BlackButton } from '../components';
 import { TextInput, Keyboard, Dimensions } from 'react-native';
-import CloseDarkgray from '../assets/images/close_darkgray.svg';
-import CloseGray from '../assets/images/close_gray.svg';
+import CloseDarkgray from '../assets/icons/user/close_darkgray';
+import CloseGray from '../assets/icons/user/close_gray';
 
 const SignupWrapper = styled.View`
     width: 100%;

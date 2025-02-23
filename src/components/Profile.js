@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import LeaderBadge from '../assets/images/leader_badge.png';
+import LeaderBadge from '../assets/icons/user/leader_badge.png';
 import { Image, TouchableOpacity } from 'react-native';
 
 const ProfileWrapper = styled(TouchableOpacity)`

@@ -20,7 +20,7 @@ const Members = [
         name: '박시우',
         leader: true,
         sameName: false,
-        image: require('../assets/images/박시우.png'),
+        image: require('../assets/icons/user/박시우.png'),
         color: '#55C1E5',
     },
     {
@@ -28,7 +28,7 @@ const Members = [
         name: '이우경',
         leader: false,
         sameName: true,
-        image: require('../assets/images/이우경.png'),
+        image: require('../assets/icons/user/이우경.png'),
         color: '#7D7BFF',
     },
     {
@@ -36,7 +36,7 @@ const Members = [
         name: '이우경',
         leader: false,
         sameName: true,
-        image: require('../assets/images/이우경.png'),
+        image: require('../assets/icons/user/이우경.png'),
         color: '#8EE555',
     },
     {
@@ -44,7 +44,7 @@ const Members = [
         name: '이우경',
         leader: false,
         sameName: true,
-        image: require('../assets/images/이우경.png'),
+        image: require('../assets/icons/user/이우경.png'),
         color: '#FF7EB6',
     },
     {
@@ -52,7 +52,7 @@ const Members = [
         name: '임서현',
         leader: false,
         sameName: true,
-        image: require('../assets/images/임서현.png'),
+        image: require('../assets/icons/user/임서현.png'),
         color: '#BA60FF'
     },
     {
@@ -60,7 +60,7 @@ const Members = [
         name: '임서현',
         leader: false,
         sameName: true,
-        image: require('../assets/images/임서현.png'),
+        image: require('../assets/icons/user/임서현.png'),
         color: '#FFC918'
     },
 ]

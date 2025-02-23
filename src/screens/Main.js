@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { BlackButton } from '../components';
 import { MiniGrayButton } from '../components';
-import Logo  from '../assets/images/logo.svg';
+import Logo  from '../assets/icons/logo/logo.svg';
 
 const MainWrapper = styled.View`
     display: flex;
