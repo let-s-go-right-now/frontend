@@ -4,9 +4,10 @@ import { Image, TouchableOpacity } from 'react-native';
 import BackDark from '../assets/icons/ai/back_dark.png';
 import BackBright from '../assets/icons/ai/back_bright.png';
 import HeartEmpty from '../assets/icons/ai/heart_empty.png';
+import { NavigationContainer } from '@react-navigation/native';
 
 // 테스트용 데이터
-// const ScreenList = [
+// const ExampleList = [
 //     {
 //         id: 1,
 //         name: "Home",
@@ -29,10 +30,9 @@ import HeartEmpty from '../assets/icons/ai/heart_empty.png';
 
 const Stack = createStackNavigator();
 
-const StackNavigator = () => {
+const StackNavigator = ({ ScreenList }) => {
     return (
         <Stack.Navigator 
-            initialRouteName='Home'
             screenOptions={({navigation, route}) => {
                 const darkMode = ScreenList.find(screen => screen.name === route.name)?.options?.mode === 'dark';
                 return {

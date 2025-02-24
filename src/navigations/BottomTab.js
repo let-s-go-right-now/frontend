@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import {Home, Travel, Mypage} from '../screens';
 import { theme } from "../theme";
+import MypageStack from './MypageStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -122,8 +123,9 @@ const BottomTab = () => {
       />
       <Tab.Screen
         name="Mypage"
-        component={Mypage}
+        component={MypageStack}
         options={{
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
               source={

@@ -4,6 +4,7 @@ import Signup2 from './Signup2';
 import Login from './Login';
 import Home from './Home';
 import Mypage from './Mypage';
+import Mypage2 from './Mypage2';
 import Travel from './Travel';
 
-export {Main, Signup1, Signup2, Login, Home, Mypage, Travel};
+export {Main, Signup1, Signup2, Login, Home, Mypage, Mypage2, Travel};
