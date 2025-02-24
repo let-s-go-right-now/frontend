@@ -42,14 +42,14 @@ const TransportOptionButton = () => {
         {
             id: 1,
             text: "대중교통",
-            image: require('../assets/images/transport.png'),
-            image_clicked: require('../assets/images/transport_clicked.png'),
+            image: require('../assets/icons/spending/transport.png'),
+            image_clicked: require('../assets/icons/spending/transport_clicked.png'),
         },
         {
             id: 2,
             text: "자가용",
-            image: require('../assets/images/handle.png'),
-            image_clicked: require('../assets/images/handle_clicked.png'),
+            image: require('../assets/icons/ai/handle.png'),
+            image_clicked: require('../assets/icons/ai/handle_clicked.png'),
         },
     ]
 

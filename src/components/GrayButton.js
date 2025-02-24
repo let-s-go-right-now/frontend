@@ -38,9 +38,9 @@ GrayButton.propTypes = {
   icon: PropTypes.node, // 아이콘은 선택적
   bgColor: PropTypes.string, // 배경 색상 (선택적, 기본 #EEEEEE)
   fontColor: PropTypes.string, // 폰트 색상 (선택적, 기본 #AAAAAA)
-  fontSize: PropTypes.string, // 폰트 크기 (선택적, 기본 17px)
+  fontSize: PropTypes.number, // 폰트 크기 (선택적, 기본 17px)
   fontWeight: PropTypes.string, // 폰트 두께 (선택적, 기본 bold)
-  height: PropTypes.string, // 버튼 높이 (선택적, 기본 50px)
+  height: PropTypes.number, // 버튼 높이 (선택적, 기본 50px)
 };
 
 export default GrayButton;

@@ -2,6 +2,18 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "src/assets/fonts/ONE Mobile OTF Bold.otf",
+      "sha1": "08bd1e208675bbd0c0e027948288c80ef2e006f5"
+    },
+    {
+      "path": "src/assets/fonts/ONE Mobile OTF Light.otf",
+      "sha1": "5fa8bb8037f3143320f0bba7e53c6f9a9113e47a"
+    },
+    {
+      "path": "src/assets/fonts/ONE Mobile OTF Regular.otf",
+      "sha1": "6121e41dd1dc86f5efceb25b6fc8cebb5b88e66c"
+    },
+    {
       "path": "src/assets/fonts/SUIT-Bold.ttf",
       "sha1": "260f37817e53e956893d5444564685351c3f344d"
     },
