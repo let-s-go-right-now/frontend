@@ -50,19 +50,14 @@ const HomeStack = () => {
             }}
         >
             <Stack.Screen
-                name="Home"
+                name="HomeTravelStack"
                 component={HomeTravelStack}
                 options={{ headerShown: false, mode: 'light' }}
             />
             <Stack.Screen
-                name="TravelCreate"
-                component={TravelCreate}
-                options={{ title: '여행 만들기', mode: 'light' }}
-            />
-            <Stack.Screen
-                name="TravelInvite"  
+                name="TravelInvite"  //AI화면 연결
                 component={TravelInvite}
-                options={{ title: '여행 초대', mode: 'light' }}
+                options={{ title: 'AI', mode: 'light' }}
             />
         </Stack.Navigator>
     );
