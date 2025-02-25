@@ -10,4 +10,7 @@ import { OptionButton, CategoryOptionButton } from "./OptionButton";
 import { OptionButton2, TransportOptionButton } from "./OptionButton2";
 import Profile from "./Profile";
 import ProfileSlide from "./ProfileSlide";
-export {ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide };
+import AiInput from "./AiInput";
+import AiButton from "./AiButton";
+import TravelCard from "./TravelCard";
+export {TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide };
