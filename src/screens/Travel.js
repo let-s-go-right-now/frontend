@@ -15,7 +15,7 @@ const Container = styled(SafeAreaView)`
 
 const Travel = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const [selectedTab, setSelectedTab] = useState('진행 중'); // ✅ 부모에서 상태 관리
+  const [selectedTab, setSelectedTab] = useState('진행 중'); 
 
   return (
     <>
