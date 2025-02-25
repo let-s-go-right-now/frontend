@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Image } from 'react-native';
 import { theme } from '../theme';
-import {AiInput, AiButton,TravelCard} from '../components'
+import {AiInput, AiButton,TravelCard,BorderWhiteButton} from '../components'
 import carrierImage from '../assets/icons/main/carrier01.png';
 import moneyIcon from '../assets/icons/main/money-icon.png';
 import calenderIcon from '../assets/icons/main/calender-icon.png';
@@ -9,10 +9,9 @@ import mapIcon from '../assets/icons/main/map-icon.png';
 import TransportIcon from '../assets/icons/main/TransportIcon.png';
 import handleIcon from '../assets/icons/main/handleIcon.png';
 import nextButton from '../assets/icons/main/nextButton.png';
-import exImage from '../assets/icons/main/exImage.png';
-import ProfileImage from '../assets/icons/main/ProfileImage.png';
 
-const Home = () => {
+const Home = ({navigation}) => {
+  const [isPressed, setIsPressed] = useState(false);
 
   const [travelInfo, setTravelInfo] = useState({
     itinerary: '',
@@ -73,7 +72,9 @@ const Home = () => {
           </View>
           <Text style={styles.subtitle}>계획부터 정산까지, 한번에 해결하세요</Text>
         </View>
-        <TouchableOpacity style={styles.profileButton}>
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => navigation.navigate('TravelCreate')} >
           <Text style={styles.profileButtonText}>여행만들기</Text>
         </TouchableOpacity>
       </View>
@@ -119,8 +120,15 @@ const Home = () => {
               width={78}
             />
           </View>
-          <TouchableOpacity style={styles.aiLastButton}><Text style={styles.aiLastButtonText}>AI 계획 확인하기</Text></TouchableOpacity>
-        </View>
+          <BorderWhiteButton
+            isPressed={isPressed}
+            onPressIn={() => setIsPressed(true)}  // 버튼이 눌렸을 때
+            onPressOut={() => setIsPressed(false)} // 버튼에서 손을 뗄 때
+            onPress={() => console.log('Button Pressed')} // 버튼 클릭 시 동작
+          >
+            AI 계획 확인하기
+          </BorderWhiteButton>
+          </View>
       </View>
 
       {/* 여행 기록 */}
@@ -187,7 +195,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   aiPlanTitle: { fontSize: 16, fontFamily: theme.fonts.extrabold, color: 'white', marginBottom: 10 },
-  buttonGroup: { flexDirection: 'row' },
+  buttonGroup: { flexDirection: 'row',justifyContent: 'space-between', },
   aiButtonGroup: { flexDirection: 'row' }, 
   aiButton: {
     width:89,
