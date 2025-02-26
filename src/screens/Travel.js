@@ -5,6 +5,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import TravelOngoing from './TravelOngoing';
 import TravelCompleted from './TravelCompleted';
 import LineTab from '../navigations/LineTab';
+import { Text } from 'react-native-gesture-handler';
 
 const Container = styled(SafeAreaView)`
   flex: 1;

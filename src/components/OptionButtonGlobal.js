@@ -3,7 +3,7 @@ import { Image, TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 
 
 // GeneralOptionButton: 개별 옵션 버튼 컴포넌트
-const GeneralOptionButton = ({ text, OptionImage, onPress, isSelected }) => {
+const GeneralOptionButton = ({ text, OptionImage, onPress, style,isSelected }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -21,22 +21,20 @@ const GeneralOptionButton = ({ text, OptionImage, onPress, isSelected }) => {
 
 const styles = StyleSheet.create({
   optionButtonWrapper: {
-    flexDirection: 'row',
-    gap: 8,
+    flexDirection: 'row'
   },
   container: {
     width: 86,
-    height: 38,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight:10
+    marginRight:10,
   },
   defaultContainer: {
     backgroundColor: '#EEEEEE',
   },
   selectedContainer: {
-    backgroundColor: '#1D1D1F',
+    backgroundColor: '#1D1D1F'
   },
   image: {
     width: 14,
