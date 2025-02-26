@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { ImgSlide, OpenToggle, PlusButton, ProfileImgDump } from "../components";
+import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump } from "../components";
 import { GeneralOptionButton } from "../components";
 import { theme } from '../theme';
 import image1 from "../assets/slides/image1.png";
@@ -27,6 +27,12 @@ const TravelOngoing = () => {
 
   
   const expenditures = [
+    {
+      title: "강릉까지 택시",
+      category: "교통",
+      cost: "12,800원",
+      date: "12.22 14:29",
+    },
     {
       title: "강릉까지 택시",
       category: "교통",
@@ -125,8 +131,11 @@ const TravelOngoing = () => {
               </View>
             </View>
           ))}
+          
         </ScrollView>
+        <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0}/></View>
       </View>
+     
     </ScrollView>
   );
 };
@@ -216,7 +225,10 @@ const styles = StyleSheet.create({
   },
   expenditure: {
     marginTop: 20,
-    alignItems: 'center', justifyContent: 'center'
+    alignItems: 'center', justifyContent: 'center',
+    
+    paddingBottom:50,
+   position:"relative"
   },
   expenditureHeader:{
     flexDirection: "row",
@@ -281,6 +293,10 @@ const styles = StyleSheet.create({
   },
   imgSlide: {
     marginTop: 20,
+  },
+  blackButtonText: {
+    position: "absolute",
+    bottom: 0,
   },
 });
 
