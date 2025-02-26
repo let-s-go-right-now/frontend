@@ -131,11 +131,9 @@ const TravelOngoing = () => {
               </View>
             </View>
           ))}
-          
         </ScrollView>
         <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0}/></View>
       </View>
-     
     </ScrollView>
   );
 };
@@ -149,7 +147,9 @@ const styles = StyleSheet.create({
     marginTop: 30,
     flex: 1,
     paddingHorizontal: 10,
-    backgroundColor:'#FBFBFB'
+    backgroundColor:'#FBFBFB',
+
+    position:'relative'
   },
   optionsScrollContainer: {
     width: 200,
