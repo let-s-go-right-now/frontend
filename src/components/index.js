@@ -15,4 +15,6 @@ import AiButton from "./AiButton";
 import TravelCard from "./TravelCard";
 import BorderWhiteButton from "./BorderWhiteButton";
 import {GeneralOptionButton} from './OptionButtonGlobal';
-export {GeneralOptionButton,BorderWhiteButton,TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide };
+import ProfileImgDump from "./ProfileImgDump";
+import OpenToggle from "./OpenToggle";
+export {OpenToggle,ProfileImgDump,GeneralOptionButton,BorderWhiteButton,TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide };

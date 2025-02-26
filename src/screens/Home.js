@@ -152,7 +152,8 @@ const Home = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, 
+    backgroundColor:'#FBFBFB' },
 
   // 상단 컴포넌트
   header: {

@@ -26,7 +26,7 @@ const ImgSlide = ({ images, itemsToShow, scale = 100 }) => {
     );
 
     return (
-        <View style={{ height:imageSize}}>
+        <View style={{ height:imageSize, marginLeft:8, marginRight:8}}>
             <FlatList
                 data={images}
                 renderItem={renderItem}

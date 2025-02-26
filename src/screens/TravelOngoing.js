@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { ImgSlide, PlusButton } from "../components";
+import { ImgSlide, OpenToggle, PlusButton, ProfileImgDump } from "../components";
 import { GeneralOptionButton } from "../components";
 import { theme } from '../theme';
 import image1 from "../assets/slides/image1.png";
@@ -13,7 +13,7 @@ import image6 from "../assets/slides/image6.png";
 const TravelOngoing = () => {
   const [images] = useState([image1, image2, image3, image4, image5, image6]);
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
-  const [scale] = useState(100);
+  const [scale] = useState(94);
 
   const options = [
     { id: 1, text: "강릉뿌시기" },
@@ -25,6 +25,7 @@ const TravelOngoing = () => {
 
   const [selectedId, setSelectedId] = useState(1);
 
+  
   const expenditures = [
     {
       title: "강릉까지 택시",
@@ -45,6 +46,12 @@ const TravelOngoing = () => {
       date: "12.22 14:29",
     },
   ];
+
+
+  //최신순
+  const [selectedSort, setSelectedSort] = useState("최신순");
+
+  const sortOptions = ["최신순", "오래된순", "적은지출", "많은지출"];
 
   return (
     <ScrollView style={styles.container}>
@@ -80,7 +87,7 @@ const TravelOngoing = () => {
         </View>
         <View style={styles.row}>
           <View style={styles.profileImageContainer}>
-            <Text>프로필 이미지 뭉침 컴포넌트</Text>
+            <ProfileImgDump/>
           </View>
           <TouchableOpacity onPress={() => {}} style={styles.manageButton}>
             <Text style={styles.manageButtonText}>관리하기</Text>
@@ -91,27 +98,31 @@ const TravelOngoing = () => {
 
       {/* 지출 정보 */}
       <View style={styles.expenditure}>
-        <View style={styles.row}>
+        <View style={styles.expenditureHeader}>
           <View style={styles.expenditureInfo}>
             <Text style={styles.expenditureLabel}>현재 지출</Text>
             <Text style={styles.expenditureAmount}>| 22만원</Text>
           </View>
-          <TouchableOpacity onPress={() => {}} style={styles.sortButton}>
-            <Text style={styles.sortButtonText}>최신순</Text>
-          </TouchableOpacity>
+          <OpenToggle
+            options={sortOptions}
+            defaultOption={selectedSort}
+            onSelect={(option) => setSelectedSort(option)}
+          />
         </View>
-        <TouchableOpacity onPress={() => {}} style={styles.addExpenditureButton}>
-          <Text style={styles.addExpenditureButtonText}>지출기록 추가하기</Text>
-        </TouchableOpacity>
+        <PlusButton onPress={() => {}} text="지출기록 추가하기" width={358} height={42}/>
 
         {/* 지출 내역 */}
         <ScrollView style={styles.expenditureDetails}>
           {expenditures.map((item, index) => (
             <View key={index} style={styles.expenditureItem}>
-              <Text style={styles.expenditureTitle}>{item.title}</Text>
-              <Text style={styles.expenditureCategory}>{item.category}</Text>
-              <Text style={styles.expenditureCost}>{item.cost}</Text>
-              <Text style={styles.expenditureDate}>{item.date}</Text>
+              <View style={styles.row}>
+                <Text style={styles.expenditureTitle}>{item.title}</Text>
+                <Text style={styles.expenditureCategory}>{item.category}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.expenditureCost}>{item.cost}</Text>
+                <Text style={styles.expenditureDate}>{item.date}</Text>
+              </View>
             </View>
           ))}
         </ScrollView>
@@ -129,6 +140,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     flex: 1,
     paddingHorizontal: 10,
+    backgroundColor:'#FBFBFB'
   },
   optionsScrollContainer: {
     width: 200,
@@ -186,12 +198,14 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     marginBottom: 20,
+    marginLeft:8,
+    marginRight:8
   },
   manageButton: {
     color: "#838383",
     fontWeight: "medium",
     fontSize: 15,
-    marginBottom: 20,
+    marginBottom: 15,
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
@@ -202,10 +216,19 @@ const styles = StyleSheet.create({
   },
   expenditure: {
     marginTop: 20,
+    alignItems: 'center', justifyContent: 'center'
+  },
+  expenditureHeader:{
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginLeft:8,
+    marginRight:8,
+    marginBottom:10,
   },
   expenditureInfo: {
     flexDirection: "row",
     marginBottom: 10,
+    width:320,
   },
   expenditureLabel: {
     fontWeight: "bold",
@@ -225,23 +248,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1D1D1F",
   },
-  addExpenditureButton: {
-    backgroundColor: "#FFFFFF",
-    marginTop: 10,
-    marginBottom: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  addExpenditureButtonText: {
-    color: "#1D1D1F",
-    fontWeight: "medium",
-    fontSize: 14,
-  },
   expenditureDetails: {
     marginTop: 10,
   },
   expenditureItem: {
     backgroundColor: "#FFFFFF",
+    width:362,
     padding: 10,
     marginBottom: 10,
   },
@@ -254,6 +266,7 @@ const styles = StyleSheet.create({
     fontFamily: "SUIT-SemiBold",
     fontSize: 15,
     color: "#838383",
+    marginRight:5,
   },
   expenditureCost: {
     fontFamily: "SUIT-SemiBold",
@@ -264,6 +277,7 @@ const styles = StyleSheet.create({
     fontFamily: "SUIT-SemiBold",
     fontSize: 12,
     color: "#AAAAAA",
+    marginRight:5,
   },
   imgSlide: {
     marginTop: 20,
