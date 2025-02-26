@@ -116,6 +116,7 @@ const Mypage = ({ navigation }) => {
 
 	const width = Dimensions.get('window').width;
 	
+
 	const PostList= [
 		{
 			id: 1,
@@ -208,23 +209,22 @@ const Mypage = ({ navigation }) => {
 	]
 	
     return (
-		<View style={{flex: 1, backgroundColor: '#FFFFFF', width: '100%'}} >
+		<View style={{flex: 1, backgroundColor: '#FFFFFF', width: '100%'}}>
 			<MypageWrapper>
 				<Top>
 					<Profile>
 						<ProfileImg source={imageUri ? {uri: imageUri} : DefaultImg}/>
 						<Name>{name}</Name>
 					</Profile>
-					<TouchableOpacity onPress={() => navigation.navigate('Mypage2')}>
-						<GrayButton 
-							text="프로필 관리"
-							width={86}
-							height={31}
-							fontSize={15}
-							fontColor="#838383"
-							bgColor="#FBFBFB"
-						/>
-					</TouchableOpacity>
+					<GrayButton 
+						text="프로필 관리"
+						width={86}
+						height={31}
+						fontSize={15}
+						fontColor="#838383"
+						bgColor="#FBFBFB"
+						onPress={() => navigation.navigate('Mypage2')}
+					/>
 				</Top>
 				<Header>좋아요 한 목록</Header>
 				<PostWrapper>

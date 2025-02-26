@@ -35,6 +35,8 @@ const StackNavigator = ({ ScreenList }) => {
         <Stack.Navigator 
             screenOptions={({navigation, route}) => {
                 const darkMode = ScreenList.find(screen => screen.name === route.name)?.options?.mode === 'dark';
+                const tabBarVisible = ScreenList.find(screen => screen.name === route.name)?.options?.tabBarVisible;
+
                 return {
                     headerStyle: {
                         height: 36,
@@ -64,7 +66,10 @@ const StackNavigator = ({ ScreenList }) => {
                                 style={{width: 26, heihgt: 26, marginRight: 18}}
                             />
                         </TouchableOpacity>
-                    )
+                    ),
+                    tabBarVisible: {
+                        display: tabBarVisible === false ? 'none' : 'flex',
+                    }
                 }
             }}
         >
