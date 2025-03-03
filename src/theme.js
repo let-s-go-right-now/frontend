@@ -20,6 +20,7 @@ export const theme = {
         regular: 'SUIT-Regular',
         bold: 'SUIT-Bold',
         medium: 'SUIT-Medium',
+        extrabold:'SUIT-ExtraBold',
     },
     background: colors.white,
     text: colors.black,

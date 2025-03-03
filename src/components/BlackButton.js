@@ -1,47 +1,55 @@
-import React from 'react';
-import styled from 'styled-components/native';
+import React, { useState } from 'react';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
-import { TouchableOpacity } from 'react-native';
 
-const Container = styled(TouchableOpacity)`
-    background-color: ${({ready}) => ready ? 'rgba(29, 29, 31, 1)' : 'rgba(29, 29, 31, 0.2)'};
-    height: 50px;
-    width: ${(props) => props.width}px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row; 
-    gap: 4px;
-`
+const BlackButton = ({ text, width, image, onPress, style, ready = true }) => {
+    const [isPressed, setIsPressed] = useState(false); // 눌렸는지 상태 관리
 
-const Title = styled.Text`
-    font-size: 17px;
-    color: #FFFFFF;
-    font-family: 'SUIT-Bold';
-    line-height: 23.8px;
-`
-
-const SteyldImage = styled.Image`
-    height: 18px;
-    width: 18px;
-    margin-right: 4px;
-`
-
-const BlackButton = ({ text, width, image, onPress, ready = true, style }) => {
     return (
-        <Container width={width} onPress={onPress} ready={ready} style={[style]}>
-            {image && <SteyldImage source={image}/>}
-            <Title>{text}</Title>
-        </Container>
-    )
-}
+        <TouchableOpacity
+            style={[styles.container, { width }, isPressed && styles.pressed, style]} // 스타일 적용
+            onPress={onPress}
+            onPressIn={() => setIsPressed(true)}  // 버튼 눌렸을 때
+            onPressOut={() => setIsPressed(false)} // 버튼에서 손 뗄 때
+        >
+            {image && <Image style={styles.image} source={image}/>}
+            <Text style={styles.title}>{text}</Text>
+        </TouchableOpacity>
+    );
+};
 
 BlackButton.propTypes = {
     text: PropTypes.string.isRequired,
     width: PropTypes.number.isRequired,
-    image: PropTypes.string,
+    image: PropTypes.node,
     onPress: PropTypes.func,
-    ready: PropTypes.bool,
-}
+    style: PropTypes.object,
+};
 
-export default BlackButton
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: ${({ready}) => ready ? 'rgba(29, 29, 31, 1)' : 'rgba(29, 29, 31, 0.2)'};
+        height: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        gap: 4,
+    },
+    pressed: {
+        backgroundColor: 'rgba(29, 29, 31, 0.1)',  // 눌렸을 때 배경색 변화
+    },
+    title: {
+        fontSize: 17,
+        color: '#FFFFFF',
+        fontFamily: 'SUIT-Bold',
+        lineHeight: 23.8,
+    },
+    image: {
+        height: 18,
+        width: 18,
+        marginRight: 4,
+    }
+});
+
+export default BlackButton;

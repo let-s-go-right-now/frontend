@@ -34,8 +34,9 @@ const CustomBottomSheet = ({ children, onSheetChange, snapPoints, isOpen }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: 'grey',
+    ...StyleSheet.absoluteFillObject, // 화면 전체 덮기
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 배경 추가
+    justifyContent: 'flex-end', // 바텀시트가 아래쪽에 오도록 설정
   },
   contentContainer: {
     flex: 1,
