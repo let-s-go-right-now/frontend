@@ -2,10 +2,16 @@ import React, { useState } from 'react';
 import { Image, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
-const OptionButtonWarpper = styled.View`
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
+const OptionButtonWarpper = styled.ScrollView.attrs(() => ({
+    horizontal: true,
+    contentContainerStyle: {
+        flexDirection: 'row',
+        gap: 8,
+        paddingHorizontal: 0,
+    },
+}))`
+    flex: 1;
+    margin: 0 auto;
 `
 
 const Container = styled(TouchableOpacity)`

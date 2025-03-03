@@ -4,6 +4,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import {Home, Travel, Mypage} from '../screens';
 import HomeStack from './HomeStack';
 import { theme } from "../theme";
+import MypageStack from './MypageStack';
 
 const Tab = createBottomTabNavigator();
 
