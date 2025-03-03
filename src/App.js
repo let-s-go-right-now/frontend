@@ -4,13 +4,13 @@ import { StatusBar } from 'react-native';
 import { NavigationContainer } from "@react-navigation/native"; 
 import Navigation from './navigations';
 import {theme} from "./theme";
-
+import { Report } from "./screens";
 const App = () => {
     return (
         <ThemeProvider theme={theme}>
           <NavigationContainer>
             <StatusBar barStyle="dark-content" />
-            <Navigation />
+            <Report />
           </NavigationContainer>
         </ThemeProvider>
     );
