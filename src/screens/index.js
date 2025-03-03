@@ -5,5 +5,7 @@ import Login from './Login';
 import Home from './Home';
 import Mypage from './Mypage';
 import Travel from './Travel';
+import TravelCreate from './TravelCreate';
+import TravelInvite from './TravelInvite';
 
-export {Main, Signup1, Signup2, Login, Home, Mypage, Travel};
+export {TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Travel};

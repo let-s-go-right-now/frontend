@@ -1,50 +1,60 @@
-import React, { useState } from "react";
-import { ScrollView  } from "react-native";
-import styled from "styled-components/native";
+import React from "react";
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
-const LineTabWrapper = styled.View`
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-`
-const ContainerWrapper = styled.View`
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-`
-
-const Container = styled.TouchableOpacity`
-    border-bottom-width: ${({isSelected}) => (isSelected ? '2px' : '0px')};
-    border-bottom-color: "363638";
-    height: 28px;
-`
-
-const Title = styled.Text`
-    font-family: ${({isSelected}) => (isSelected ? "SUIT-Bold" : "SUIT-SemiBold")};
-    color: ${({isSelected}) => (isSelected ? '#363638' : 'rgba(0, 0, 0, 0.2)')};
-    font-size: 17px;
-`
-
-const LineTab = ({ tabs }) => {
-    const [selected, setSelected] = useState(tabs[0]);
-
-    return (
-        <LineTabWrapper>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <ContainerWrapper>
-                    {tabs.map((text, index) => (
-                        <Container
-                            key={index}
-                            onPress={() => setSelected(text)}
-                            isSelected={selected === text}
-                        >
-                            <Title isSelected={selected === text}>{text}</Title>
-                        </Container>
-                    ))}                    
-                </ContainerWrapper>
-            </ScrollView>
-        </LineTabWrapper>
-    );
+const LineTab = ({ tabs, selectedTab, onSelect }) => {
+  return (
+    <View style={styles.lineTabWrapper}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={styles.containerWrapper}>
+          {tabs.map((text, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => onSelect(text)} // 부모 상태 업데이트
+              style={[
+                styles.container,
+                selectedTab === text && styles.selectedContainer,
+              ]}
+            >
+              <Text style={[styles.title, selectedTab === text && styles.selectedTitle]}>
+                {text}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
 };
+
+const styles = StyleSheet.create({
+  lineTabWrapper: {
+    height: 30,    
+    width:380,
+    borderBottomWidth:1,
+    borderBottomColor:'#F4F4F4',
+  },
+  containerWrapper: {
+    flexDirection: "row",
+    paddingLeft:10,
+    gap: 20,
+  },
+  container: {
+    height: 28,
+    justifyContent: "center",
+  },
+  selectedContainer: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#363638",
+  },
+  title: {
+    fontFamily: "SUIT-SemiBold",
+    color: "rgba(0, 0, 0, 0.2)",
+    fontSize: 17,
+  },
+  selectedTitle: {
+    fontFamily: "SUIT-Bold",
+    color: "#363638",
+  },
+});
 
 export default LineTab;

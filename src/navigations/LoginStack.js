@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Main } from '../screens';
+import { Main } from '../screens';  //splash
 import { Signup1 } from '../screens';
 import { Signup2 } from '../screens';
 import { Login } from '../screens';

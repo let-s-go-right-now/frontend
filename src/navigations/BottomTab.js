@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import {Home, Travel, Mypage} from '../screens';
+import HomeStack from './HomeStack';
 import { theme } from "../theme";
 
 const Tab = createBottomTabNavigator();
@@ -19,7 +20,7 @@ const TabIcon = ({ source, size }) => {
 const BottomTab = () => {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="HomeStack"
       screenOptions={{
         tabBarActiveTintColor: '#000000',
         tabBarInactiveTintColor: '#1D1D1F',
@@ -31,11 +32,12 @@ const BottomTab = () => {
           paddingTop: 5,
         },
       }}
+      
     >
       <Tab.Screen
-        name="Home"
-        component={Home}
-        options={{
+        name="HomeStack"
+        component={HomeStack}
+        options={{ headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
               source={
@@ -79,7 +81,7 @@ const BottomTab = () => {
       <Tab.Screen
         name="Travel"
         component={Travel}
-        options={{
+        options={{ headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
               source={
@@ -123,7 +125,7 @@ const BottomTab = () => {
       <Tab.Screen
         name="Mypage"
         component={Mypage}
-        options={{
+        options={{ headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
               source={
