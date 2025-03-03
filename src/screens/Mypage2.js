@@ -136,7 +136,7 @@ const Mypage2 = ({ navigation }) => {
     const [bank, setBank] = useState('국민은행');
     const [accountNumber, setAccountNumber] = useState('123-45A-678901');
     const [isOpen, setIsOpen] = useState(false);
-    const snapPoints = ['100%'];
+    const snapPoints = ['40%'];
     const [topComponentWidth, setTopComponentWidth] = useState(0);
     const [bottom, setBottom] = useState('option');
 

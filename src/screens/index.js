@@ -4,10 +4,12 @@ import Signup2 from './Signup2';
 import Login from './Login';
 import Home from './Home';
 import Mypage from './Mypage';
+import TravelCreate from './travel/TravelCreate';
+import TravelInvite from './travel/TravelInvite';
+import TravelOngoing from './travel/TravelOngoing';
+import TravelCompleted from './travel/TravelCompleted';
+import CompletedDetail from './travel/CompletedDetail';
 import Mypage2 from './Mypage2';
-import Travel from './Travel';
-import TravelCreate from './TravelCreate';
-import TravelInvite from './TravelInvite';
 import Report from './Report';
 
-export {TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Travel, Report};
+export {TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report};

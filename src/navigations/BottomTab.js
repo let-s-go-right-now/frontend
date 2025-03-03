@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
-import {Home, Travel, Mypage} from '../screens';
+import { Mypage} from '../screens';
 import HomeStack from './HomeStack';
-import { theme } from "../theme";
+import TravelTab from './TravelTab';
 import MypageStack from './MypageStack';
 
 const Tab = createBottomTabNavigator();
@@ -80,8 +80,8 @@ const BottomTab = () => {
         }}
       />
       <Tab.Screen
-        name="Travel"
-        component={Travel}
+        name="TravelTab"
+        component={TravelTab}
         options={{ headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
@@ -124,8 +124,8 @@ const BottomTab = () => {
         }}
       />
       <Tab.Screen
-        name="Mypage"
-        component={Mypage}
+        name="MypageStack"
+        component={MypageStack}
         options={{ headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
