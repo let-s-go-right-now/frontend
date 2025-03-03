@@ -67,7 +67,7 @@ const BarChartComponent = () => {
     return (
         <ChartWrapper horizontal={true}>
         {barData.map((data) => (
-            <Container>
+            <Container key={data.id}>
                 <Chart height={data.height}></Chart>
                 <Label>{data.label}</Label>
                 <Value>{data.value}</Value>
