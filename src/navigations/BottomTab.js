@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import {Home, Travel, Mypage} from '../screens';
 import HomeStack from './HomeStack';
-import { theme } from "../theme";
+import TravelTab from './TravelTab';
 
 const Tab = createBottomTabNavigator();
 
@@ -79,8 +79,8 @@ const BottomTab = () => {
         }}
       />
       <Tab.Screen
-        name="Travel"
-        component={Travel}
+        name="TravelTab"
+        component={TravelTab}
         options={{ headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon

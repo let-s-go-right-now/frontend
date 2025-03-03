@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button } from "react-native";
+import React, { useState, useCallback, useRef,  } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
 import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton } from "../components"; // 두 번째 임포트 제거
 import { theme } from '../theme';
 import image1 from "../assets/slides/image1.png";
@@ -85,7 +85,8 @@ const TravelOngoing = ({navigation}) => {
   //새여행 떠나기 함수
   const handleCreateTravel = () => {
     // 여행 만들기 버튼 클릭 시 TravelInvite 화면으로 이동
-    navigation.navigate('TravelInvite');
+    navigation.navigate('TravelCreate');
+    //Alert.alert('Navigation Object', JSON.stringify(navigation));
 };
 
 
@@ -185,12 +186,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   container: {
-    marginTop: 30,
     flex: 1,
     paddingHorizontal: 10,
     backgroundColor:'#FBFBFB',
-
-    position:'relative'
+    paddingTop:20,
+    position:'relative',
+    borderTopColor:'#F4F4F4',
+    borderTopWidth:2,
   },
   optionsScrollContainer: {
     width: 200,
@@ -336,10 +338,7 @@ const styles = StyleSheet.create({
   imgSlide: {
     marginTop: 20,
   },
-  blackButtonText: {
-    position: "absolute",
-    bottom: 0,
-  },
+
   bottomSheetContent: {
     alignItems: 'center',
     justifyContent: 'center',
