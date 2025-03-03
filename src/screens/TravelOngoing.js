@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump } from "../components";
-import { GeneralOptionButton } from "../components";
+import React, { useState, useCallback, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button } from "react-native";
+import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton } from "../components"; // 두 번째 임포트 제거
 import { theme } from '../theme';
 import image1 from "../assets/slides/image1.png";
 import image2 from "../assets/slides/image2.png";
@@ -10,7 +9,7 @@ import image4 from "../assets/slides/image4.png";
 import image5 from "../assets/slides/image5.png";
 import image6 from "../assets/slides/image6.png";
 
-const TravelOngoing = () => {
+const TravelOngoing = ({navigation}) => {
   const [images] = useState([image1, image2, image3, image4, image5, image6]);
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
@@ -59,7 +58,39 @@ const TravelOngoing = () => {
 
   const sortOptions = ["최신순", "오래된순", "적은지출", "많은지출"];
 
+  //바텀시트
+  const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
+  const [topComponentWidth, setTopComponentWidth] = useState(0); // 상단 컴포넌트의 너비 상태
+  const bottomSheetRef = useRef(null); 
+  const snapPoints = ['35%']; // 첫번째 요소는 가장 처음 보이는 높이, 나머지는 스와이프하면 늘어나는 정도
+
+  const handleSheetChanges = useCallback((index) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  const openBottomSheet = () => {
+    setIsOpen(!isOpen);
+    bottomSheetRef.current?.expand();
+  };
+
+  // 상단 컴포넌트의 크기를 측정
+  const onLayout = (event) => {
+    const { width } = event.nativeEvent.layout;
+    setTopComponentWidth(width); // 상단 컴포넌트의 너비 상태 업데이트
+  };
+  const closeBottomSheet = () => {
+    setIsOpen(false);
+  };
+
+  //새여행 떠나기 함수
+  const handleCreateTravel = () => {
+    // 여행 만들기 버튼 클릭 시 TravelInvite 화면으로 이동
+    navigation.navigate('TravelInvite');
+};
+
+
   return (
+    <>
     <ScrollView style={styles.container}>
       {/* 옵션 목록 */}
       <View style={styles.optionsContainer}>
@@ -76,7 +107,7 @@ const TravelOngoing = () => {
           ))}
         </ScrollView>
         {/* 새 여행 떠나기 버튼 */}
-        <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={() => {}} style={styles.plusButton} />
+        <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusButton} />
       </View>
 
       {/* 여행 상세 정보 */}
@@ -132,9 +163,19 @@ const TravelOngoing = () => {
             </View>
           ))}
         </ScrollView>
-        <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0}/></View>
+        <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0} onPress={openBottomSheet}/></View>
       </View>
     </ScrollView>
+    {isOpen ? (
+        <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
+          <View style={styles.bottomSheetContent}>
+            <Text style={styles.sheetText}>일정을 모두 마무리 하셨나요?</Text>
+            <Text style={styles.sheetText2}>더 이상 지출 기록을 추가할 수 없어요</Text>
+            <BlackButton text="여행 끝내고 지출리포트&정산결과 보기" width={343} height={50} onPress={openBottomSheet}/>
+          </View>
+        </CustomBottomSheet>
+      ) : null}
+          </>
   );
 };
 
@@ -196,14 +237,15 @@ const styles = StyleSheet.create({
   finishButton: {
     backgroundColor: "#1D1D1F",
     borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    alignItems: 'center', justifyContent: 'center',
+    width:89,
+    height:30,
   },
   finishButtonText: {
     color: "white",
     fontWeight: "medium",
     fontSize: 14,
+
   },
   profileImageContainer: {
     marginBottom: 20,
@@ -297,6 +339,22 @@ const styles = StyleSheet.create({
   blackButtonText: {
     position: "absolute",
     bottom: 0,
+  },
+  bottomSheetContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetText: {
+    fontSize: 19,
+    fontFamily: theme.fonts.extrabold,
+    marginBottom: 10,
+    color:'#1D1D1F',
+  },
+  sheetText2: {
+    fontSize: 16,
+    fontWeight: "medium",
+    marginBottom: 20,
+    color:'#838383',
   },
 });
 

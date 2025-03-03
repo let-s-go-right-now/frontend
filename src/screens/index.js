@@ -7,5 +7,5 @@ import Mypage from './Mypage';
 import Travel from './Travel';
 import TravelCreate from './TravelCreate';
 import TravelInvite from './TravelInvite';
-
-export {TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Travel};
+import TravelOngoing from './TravelOngoing';
+export {TravelOngoing, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Travel};
