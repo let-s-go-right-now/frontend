@@ -10,7 +10,7 @@ const GeneralOptionButton = ({ text, OptionImage, onPress, style,isSelected }) =
       style={[
         styles.container,
         isSelected ? styles.selectedContainer : styles.defaultContainer,
-        { paddingLeft: OptionImage ? 20 : 5 }, // 이미지 유무에 따른 padding 적용
+        { paddingLeft: OptionImage ? 20 : 0 }, // 이미지 유무에 따른 padding 적용
       ]}
     >
       {OptionImage && <Image source={OptionImage} style={styles.image} />}
@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
   image: {
     width: 14,
     height: 14,
-    marginRight: 3,
   },
   title: {
     fontSize: 14,
@@ -53,4 +52,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { GeneralOptionButton };
+export default GeneralOptionButton ;

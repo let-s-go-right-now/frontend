@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef,  } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
-import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList } from "../../components"; // 두 번째 임포트 제거
+import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList, OptionList } from "../../components"; // 두 번째 임포트 제거
 import { theme } from '../../theme';
 import image1 from "../../assets/slides/image1.png";
 import image2 from "../../assets/slides/image2.png";
@@ -8,6 +8,7 @@ import image3 from "../../assets/slides/image3.png";
 import image4 from "../../assets/slides/image4.png";
 import image5 from "../../assets/slides/image5.png";
 import image6 from "../../assets/slides/image6.png";
+import { FlatList } from 'react-native-gesture-handler';
 
 const TravelOngoing = ({navigation}) => {
   const [images] = useState([image1, image2, image3, image4, image5, image6]);
@@ -92,69 +93,67 @@ const TravelOngoing = ({navigation}) => {
 
   return (
     <>
-    <ScrollView style={styles.container}>
-      {/* 옵션 목록 */}
-      <View style={styles.optionsContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.optionsScrollContainer}>
-          {options.map((item) => (
-            <GeneralOptionButton
-              key={item.id}
-              text={item.text}
-              OptionImage={selectedId === item.id ? item.image_clicked : item.image}
-              onPress={() => setSelectedId(item.id)}
-              isSelected={selectedId === item.id}
-              style={styles.optionButton}
-            />
-          ))}
-        </ScrollView>
-        {/* 새 여행 떠나기 버튼 */}
-        <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusButton} />
-      </View>
+      <FlatList
+        style={styles.container}
+        ListHeaderComponent={
+          <>
+            {/* 옵션 목록 */}
+            <View style={styles.optionsContainer}>
+            <OptionList options={options} />
+              {/* 새 여행 떠나기 버튼 */}
+              <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusButton} />
+            </View>
 
-      {/* 여행 상세 정보 */}
-      <View style={styles.travelDetails}>
-        <View style={styles.travelInfo}>
-          <Text style={styles.travelTitle}>강릉뿌시기 <Text style={styles.travelLong}>2박 3일</Text></Text>
-          <Text style={styles.travelDate}>24.12.20</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.travelMemo}>강릉에서 겨울바다 보고 오기!</Text>
-          <TouchableOpacity onPress={() => {}} style={styles.finishButton}>
-            <Text style={styles.finishButtonText}>여행 끝내기</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.row}>
-          <View style={styles.profileImageContainer}>
-            <ProfileImgDump/>
-          </View>
-          <TouchableOpacity onPress={() => {}} style={styles.manageButton}>
-            <Text style={styles.manageButtonText}>관리하기</Text>
-          </TouchableOpacity>
-        </View>
-        <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} />
-      </View>
+            {/* 여행 상세 정보 */}
+            <View style={styles.travelDetails}>
+              <View style={styles.travelInfo}>
+                <Text style={styles.travelTitle}>강릉뿌시기 <Text style={styles.travelLong}>2박 3일</Text></Text>
+                <Text style={styles.travelDate}>24.12.20</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.travelMemo}>강릉에서 겨울바다 보고 오기!</Text>
+                <TouchableOpacity onPress={() => {}} style={styles.finishButton}>
+                  <Text style={styles.finishButtonText}>여행 끝내기</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.row}>
+                <View style={styles.profileImageContainer}>
+                  <ProfileImgDump />
+                </View>
+                <TouchableOpacity onPress={() => {}} style={styles.manageButton}>
+                  <Text style={styles.manageButtonText}>관리하기</Text>
+                </TouchableOpacity>
+              </View>
+              <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} />
+            </View>
 
-      {/* 지출 정보 */}
-      <View style={styles.expenditure}>
-        <View style={styles.expenditureHeader}>
-          <View style={styles.expenditureInfo}>
-            <Text style={styles.expenditureLabel}>현재 지출</Text>
-            <Text style={styles.expenditureAmount}>| 22만원</Text>
-          </View>
-          <OpenToggle
-            options={sortOptions}
-            defaultOption={selectedSort}
-            onSelect={(option) => setSelectedSort(option)}
-          />
-        </View>
-        <PlusButton onPress={() => {}} text="지출기록 추가하기" width={358} height={42}/>
-
-        {/* 지출 내역 */}
-        <ExpenditureList data={expenditures} />
-        {/* 지출 리포트 보러가기*/}
-        <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0} onPress={openBottomSheet}/></View>
-      </View>
-    </ScrollView>
+            {/* 지출 정보 */}
+            <View style={styles.expenditure}>
+              <View style={styles.expenditureHeader}>
+                <View style={styles.expenditureInfo}>
+                  <Text style={styles.expenditureLabel}>현재 지출</Text>
+                  <Text style={styles.expenditureAmount}>| 22만원</Text>
+                </View>
+                <OpenToggle
+                  options={sortOptions}
+                  defaultOption={selectedSort}
+                  onSelect={(option) => setSelectedSort(option)}
+                />
+              </View>
+                {/* 지출 내역 */}
+                
+              <PlusButton onPress={() => {}} text="지출기록 추가하기" width={358} height={42} />
+                <View style={styles.expenditureWrap}>
+                  <ExpenditureList data={expenditures} />
+                </View>
+                {/* 지출 리포트 보러가기*/}
+                <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0} onPress={openBottomSheet}/></View>
+            </View>
+          </>
+        }
+        data={expenditures}
+        keyExtractor={(item, index) => index.toString()}
+      />
     {/*바텀시트*/}
     {isOpen ? (
         <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
@@ -252,6 +251,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   manageButtonText: {
+    width:69,
+    height:31,
+    padding:6,
+    backgroundColor: '#F7F7F7',
     color: "#838383",
     fontWeight: "medium",
     fontSize: 15,

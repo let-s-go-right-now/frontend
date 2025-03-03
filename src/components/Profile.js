@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import LeaderBadge from '../assets/icons/user/leader_badge.png';
-import { Image, TouchableOpacity } from 'react-native';
+import { Alert, Image, TouchableOpacity } from 'react-native';
 
 const ProfileWrapper = styled(TouchableOpacity)`
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    opacity: ${({selected}) => (selected ? 1 : 0.2)};
+    opacity: ${({normal}) => (normal ? 1 : 0.2)};
 `
 
 const ProfileImage = styled(Image)`
@@ -48,21 +48,23 @@ const Profile = ({
     image,
     color,
     selected,
-    onPress
+    onPress,
+    normal = true  // 기본값을 true로 설정
 }) => {
     return (
-            <ProfileWrapper selected={selected} onPress={onPress}>
-                <ProfileImage 
-                    source={image} 
-                    selected={selected}
-                />
-                <Info>
-                    {sameName && <ColorBadge color={color}></ColorBadge>}
-                    <Name>{name}</Name>
-                    {leader && <Image source={LeaderBadge}/>}
-                </Info>
-            </ProfileWrapper>
+        <ProfileWrapper selected={selected} onPress={onPress} normal={normal}>
+            <ProfileImage 
+                source={image} 
+                selected={selected}
+                normal={normal}  // ProfileImage에 normal 전달
+            />
+            <Info>
+                {sameName && <ColorBadge color={color}></ColorBadge>}
+                <Name>{name}</Name>
+                {leader && <Image source={LeaderBadge}/>}
+            </Info>
+        </ProfileWrapper>
     )
 }
 
-export default Profile
+export default Profile;
