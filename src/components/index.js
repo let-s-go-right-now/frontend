@@ -11,5 +11,8 @@ import { OptionButton, CategoryOptionButton } from "./OptionButton";
 import { OptionButton2, TransportOptionButton } from "./OptionButton2";
 import Profile from "./Profile";
 import ProfileSlide from "./ProfileSlide";
+import PieChartComponent from "./PieChart";
+import MiniPieChart from "./MiniPieChart";
+import BarChartComponent from "./BarChart";
 
-export {ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, WhiteButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide };
+export {ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, WhiteButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide, PieChartComponent, MiniPieChart, BarChartComponent };

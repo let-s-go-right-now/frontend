@@ -12,7 +12,6 @@ const Container = styled(TouchableOpacity)`
     justify-content: center;
     flex-direction: row; 
     gap: 4px;
-    
 `
 
 const Title = styled.Text`
@@ -22,10 +21,16 @@ const Title = styled.Text`
     line-height: 23.8px;
 `
 
+const SteyldImage = styled.Image`
+    height: 18px;
+    width: 18px;
+    margin-right: 4px;
+`
+
 const BlackButton = ({ text, width, image, onPress, ready = true, style }) => {
     return (
         <Container width={width} onPress={onPress} ready={ready} style={[style]}>
-            {image && image}
+            {image && <SteyldImage source={image}/>}
             <Title>{text}</Title>
         </Container>
     )

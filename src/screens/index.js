@@ -6,5 +6,6 @@ import Home from './Home';
 import Mypage from './Mypage';
 import Mypage2 from './Mypage2';
 import Travel from './Travel';
+import Report from './Report';
 
-export {Main, Signup1, Signup2, Login, Home, Mypage, Mypage2, Travel};
+export {Main, Signup1, Signup2, Login, Home, Mypage, Mypage2, Travel, Report};

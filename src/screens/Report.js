@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { Text, View, Image } from 'react-native';
 import styled from 'styled-components/native';
-import CloseGray from '../assets/icons/user/close_gray.svg';
+import { CategoryOptionButton, PieChartComponent, MiniPieChart, BarChartComponent, BlackButton } from '../components';
+import CloseGray from '../assets/icons/user/close_gray.png';
 import MoneyDark from '../assets/icons/spending/money_dark.png';
 import MoneyLight from '../assets/icons/spending/money_light.png';
 import PersonDark from '../assets/icons/spending/person_dark.png';
 import PersonLight from '../assets/icons/spending/person_light.png';
-
+import Trophy from '../assets/icons/spending/trophy.png';
+import 이우경 from '../assets/icons/user/이우경.png';
+import spark from '../assets/icons/spending/spark.png';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Report = () => {
     const [mode, setMode] = useState('dark');
+    const [isMvp, setIsMvp] = useState(true);
+    const [mvpName, setMvpName] = useState('이우경');
 
     return (
         <ContainerWrapper>
@@ -17,7 +23,7 @@ const Report = () => {
                 <Header mode={mode}>
                     <HeaderTop>
                         <HeaderText mode={mode} fontSize={15}>지출리포트</HeaderText>
-                        <CloseGray style={{position: 'absolute', right: 16 }}/>                    
+                        <Image source={CloseGray} style={{position: 'absolute', right: 16, width: 24, height: 24}}/>                    
                     </HeaderTop>
                     <HeaderBottom>
                         <HeaderText mode={mode}>총 지출액</HeaderText>
@@ -33,17 +39,69 @@ const Report = () => {
                 </Header> 
             </Container1>
             <Container2>
-                <InfoWrapper >
-                    <Title>나의 총 지출액</Title>
-                    <Image source={MoneyLight}/>
-                        <Title>52만원</Title>
+                <InfoWrapper style={{marginTop: 27}}>
+                    <ExtraTitle style={{marginRight: 20}}>나의 총 지출액</ExtraTitle>
+                    <Image source={MoneyLight} style={{marginRight: 3}}/>
+                        <SemiTitle>52만원</SemiTitle>
                 </InfoWrapper>
-            </Container2>       
+                <ExtraTitle style={{marginTop: 44}}>교통에 가장 많이 썼어요</ExtraTitle>
+                <PieChartComponent />
+                <ExtraTitle>2일차에 가장 많이 썼어요</ExtraTitle>
+                <BarChartComponent />
+                <ExtraTitle style={{marginTop: 60, marginBottom: 24}}>멤버별 지출을 알려드려요</ExtraTitle>
+                <Option>
+                    <CategoryOptionButton style={{paddingRight: 64}}/>
+                    <LinearGradient
+                        start={{x:0, y:0}}
+                        end={{x:1, y:0}}
+                        colors={['rgba(209, 48, 48, 0)', 'rgba(255, 255, 255, 1)']}
+                        style={{
+                            width: 120,
+                            height: 44,
+                            position: 'absolute',
+                            right: 0,
+                        }}
+                    />                    
+                </Option>
+
+                <MiniPieChart/>
+                <MvpWrapper>
+                    { isMvp && (
+                        <>
+                            <InfoWrapper style={{marginRight: 'auto'}}>
+                                <ExtraTitle>지출 MVP</ExtraTitle>
+                                <Image source={Trophy} style={{}} />                                
+                            </InfoWrapper>
+                            <Profile source={이우경}/>
+                            <Name>{mvpName}</Name>
+                            <InfoWrapper>
+                                <MvpText>총</MvpText>
+                                <MvpText3> {58}만원 </MvpText3>
+                                <MvpText>지출</MvpText>
+                            </InfoWrapper>
+                            <InfoWrapper>
+                                <MvpText2>이번 여행에서 가장 많이 지출하셨어요</MvpText2>
+                                <SparkIcon source={spark}/>
+                            </InfoWrapper>
+                        </>                        
+                        )
+                    }
+                    <BlackButton
+                        text="금액 정산하기"
+                        width={343}
+                        style={{
+                            marginTop: 53,
+                            marginBottom: 10
+                        }}
+                        onPress={() => {}}
+                    />
+                </MvpWrapper>
+            </Container2>
         </ContainerWrapper>
     )
 }
 
-const ContainerWrapper = styled.View`
+const ContainerWrapper = styled.ScrollView`
     flex: 1;
     background-color: #FFFFFF;
 `
@@ -107,10 +165,65 @@ const Member = styled.Text`
     color: ${({mode}) => mode==='dark' ? '#AAAAAA' : '#838383'};
 `
 
-const Title = styled.Text`
+const ExtraTitle = styled.Text`
     color: #000000;
     font-size: 20px;
     font-family: 'SUIT-ExtraBold';
+`
+
+const SemiTitle = styled.Text`
+    color: #000000;
+    font-size: 20px;
+    font-family: 'SUIT-SemiBold';
+`
+
+const MvpWrapper = styled.View`
+    display: flex;
+    align-items: center;
+`
+
+const Profile = styled.Image`
+    height: 60px;
+    width: 60px;
+    border-radius: 30px;
+    margin: 48px 0 8px 0;
+`
+
+const Name = styled.Text`
+    font-family: 'SIUT-SemiBold';
+    color: #363638;
+    font-size: 15px;
+    margin-bottom: 20px;
+`
+
+const MvpText = styled.Text`
+    font-family: 'SIUT-SemiBold';
+    color: #363638;
+    font-size: 15px;
+    margin-bottom: 20px;
+`
+
+const MvpText2 = styled.Text`
+    font-family: 'SIUT-Medium';
+    color: #838383;
+    font-size: 15px;
+`
+
+const MvpText3 = styled.Text`
+    font-family: 'SUIT-ExtraBold';
+    color: #363638;
+    font-size: 15px;
+    margin-bottom: 20px;
+`
+
+const SparkIcon = styled.Image`
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+`
+
+const Option = styled.View`
+    position: relative;
 `
 
 export default Report
