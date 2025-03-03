@@ -11,8 +11,7 @@ import image6 from "../../assets/slides/image6.png";
 import { FlatList } from 'react-native-gesture-handler';
 import useTabBarVisibility from '../../navigations/userTabBarVisibility';
 
-const CompletedDetail = ({ route }) => {
-    const { id } = route.params;
+const CompletedDetail = ({ navigation }) => {
   const [images] = useState([image1, image2, image3, image4, image5, image6]);
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
@@ -65,35 +64,13 @@ useTabBarVisibility(false);
 
   //바텀시트
   const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
-  const [topComponentWidth, setTopComponentWidth] = useState(0); // 상단 컴포넌트의 너비 상태
   const bottomSheetRef = useRef(null); 
-  const snapPoints = ['35%']; // 첫번째 요소는 가장 처음 보이는 높이, 나머지는 스와이프하면 늘어나는 정도
-
-  const handleSheetChanges = useCallback((index) => {
-    console.log('handleSheetChanges', index);
-  }, []);
-
+ 
   const openBottomSheet = () => {
-    setIsOpen(!isOpen);
-    bottomSheetRef.current?.expand();
   };
-
-  // 상단 컴포넌트의 크기를 측정
-  const onLayout = (event) => {
-    const { width } = event.nativeEvent.layout;
-    setTopComponentWidth(width); // 상단 컴포넌트의 너비 상태 업데이트
+  const movePage= () => {
+    navigation.navigate("CompletedProfile")
   };
-  const closeBottomSheet = () => {
-    setIsOpen(false);
-  };
-
-  //새여행 떠나기 함수
-  const handleCreateTravel = () => {
-    // 여행 만들기 버튼 클릭 시 TravelInvite 화면으로 이동
-    route.navigation.navigate('TravelCreate');
-    //Alert.alert('Navigation Object', JSON.stringify(navigation));
-};
-
 
   return (
     <>
@@ -101,31 +78,23 @@ useTabBarVisibility(false);
         style={styles.container}
         ListHeaderComponent={
           <>
-            {/* 옵션 목록 */}
-            <View style={styles.optionsContainer}>
-            <OptionList options={options} />
-              {/* 새 여행 떠나기 버튼 */}
-              <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusButton} />
-            </View>
-
             {/* 여행 상세 정보 */}
             <View style={styles.travelDetails}>
               <View style={styles.travelInfo}>
-                <Text style={styles.travelTitle}>강릉뿌시기 <Text style={styles.travelLong}>2박 3일</Text></Text>
+                <View style={styles.leftInfo}>
+                  <Text style={styles.travelTitle}>강릉뿌시기 </Text><Text style={styles.travelLong}>2박 3일</Text>
+                </View>
                 <Text style={styles.travelDate}>24.12.20</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.travelMemo}>강릉에서 겨울바다 보고 오기!</Text>
-                <TouchableOpacity onPress={() => {}} style={styles.finishButton}>
-                  <Text style={styles.finishButtonText}>여행 끝내기</Text>
-                </TouchableOpacity>
               </View>
               <View style={styles.row}>
                 <View style={styles.profileImageContainer}>
                   <ProfileImgDump />
                 </View>
-                <TouchableOpacity onPress={() => {}} style={styles.manageButton}>
-                  <Text style={styles.manageButtonText}>관리하기</Text>
+                <TouchableOpacity onPress={movePage} style={styles.manageButton}>
+                  <Text style={styles.manageButtonText}>상세보기</Text>
                 </TouchableOpacity>
               </View>
               <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} />
@@ -145,8 +114,7 @@ useTabBarVisibility(false);
                 />
               </View>
                 {/* 지출 내역 */}
-                
-              <PlusButton onPress={() => {}} text="지출기록 추가하기" width={358} height={42} />
+            
                 <View style={styles.expenditureWrap}>
                   <ExpenditureList data={expenditures} />
                 </View>
@@ -158,16 +126,6 @@ useTabBarVisibility(false);
         data={expenditures}
         keyExtractor={(item, index) => index.toString()}
       />
-    {/*바텀시트*/}
-    {isOpen ? (
-        <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
-          <View style={styles.bottomSheetContent}>
-            <Text style={styles.sheetText}>일정을 모두 마무리 하셨나요?</Text>
-            <Text style={styles.sheetText2}>더 이상 지출 기록을 추가할 수 없어요</Text>
-            <BlackButton text="여행 끝내고 지출리포트&정산결과 보기" width={343} height={50} onPress={openBottomSheet}/>
-          </View>
-        </CustomBottomSheet>
-      ) : null}
           </>
   );
 };
@@ -184,8 +142,6 @@ const styles = StyleSheet.create({
     backgroundColor:'#FBFBFB',
     paddingTop:20,
     position:'relative',
-    borderTopColor:'#F4F4F4',
-    borderTopWidth:2,
   },
   optionsScrollContainer: {
     width: 200,
@@ -208,15 +164,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 10,
+    marginTop:-20,
+  },
+  leftInfo:{
+    flexDirection: "row",
   },
   travelTitle: {
     fontFamily: theme.fonts.extrabold,
     color: "#1D1D1F",
     fontSize: 22,
+    marginRight:10,
   },
   travelLong: {
     fontFamily: "SUIT-SemiBold",
     fontSize: 17,
+    marginTop:3,
   },
   travelDate: {
     fontFamily: "SUIT-SemiBold",
@@ -256,6 +218,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   manageButtonText: {
+    width:69,
+    height:31,
+    padding:6,
+    backgroundColor: '#F7F7F7',
     color: "#838383",
     fontWeight: "medium",
     fontSize: 15,

@@ -251,6 +251,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   manageButtonText: {
+    width:69,
+    height:31,
+    padding:6,
+    backgroundColor: '#F7F7F7',
     color: "#838383",
     fontWeight: "medium",
     fontSize: 15,
