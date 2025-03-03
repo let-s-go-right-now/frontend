@@ -3,6 +3,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import OngoingTravelStack from './OngoingTravelStack';
 import CompletedTravelStack from './CompletedTravelStack';
 import { theme } from '../theme';
+import { CompletedDetail } from '../screens';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -30,7 +31,8 @@ const TravelTab = () => {
   }}
 >
   <Tab.Screen name="진행 중" component={OngoingTravelStack} />
-  <Tab.Screen name="이전 여행" component={CompletedTravelStack} />
+  <Tab.Screen name="이전 여행" component={CompletedTravelStack}  />
+
 </Tab.Navigator>
 
   );

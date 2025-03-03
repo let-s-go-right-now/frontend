@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import ImgSlide from '../components/ImgSlide';
+import ImgSlide from '../ImgSlide';
 
 const TravelComponent = ({ data, navigation }) => {
     return (
