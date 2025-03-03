@@ -18,4 +18,6 @@ import {GeneralOptionButton} from './OptionButtonGlobal';
 import ProfileImgDump from "./ProfileImgDump";
 import OpenToggle from "./OpenToggle";
 import MyCalendar from "./MyCalendar";
-export {MyCalendar,OpenToggle,ProfileImgDump,GeneralOptionButton,BorderWhiteButton,TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide };
+import TravelComponent from "./TravelComponent";
+import ExpenditureList from "./Travel/ExpenditureList";
+export {ExpenditureList,TravelComponent,MyCalendar,OpenToggle,ProfileImgDump,GeneralOptionButton,BorderWhiteButton,TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide };

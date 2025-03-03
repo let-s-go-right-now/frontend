@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, ScrollView, Button } from 'react-native';
-import { CustomBottomSheet, MyCalendar, TwoButton } from '../components';
+import { CustomBottomSheet, MyCalendar, TwoButton } from '../../components';
 
 const TravelCreate = ({navigation}) => {
     const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
@@ -64,7 +64,7 @@ const TravelCreate = ({navigation}) => {
                             >
                                 {selectedDates ? 
                                 <Text style={styles.dateText}>{formatDate(selectedDates.startDate)}</Text> : <Text style={styles.datePlaceText}>출발 날짜를 선택하세요</Text>}
-                                <Image source={require('../assets/icons/calender-black.png')} style={styles.calendarIcon} />
+                                <Image source={require('../../assets/icons/calender-black.png')} style={styles.calendarIcon} />
                             </TouchableOpacity>
                         </View>
                         <View>
@@ -75,7 +75,7 @@ const TravelCreate = ({navigation}) => {
                             >
                                                                {selectedDates ? 
                                 <Text style={styles.dateText}>{formatDate(selectedDates.startDate)}</Text> : <Text style={styles.datePlaceText}>도착 날짜를 선택하세요</Text>}
-                                <Image source={require('../assets/icons/calender-black.png')} style={styles.calendarIcon} />
+                                <Image source={require('../../assets/icons/calender-black.png')} style={styles.calendarIcon} />
                             </TouchableOpacity>
                         </View>
                     </View>

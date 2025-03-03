@@ -1,6 +1,6 @@
 import React, { useState }  from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
-import {BlackButton, BigTwoButton} from '../components' // BlackButton 컴포넌트 경로에 맞게 수정하세요
+import {BlackButton, BigTwoButton} from '../../components' // BlackButton 컴포넌트 경로에 맞게 수정하세요
 
 const TravelInvite = () => {
     const [topComponentWidth, setTopComponentWidth] = useState(0); // 상단 컴포넌트의 너비 상태
@@ -23,8 +23,8 @@ const TravelInvite = () => {
             height="148px"  // 버튼 높이 설정
             textLeft="멤버초대하기"
             textRight="지출기록하기"
-            imageLeft={<Image source={require('../assets/icons/bigTwo-left.png')} style={{ width: 58, height: 53.5 }} />}
-            imageRight={<Image source={require('../assets/icons/bigTwo-right.png')} style={{ width: 50, height: 57 }} />}
+            imageLeft={<Image source={require('../../assets/icons/bigTwo-left.png')} style={{ width: 58, height: 53.5 }} />}
+            imageRight={<Image source={require('../../assets/icons/bigTwo-right.png')} style={{ width: 50, height: 57 }} />}
             bgColorLeft="#000000"
             bgColorRight="#ffffff"
             />

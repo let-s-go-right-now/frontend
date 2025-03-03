@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useRef,  } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
-import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton } from "../components"; // 두 번째 임포트 제거
-import { theme } from '../theme';
-import image1 from "../assets/slides/image1.png";
-import image2 from "../assets/slides/image2.png";
-import image3 from "../assets/slides/image3.png";
-import image4 from "../assets/slides/image4.png";
-import image5 from "../assets/slides/image5.png";
-import image6 from "../assets/slides/image6.png";
+import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList } from "../../components"; // 두 번째 임포트 제거
+import { theme } from '../../theme';
+import image1 from "../../assets/slides/image1.png";
+import image2 from "../../assets/slides/image2.png";
+import image3 from "../../assets/slides/image3.png";
+import image4 from "../../assets/slides/image4.png";
+import image5 from "../../assets/slides/image5.png";
+import image6 from "../../assets/slides/image6.png";
 
 const TravelOngoing = ({navigation}) => {
   const [images] = useState([image1, image2, image3, image4, image5, image6]);
@@ -150,23 +150,12 @@ const TravelOngoing = ({navigation}) => {
         <PlusButton onPress={() => {}} text="지출기록 추가하기" width={358} height={42}/>
 
         {/* 지출 내역 */}
-        <ScrollView style={styles.expenditureDetails}>
-          {expenditures.map((item, index) => (
-            <View key={index} style={styles.expenditureItem}>
-              <View style={styles.row}>
-                <Text style={styles.expenditureTitle}>{item.title}</Text>
-                <Text style={styles.expenditureCategory}>{item.category}</Text>
-              </View>
-              <View style={styles.row}>
-                <Text style={styles.expenditureCost}>{item.cost}</Text>
-                <Text style={styles.expenditureDate}>{item.date}</Text>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+        <ExpenditureList data={expenditures} />
+        {/* 지출 리포트 보러가기*/}
         <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0} onPress={openBottomSheet}/></View>
       </View>
     </ScrollView>
+    {/*바텀시트*/}
     {isOpen ? (
         <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
           <View style={styles.bottomSheetContent}>
