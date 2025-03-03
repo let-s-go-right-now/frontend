@@ -9,4 +9,7 @@ import TravelInvite from './travel/TravelInvite';
 import TravelOngoing from './travel/TravelOngoing';
 import TravelCompleted from './travel/TravelCompleted';
 import CompletedDetail from './travel/CompletedDetail';
-export {CompletedDetail,TravelOngoing, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage,TravelCompleted};
+import Mypage2 from './Mypage2';
+import Report from './Report';
+
+export {TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report};

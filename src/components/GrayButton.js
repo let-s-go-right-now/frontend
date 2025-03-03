@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import PropTypes from 'prop-types';
+import { TouchableOpacity } from 'react-native';
 
 const Container = styled.View`
   background-color: ${(props) => props.bgColor || '#EEEEEE'}; /* 기본 배경색은 #EEEEEE */
@@ -21,14 +22,14 @@ const Title = styled.Text`
   line-height: 23.8px;
 `;
 
-const GrayButton = ({ text, width, icon, bgColor, fontColor, fontSize, fontWeight, height }) => {
+const GrayButton = ({ text, width, icon, bgColor, fontColor, fontSize, fontWeight, height, onPress }) => {
   return (
-    <Container width={width} bgColor={bgColor} height={height}>
+    <TouchableOpacity width={width} bgColor={bgColor} height={height} onPress={onPress}>
       {icon && icon}
       <Title fontColor={fontColor} fontSize={fontSize} fontWeight={fontWeight}>
         {text}
       </Title>
-    </Container>
+    </TouchableOpacity>
   );
 };
 
@@ -41,6 +42,7 @@ GrayButton.propTypes = {
   fontSize: PropTypes.number, // 폰트 크기 (선택적, 기본 17px)
   fontWeight: PropTypes.string, // 폰트 두께 (선택적, 기본 bold)
   height: PropTypes.number, // 버튼 높이 (선택적, 기본 50px)
+  onPress: PropTypes.func,
 };
 
 export default GrayButton;

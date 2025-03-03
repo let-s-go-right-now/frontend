@@ -31,17 +31,17 @@ const Title = styled.Text`
   line-height: 23.8px;
 `;
 
-const TwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, bgColorLeft, bgColorRight }) => {
+const TwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, bgColorLeft, bgColorRight, onPressLeft, onPressRight }) => {
   const leftWidth = (width / 2) - 10;
   const rightWidth = (width / 2) - 10;
 
   return (
     <ButtonContainer width={width}>
-      <Button width={leftWidth} bgColor={bgColorLeft || '#1D1D1F'} height={height}>
+      <Button width={leftWidth} bgColor={bgColorLeft || '#1D1D1F'} height={height} onPress={onPressLeft}>
         {imageLeft && imageLeft}
         <Title color="#FFFFFF">{textLeft}</Title>
       </Button>
-      <Button width={rightWidth} bgColor={bgColorRight || '#FFFFFF'} height={height}>
+      <Button width={rightWidth} bgColor={bgColorRight || '#FFFFFF'} height={height} onPress={onPressRight}>
         {imageRight && imageRight}
         <Title color="#1D1D1F">{textRight}</Title>
       </Button>
@@ -58,6 +58,8 @@ TwoButton.propTypes = {
   imageRight: PropTypes.node,
   bgColorLeft: PropTypes.string,
   bgColorRight: PropTypes.string,
+  onPressLeft: PropTypes.func,
+  onPressRight: PropTypes.func,
 };
 
 export default TwoButton;
