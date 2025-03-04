@@ -12,5 +12,6 @@ import CompletedDetail from './travel/CompletedDetail';
 import Mypage2 from './Mypage2';
 import Report from './Report';
 import CompletedProfile from './travel/CompletedProfile';
+import TravelManage from './travel/TravelManage';
 
-export {CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report};
+export {TravelManage,CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report};

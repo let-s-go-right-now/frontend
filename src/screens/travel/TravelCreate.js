@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, ScrollView, Button } from 'react-native';
 import { CustomBottomSheet, MyCalendar, TwoButton } from '../../components';
+import {useTabBarVisibility} from '../../utils';
 
 const TravelCreate = ({navigation}) => {
     const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
@@ -12,6 +13,9 @@ const TravelCreate = ({navigation}) => {
         console.log('handleSheetChanges', index);
     }, []);
     
+    //tabbar 삭제
+useTabBarVisibility(false);
+
     const openBottomSheet = () => {
         setIsOpen(!isOpen);
         bottomSheetRef.current?.expand();
@@ -113,7 +117,6 @@ const styles = StyleSheet.create({
     inputWrapper: {
         flex: 1,
         justifyContent:'center',
-        backgroundColor: '#FBFBFB',
         borderRadius: 10,
         padding: 15,
         marginBottom: 20,
@@ -130,9 +133,12 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         backgroundColor: '#F8F8F8',
         flex: 1,
+        paddingLeft:15,
+        paddingTop:15,
+        margin:-15,
     },
     dateInput: {
-        width: 311,
+        width: 322,
         height: 50,
         backgroundColor: 'white',
         borderRadius: 5,

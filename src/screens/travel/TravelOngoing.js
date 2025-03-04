@@ -85,9 +85,12 @@ const TravelOngoing = ({navigation}) => {
 
   //새여행 떠나기 함수
   const handleCreateTravel = () => {
-    // 여행 만들기 버튼 클릭 시 TravelInvite 화면으로 이동
     navigation.navigate('TravelCreate');
-    //Alert.alert('Navigation Object', JSON.stringify(navigation));
+};
+
+  //여행 관리하기
+  const handleManageTravel = () => {
+    navigation.navigate('TravelManage');
 };
 
 
@@ -120,7 +123,7 @@ const TravelOngoing = ({navigation}) => {
                 <View style={styles.profileImageContainer}>
                   <ProfileImgDump />
                 </View>
-                <TouchableOpacity onPress={() => {}} style={styles.manageButton}>
+                <TouchableOpacity onPress={handleManageTravel} style={styles.manageButton}>
                   <Text style={styles.manageButtonText}>관리하기</Text>
                 </TouchableOpacity>
               </View>
