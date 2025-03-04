@@ -6,12 +6,15 @@ const ImgSlide = ({ images, itemsToShow, scale = 100 }) => {
     const baseSize = screenWidth / itemsToShow - 10; // 기본 크기에서 간격 고려
     const imageSize = (baseSize * scale) / 100; // 비율 적용하여 크기 조정
 
+    // marginRight 값 설정: itemsToShow가 2일 때만 10, 아니면 5
+    const getMarginRight = () => (itemsToShow === 2 ? 10 : 5);
+
     const renderItem = ({ item }) => (
         <View
             style={{
                 width: imageSize,
                 height: imageSize,
-                marginRight: 5, // 좌우 간격 유지
+                marginRight: getMarginRight(), // 조건에 맞는 marginRight 값 적용
             }}
         >
             <Image
@@ -26,7 +29,7 @@ const ImgSlide = ({ images, itemsToShow, scale = 100 }) => {
     );
 
     return (
-        <View style={{ height:imageSize, marginLeft:8, marginRight:8}}>
+        <View style={{ height: imageSize, marginLeft: 8, marginRight: 8 }}>
             <FlatList
                 data={images}
                 renderItem={renderItem}

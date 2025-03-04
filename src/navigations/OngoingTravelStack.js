@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import {TravelCreate,TravelManage,TravelOngoing } from '../screens';
+import {TravelCreate,TravelManage,TravelOngoing, WriteExpense } from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -39,6 +39,21 @@ const OngoingTravelStack = () => {
                 component={TravelManage}
                 options={{
                     title: "여행 관리하기", 
+                    headerTitleStyle: {
+                        fontSize: 15,  // 폰트 크기 15
+                        color: '#1D1D1F',  // 폰트 색상
+                        fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                    },
+                    headerStyle: {
+                        backgroundColor: 'white',  // 흰색으로 배경 설정
+                    },
+                }} 
+            />
+                        <Stack.Screen
+                name="WriteExpense"  //AI화면 연결
+                component={WriteExpense}
+                options={{
+                    title: "여행 지출 기록하기", 
                     headerTitleStyle: {
                         fontSize: 15,  // 폰트 크기 15
                         color: '#1D1D1F',  // 폰트 색상

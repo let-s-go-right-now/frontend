@@ -94,6 +94,11 @@ const TravelOngoing = ({navigation}) => {
 };
 
 
+  //지출기록하기
+  const handleWriteExpense = () => {
+    navigation.navigate('WriteExpense');
+};
+
   return (
     <>
       <FlatList
@@ -145,7 +150,7 @@ const TravelOngoing = ({navigation}) => {
               </View>
                 {/* 지출 내역 */}
                 
-              <PlusButton onPress={() => {}} text="지출기록 추가하기" width={358} height={42} />
+              <PlusButton onPress={handleWriteExpense} text="지출기록 추가하기" width={358} height={42} />
                 <View style={styles.expenditureWrap}>
                   <ExpenditureList data={expenditures} />
                 </View>
