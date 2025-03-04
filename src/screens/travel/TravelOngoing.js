@@ -9,6 +9,7 @@ import image4 from "../../assets/slides/image4.png";
 import image5 from "../../assets/slides/image5.png";
 import image6 from "../../assets/slides/image6.png";
 import { FlatList } from 'react-native-gesture-handler';
+import ReportStack from '../../navigations/ReportStack';
 
 const TravelOngoing = ({navigation}) => {
   const [images] = useState([image1, image2, image3, image4, image5, image6]);
