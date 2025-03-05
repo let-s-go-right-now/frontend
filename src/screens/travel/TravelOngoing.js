@@ -161,7 +161,7 @@ const TravelOngoing = ({navigation}) => {
           <View style={styles.bottomSheetContent}>
             <Text style={styles.sheetText}>일정을 모두 마무리 하셨나요?</Text>
             <Text style={styles.sheetText2}>더 이상 지출 기록을 추가할 수 없어요</Text>
-            <BlackButton text="여행 끝내고 지출리포트&정산결과 보기" width={343} height={50} onPress={openBottomSheet}/>
+            <BlackButton text="여행 끝내고 지출리포트&정산결과 보기" width={343} height={50} onPress={() => navigation.navigate('ReportStack')}/>
           </View>
         </CustomBottomSheet>
       ) : null}

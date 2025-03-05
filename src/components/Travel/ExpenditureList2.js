@@ -48,8 +48,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 10,
     gap: 9,
-    // borderColor: 'red',
-    // borderWidth: 1
   },
   row: {
     flexDirection: 'row',
