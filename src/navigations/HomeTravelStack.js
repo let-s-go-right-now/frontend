@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Image, TouchableOpacity } from 'react-native';
 import BackDark from '../assets/icons/ai/back_dark.png';
 import BackBright from '../assets/icons/ai/back_bright.png';
-import HeartEmpty from '../assets/icons/ai/heart_empty.png';
+import HeartEmpty from '../assets/icons/ai/heart_gray.png';
 import { Home, TravelCreate,TravelInvite, Mypage, AiRecommend, AiDetail } from '../screens';
 import BottomTab from './BottomTab';
 
@@ -14,7 +14,7 @@ const HomeTravelStack = () => {
         <Stack.Navigator 
             initialRouteName='Home'
             screenOptions={({ navigation, route }) => {
-                const darkMode = route.name === '마이페이지'; // 마이페이지 화면에서는 다크모드 적용
+                const darkMode = route.name === 'AiDetail';
                 return {
                     headerStyle: {
                         height: 36,

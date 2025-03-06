@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Text, View, FlatList, Image } from 'react-native';
+import { Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { BlackButton, AiConditionBlack } from '../components';
 import AiDetail from './AiDetail';
@@ -11,7 +11,7 @@ const AiWrapper = styled.View`
     width: 375px;
 `
 
-const SlideWrapper = styled.View`
+const SlideWrapper = styled(TouchableOpacity)`
     width: 343px;
     height: 480px;
     padding: 14px;
@@ -169,7 +169,8 @@ const AiRecommend = ({ navigation }) => {
                     onScroll={handleScroll}
                     keyExtractor={(item, index) => index}
                     renderItem={({item}) => (
-                        <SlideWrapper>
+                        
+                        <SlideWrapper onPress={() => navigation.navigate('AiDetail')}>
                             <Img source={item.imageUrl} />
                             <Top>
                                 <Title>{item.title}</Title>
@@ -205,9 +206,7 @@ const AiRecommend = ({ navigation }) => {
                     }}
                 />
             </AiWrapper>
-
         </View>
-
     )
 }
 

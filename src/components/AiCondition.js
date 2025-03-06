@@ -75,7 +75,7 @@ const AiConditionBlack = ({ date, money, location, transport }) => {
                 <Line>|</Line>
                 <Category>
                     <Img source={moneyBlack}/>
-                    <BlackText>최대 {money}만원</BlackText>
+                    <BlackText>{money > 10000 ? `${Math.floor(money/10000)}만원` : `${money}원`}</BlackText>
                     <GrayText>/인</GrayText>
                 </Category>
                 <Line>|</Line>
@@ -90,13 +90,17 @@ const AiConditionBlack = ({ date, money, location, transport }) => {
                 </Category>
             </ConditionWrapper>        
         </View>
-
     )
 }
 
-const AiConditionWhite = ({ date, money, location, transport }) => {
+const AiConditionWhite = ({ startDate, endDate, money, location, transport, style=null }) => {
+    const start = startDate.replace(/-/g, ' ').split(' ');
+    const end = endDate.replace(/-/g, ' ').split(' ');
+    console.log('start', start);
+    console.log('end', end);
+    
     return (
-        <ConditionWrapper>
+        <ConditionWrapper style={[style]}>
             <Category>
                 <Img source={transportWhite}/>
                 <WhiteText>{transport}</WhiteText>
@@ -104,7 +108,7 @@ const AiConditionWhite = ({ date, money, location, transport }) => {
             <Line>|</Line>
             <Category>
                 <Img source={moneyWhite}/>
-                <WhiteText>{money}</WhiteText>
+                <WhiteText>{money > 10000 ? `${Math.floor(money/10000)}만원` : `${money}원`}</WhiteText>
             </Category>
             <Line>|</Line>
             <Category>
@@ -114,7 +118,7 @@ const AiConditionWhite = ({ date, money, location, transport }) => {
             <Line>|</Line>
             <Category>
                 <Img source={calendarWhite}/>
-                <WhiteText>{date}</WhiteText>
+                <WhiteText>{start[1]}.{start[2]} - {end[1]}.{end[2]}</WhiteText>
             </Category>
         </ConditionWrapper>
     )
