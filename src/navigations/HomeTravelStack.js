@@ -4,7 +4,7 @@ import { Image, TouchableOpacity } from 'react-native';
 import BackDark from '../assets/icons/ai/back_dark.png';
 import BackBright from '../assets/icons/ai/back_bright.png';
 import HeartEmpty from '../assets/icons/ai/heart_empty.png';
-import { Home, TravelCreate,TravelInvite, Mypage } from '../screens';
+import { Home, TravelCreate,TravelInvite, Mypage, AiRecommend, AiDetail } from '../screens';
 import BottomTab from './BottomTab';
 
 const Stack = createStackNavigator();
@@ -62,6 +62,16 @@ const HomeTravelStack = () => {
                 name="TravelInvite"  
                 component={TravelInvite}
                 options={{ title: '여행 초대', mode: 'light' }}
+            />
+            <Stack.Screen
+                name="AiRecommend"
+                component={AiRecommend}
+                options={{ title: 'AI 여행 계획', mode: 'light'}}
+            />
+            <Stack.Screen
+                name="AiDetail"
+                component={AiDetail}
+                options={{ title: 'AI 여행 계획', mode: 'dark'}}
             />
         </Stack.Navigator>
     );

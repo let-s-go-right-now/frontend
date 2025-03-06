@@ -14,5 +14,7 @@ import Report from './Report';
 import CompletedProfile from './travel/CompletedProfile';
 import Calculation from './Calculation';
 import Finish from './Finish';
+import AiRecommend from './AiRecommend';
+import AiDetail from './AiDetail';
 
-export {CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report, Calculation, Finish};
+export {CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report, Calculation, Finish, AiRecommend, AiDetail};
