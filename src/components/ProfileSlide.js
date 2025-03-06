@@ -15,7 +15,6 @@ const ProfileList = styled.ScrollView.attrs(() => ({
     height: 87px;
 `
 
-
 const Members = [
     {
         id: 1,

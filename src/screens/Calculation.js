@@ -172,6 +172,7 @@ const BottomDesc = styled.Text`
     margin-bottom: 32px;
     width: 343px;
     margin: 0 auto 32px auto;
+    text-align: center;
 `
 
 const BlackExtra = styled.Text`
