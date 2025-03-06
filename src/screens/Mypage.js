@@ -11,18 +11,17 @@ import Transport from '../assets/icons/user/transport.png';
 
 const MypageWrapper = styled.View`
 	display: flex;
-	width: 375px;
-	padding: 0 16px;
+	width: 100%;
 	margin: 0 auto;
 `
 
 const Top = styled.View`
 	display: flex;
-	width: 343px;
 	flex-direction: row;
 	align-items: center;
 	height: 44px;
-	margin-top: 24px;
+	width: 343px;
+	margin: 24px auto 0 auto;
 	justify-content: space-between;
 `
 
@@ -49,20 +48,22 @@ const Header = styled.Text`
 	color: #363638;
 	font-family: 'SUIT-ExtraBold';
 	font-size: 19px;
-	margin: 26px 0;
+	margin: 26px auto;
+	width: 343px;
 `
 
 const PostWrapper = styled.ScrollView.attrs(() => ({
 	horizontal: false,
 }))`
-	padding: 0;
-	width: 343px;
+	padding: 0 8px;
+	width: 100%;
 	gap: 18px;
 	margin-bottom: 142px;
 `
 
 const Post = styled.TouchableOpacity`
 	width: 343px;
+	margin: 0 auto;
 `
 
 const Info = styled.View`
