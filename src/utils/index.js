@@ -1,2 +1,3 @@
 import useTabBarVisibility from "./userTabBarVisibility";
-export {useTabBarVisibility};
+import useTabBarNone from './useTabBarNone'
+export {useTabBarVisibility,useTabBarNone};

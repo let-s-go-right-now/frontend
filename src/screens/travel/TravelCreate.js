@@ -59,6 +59,7 @@ useTabBarVisibility(false);
                     <TextInput 
                         style={styles.travelNameInput} 
                         placeholder="여행 이름을 입력하세요" 
+                        placeholderTextColor="#BBBBBB" 
                     />
                     <View style={styles.dateInputWrapper}>
                         <View>
@@ -78,8 +79,8 @@ useTabBarVisibility(false);
                                 style={styles.dateInput} 
                                 onPress={openBottomSheet} 
                             >
-                                                               {selectedDates ? 
-                                <Text style={styles.dateText}>{formatDate(selectedDates.startDate)}</Text> : <Text style={styles.datePlaceText}>도착 날짜를 선택하세요</Text>}
+                                {selectedDates ? 
+                                <Text style={styles.dateText}>{formatDate(selectedDates.endDate)}</Text> : <Text style={styles.datePlaceText}>도착 날짜를 선택하세요</Text>}
                                 <Image source={require('../../assets/icons/calender-black.png')} style={styles.calendarIcon} />
                             </TouchableOpacity>
                         </View>
@@ -114,6 +115,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#fff',
+        marginTop:-40,
     },
     inputWrapper: {
         flex: 1,
@@ -196,6 +198,7 @@ const styles = StyleSheet.create({
         fontSize: 23,
         borderColor: '#BBBBBB',
         height: 50,
-        marginBottom: 15,
+        marginBottom: 20,
+        marginLeft:-20
     },
 });

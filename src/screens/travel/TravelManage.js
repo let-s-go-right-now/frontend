@@ -12,6 +12,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import { useTabBarVisibility } from '../../utils';
 
 const TravelManage = (navigation) => {
+        useTabBarVisibility(false);
     // 바텀시트
     const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
     const bottomSheetRef = useRef(null); 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import {TravelCreate,TravelManage,TravelOngoing, WriteExpense } from '../screens';
-import ReportStack from './ReportStack';
+import {Calculation, Finish, Report, TravelCreate,TravelManage,TravelOngoing, WEditExpense, WriteExpense } from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -66,9 +65,38 @@ const OngoingTravelStack = () => {
                 }} 
             />
             <Stack.Screen
-                name="ReportStack"
-                component={ReportStack}
-                options={{ headerShown: false, title: '지출리포트', mode: 'dark'}}
+                name="WEditExpense"
+                component={WEditExpense}
+                options={{ title: '여행 지출 수정하기', headerTitleStyle: {
+                    fontSize: 15,  // 폰트 크기 15
+                    color: '#1D1D1F',  // 폰트 색상
+                    fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                },
+                headerStyle: {
+                    backgroundColor: 'white',  // 흰색으로 배경 설정
+                }, }}
+            />
+                        <Stack.Screen
+                name="Report"
+                component={Report}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+            <Stack.Screen
+                name="Calculation"
+                component={Calculation}
+                options={{ title: '금액 정산하기', headerTitleStyle: {
+                    fontSize: 15,  // 폰트 크기 15
+                    color: '#1D1D1F',  // 폰트 색상
+                    fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                },
+                headerStyle: {
+                    backgroundColor: 'white',  // 흰색으로 배경 설정
+                }, }}
+            />
+            <Stack.Screen
+                name="Finish"
+                component={Finish}
+                options={{ headerShown: false, mode: 'light' }}
             />
         </Stack.Navigator>
         </>
