@@ -86,11 +86,19 @@ const TravelOngoing = ({navigation}) => {
 
   //새여행 떠나기 함수
   const handleCreateTravel = () => {
-    // 여행 만들기 버튼 클릭 시 TravelInvite 화면으로 이동
     navigation.navigate('TravelCreate');
-    //Alert.alert('Navigation Object', JSON.stringify(navigation));
 };
 
+  //여행 관리하기
+  const handleManageTravel = () => {
+    navigation.navigate('TravelManage');
+};
+
+
+  //지출기록하기
+  const handleWriteExpense = () => {
+    navigation.navigate('WriteExpense');
+};
 
   return (
     <>
@@ -100,7 +108,7 @@ const TravelOngoing = ({navigation}) => {
           <>
             {/* 옵션 목록 */}
             <View style={styles.optionsContainer}>
-            <OptionList options={options} />
+            <OptionList options={options}  containerWidth={200}/>
               {/* 새 여행 떠나기 버튼 */}
               <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusButton} />
             </View>
@@ -121,7 +129,7 @@ const TravelOngoing = ({navigation}) => {
                 <View style={styles.profileImageContainer}>
                   <ProfileImgDump />
                 </View>
-                <TouchableOpacity onPress={() => {}} style={styles.manageButton}>
+                <TouchableOpacity onPress={handleManageTravel} style={styles.manageButton}>
                   <Text style={styles.manageButtonText}>관리하기</Text>
                 </TouchableOpacity>
               </View>
@@ -143,7 +151,7 @@ const TravelOngoing = ({navigation}) => {
               </View>
                 {/* 지출 내역 */}
                 
-              <PlusButton onPress={() => {}} text="지출기록 추가하기" width={358} height={42} />
+              <PlusButton onPress={handleWriteExpense} text="지출기록 추가하기" width={358} height={42} />
                 <View style={styles.expenditureWrap}>
                   <ExpenditureList data={expenditures} />
                 </View>

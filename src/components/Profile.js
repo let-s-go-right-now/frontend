@@ -8,8 +8,12 @@ const ProfileWrapper = styled(TouchableOpacity)`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+<<<<<<< HEAD
+    opacity: ${({normal, selected}) => ((normal||selected) ? 1 : 0.2)};
+=======
     opacity: ${({normal}) => (normal ? 1 : 0.2)};
     height: 87px;
+>>>>>>> main
 `
 
 const ProfileImage = styled(Image)`

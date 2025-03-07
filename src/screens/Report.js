@@ -12,7 +12,7 @@ import 이우경 from '../assets/icons/user/이우경.png';
 import spark from '../assets/icons/spending/spark.png';
 import LinearGradient from 'react-native-linear-gradient';
 import Calculation from './Calculation';
-import useTabBarVisibility from '../navigations/userTabBarVisibility';
+import {useTabBarVisibility} from '../utils';
 
 const Report = ({ navigation }) => {
     useTabBarVisibility(false);

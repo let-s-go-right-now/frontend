@@ -18,19 +18,21 @@ const TravelInvite = () => {
           초대 링크 복사로 함께 떠날 멤버를 초대할 수 있어요
         </Text>
       </View>
+    <View style={styles.twobuttonwrapper}>
       <BigTwoButton
-            width={topComponentWidth - 20}
-            height="148px"  // 버튼 높이 설정
-            textLeft="멤버초대하기"
-            textRight="지출기록하기"
-            imageLeft={<Image source={require('../../assets/icons/bigTwo-left.png')} style={{ width: 58, height: 53.5 }} />}
-            imageRight={<Image source={require('../../assets/icons/bigTwo-right.png')} style={{ width: 50, height: 57 }} />}
-            bgColorLeft="#000000"
-            bgColorRight="#ffffff"
-            />
+              width={353}
+              height="148px"  // 버튼 높이 설정
+              textLeft="멤버초대하기"
+              textRight="지출기록하기"
+              imageLeft={<Image source={require('../../assets/icons/bigTwo-left.png')} style={{ width: 58, height: 53.5 }} />}
+              imageRight={<Image source={require('../../assets/icons/bigTwo-right.png')} style={{ width: 50, height: 57 }} />}
+              bgColorLeft="#000000"
+              bgColorRight="#ffffff"
+              />
+    </View>
       <BlackButton
         text="여행보러가기"
-        width={351}
+        width={343}
         onPress={() => {}}  // 버튼 클릭 시 실행할 함수
         style={styles.button}
       />
@@ -56,6 +58,10 @@ const styles = StyleSheet.create({
     fontSize: 19,
     color: '#1D1D1F',
     marginBottom: 10,
+  },
+  twobuttonwrapper:{
+    marginLeft:20,
+    marginRight:8,
   },
   subTitleText: {
     fontWeight: 'medium',

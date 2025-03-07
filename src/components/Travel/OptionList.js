@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { FlatList, View, StyleSheet } from 'react-native';
 import { GeneralOptionButton } from '..';
 
-const OptionList = ({ options }) => {
+const OptionList = ({ options,Buttonwidth,containerWidth }) => {
   const [selectedId, setSelectedId] = useState(null);
 
   return (
-    <View style={styles.optionsScrollContainer}>
+<View style={[styles.optionsScrollContainer, { width: containerWidth }]}>
+
  <FlatList
       data={options}
       horizontal
@@ -19,7 +20,7 @@ const OptionList = ({ options }) => {
           OptionImage={selectedId === item.id ? item.image_clicked : item.image}
           onPress={() => setSelectedId(item.id)}
           isSelected={selectedId === item.id}
-          style={styles.optionButton}
+          style={{ width:Buttonwidth}}
         />
       )}
     />
@@ -31,11 +32,7 @@ const OptionList = ({ options }) => {
 
 const styles = StyleSheet.create({
   optionsScrollContainer: {
-    width: 200,
     marginRight: 40,
-  },
-  optionButton: {
-    // 버튼 스타일 정의
   },
 });
 

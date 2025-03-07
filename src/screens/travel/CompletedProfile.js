@@ -9,7 +9,7 @@ import profileImage2 from "../../assets/profileImgs/profileImg02.png";
 import profileImage3 from "../../assets/profileImgs/profileImg03.png";
 import { theme } from '../../theme';
 
-const CompletedProfile = () => {
+const CompletedProfile = (navigation) => {
     const tripData = {
         tripName: "부산바캉스",  // 여행 제목
         startDate: "08. 12",  // 시작 날짜
@@ -82,6 +82,9 @@ const CompletedProfile = () => {
       };
   const { tripName, startDate, endDate, memo, leader, members } = tripData;
 
+  const movePage = () => {
+    navigation.navigate("CompletedProfile")
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* 여행 제목 */}
