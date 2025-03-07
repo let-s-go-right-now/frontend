@@ -8,6 +8,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { CustomBottomSheet, TwoButton } from '../components';
 import { WhiteButton } from '../components';
 import CloseGray from '../assets/icons/user/close_gray';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const MypageWrapper = styled.View`
     width: 375px;
@@ -201,6 +202,47 @@ const Mypage2 = ({ navigation }) => {
         setBottom('deleteId');
     }
 
+    const handlePermission = async () => {
+            try {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                    {
+                        title: '사진 접근 권한 요청',
+                        message: '프로필 사진을 변경하려면 기기의 사진 및 미디어 파일에 접근해야 합니다.',
+                    }
+                );
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    console.log('권한이 허용되었습니다.');
+                } else {
+                    console.log('권한이 거부되었습니다.');
+                }
+            } catch (error) {
+                console.warn(error);
+            }
+        };
+    
+        const handleImage = async () => {
+            await handlePermission();
+    
+            launchImageLibrary({
+                mediaType: 'photo',
+                selectionLimit: 1,
+                includeBase64: false,
+            }, 
+            response => {
+                if (response.didCancel) {
+                    return;
+                }
+                if (response.errorCode) {
+                    Alert.alert('사진 변경에서 에러가 발생했습니다.');
+                    return;
+                }
+                if (response.assets?.length>0) {
+                    setImageUri(response.assets[0].uri);
+                }
+            })
+        }
+
     return (
         <>
         <KeyboardAwareScrollView onLayout={onLayout} style={{flex: 1, backgroundColor: '#FFFFFF'}}>
@@ -286,7 +328,7 @@ const Mypage2 = ({ navigation }) => {
                             <BottomText style={{marginBottom: 40}}>프로필 수정하기</BottomText>
                             <BlackButton text="이름 수정" width={343} style={{marginBottom: 18}} onPress={handleNameEdit}/>
                             <View style={{display: 'flex', flexDirection: 'row', gap: 10}}>
-                                <WhiteButton text="프로필 사진 교체" width={166.5} onPress={closeBottomSheet}/>
+                                <WhiteButton text="프로필 사진 교체" width={166.5} onPress={handleImage}/>
                                 <WhiteButton text="프로필 사진 삭제" width={166.5} onPress={handleProfileDelete}/>
                             </View>
                         </>                        

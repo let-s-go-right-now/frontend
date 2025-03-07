@@ -10,8 +10,9 @@ const ProfileList = styled.ScrollView.attrs(() => ({
         paddingHorizontal: 16,
     },
 }))`
-    flex: 1;
+    min-width: 100%;
     padding: 0;
+    height: 87px;
 `
 
 const Members = [
