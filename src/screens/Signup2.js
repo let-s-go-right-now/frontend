@@ -1,12 +1,14 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components/native';
 import { TextInput, Dimensions, Image, Alert, PermissionsAndroid } from 'react-native';
-import { BlackButton } from '../components';
+import { BlackButton, GrayContainer } from '../components';
 import CloseDarkgray from '../assets/icons/user/close_darkgray.svg';
 import DefaultImg from '../assets/icons/user/profile.png';
 import Edit from '../assets/icons/user/edit.png';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { axiosInstance } from '../utils';
+import { useRoute } from '@react-navigation/native';
 
 const SignupWrapper = styled.View`
     width: 100%;
@@ -18,7 +20,7 @@ const SignupWrapper = styled.View`
 
 const Line = styled.View`
     background-color: ${({ready}) => ready ? '#1D1D1F' : '#F4F4F4'};
-    margin-top: 18px;
+    margin-top: 24px;
     width: 100%;
     height: 6px;
 `
@@ -95,11 +97,12 @@ const StyledInput = styled(TextInput)`
 `
 
 const Signup2 = ({ navigation }) => {
-    const [name, setName] = useState('');
+    const route = useRoute();
+    const { name, email, password } = route.params;
     const [ready, setReady] = useState(false);
     const [bank, setBank] = useState('');
     const [accountNumber, setAccountNumber] = useState('');
-    const [imageUri, setImageUri] = useState(null);
+    const [image, setImage] = useState(null);
 
     const height = Dimensions.get('window').height;
 
@@ -141,7 +144,13 @@ const Signup2 = ({ navigation }) => {
                 return;
             }
             if (response.assets?.length>0) {
-                setImageUri(response.assets[0].uri);
+                const selectedImage = response.assets[0];
+                setImage({
+                    uri: selectedImage.uri,
+                    type: selectedImage.type,
+                    name: selectedImage.fileName,
+                });
+                console.log(selectedImage.uri);
             }
         })
     }
@@ -154,6 +163,53 @@ const Signup2 = ({ navigation }) => {
         setAccountNumber(accountNumber);
     }
 
+    const handleSubmit = async () => {
+        if (!image) {
+            Alert.alert('프로필 이미지를 업로드하세요');
+            return;
+        }
+
+        if (!bank) {
+            Alert.alert('은행을 입력하세요');
+            return;
+        }
+
+        if (!accountNumber) {
+            Alert.alert('계좌번호를 입력하세요');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('accountNumber', `${bank}${accountNumber}`);
+
+        formData.append('image', {
+            uri: image.uri,
+            type: image.type || 'image/jpeg',
+            name: image.fileName || 'profile.jpg'
+        });
+
+        try {
+            console.log('회원가입 정보:', formData);
+            const response = await axiosInstance.post('api/member/join', formData, {
+                headers: {'Content-Type': 'multipart/form-data'},
+            })
+            console.log('회원가입 성공:', response);
+            navigation.navigate('Main');
+        } catch(error) {
+            console.log('회원가입 에러:', error);
+        }
+    }
+    
+    useEffect(() => {
+        if (bank!=='' && accountNumber!=='' && image!=='') {
+            setReady(true);
+        } else {
+            setReady(false);
+        }
+    }, [bank, accountNumber, image])
 
     return (
         <KeyboardAwareScrollView>
@@ -164,7 +220,7 @@ const Signup2 = ({ navigation }) => {
                     <CloseDarkgray onPress={() => navigation.navigate('Main')}/>
                 </Top>
                 <ProfileWrapper>
-                    <Profile source={imageUri ? {uri: imageUri} : DefaultImg}/>
+                    <Profile source={image ? {uri: image.uri} : DefaultImg}/>
                     <EditButton onPress={() => handleImage()}>
                         <Image source={Edit} />
                     </EditButton>
@@ -198,13 +254,21 @@ const Signup2 = ({ navigation }) => {
                         style={{marginTop: 12}}
                     />
                 </Main>
-                <BlackButton 
-                    text="완료"
-                    width={343}
-                    onPress={() => navigation.navigate('Main')}
-                    ready={ready}
-                    style={{ position: 'absolute', bottom: 52 }}
-                />
+                {ready ? (
+                    <BlackButton 
+                        text="완료"
+                        width={343}
+                        onPress={handleSubmit}
+                        ready={ready}
+                        style={{ position: 'absolute', bottom: 52 }}
+                    />                    
+                ): (
+                    <GrayContainer
+                        text="완료"
+                        width={343}
+                        style={{ position: 'absolute', bottom: 52 }}
+                    />
+                )}
             </SignupWrapper>
         </KeyboardAwareScrollView>
     )

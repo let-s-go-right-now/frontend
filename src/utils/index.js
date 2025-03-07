@@ -1,2 +1,4 @@
 import useTabBarVisibility from "./userTabBarVisibility";
-export {useTabBarVisibility};
+import axiosInstance from "./axiosInstance";
+
+export {useTabBarVisibility, axiosInstance};

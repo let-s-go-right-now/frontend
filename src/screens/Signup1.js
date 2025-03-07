@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components/native';;
 import { BlackButton } from '../components';
-import { TextInput, Keyboard, Dimensions } from 'react-native';
+import { GrayContainer } from '../components';
+import { TextInput, Keyboard, Dimensions, Alert, Text } from 'react-native';
 import CloseDarkgray from '../assets/icons/user/close_darkgray';
 import CloseGray from '../assets/icons/user/close_gray';
 
@@ -98,6 +99,8 @@ const Signup1 = ({ navigation }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     
     const height = Dimensions.get('window').height;
 
@@ -106,14 +109,6 @@ const Signup1 = ({ navigation }) => {
 
     const handleName = name => {
         setName(name);
-    }
-
-    const handleEmail = email => {
-        setEmail(email);
-    }
-
-    const handlePassword = password => {
-        setPassword(password);
     }
 
     const deleteName = () => {
@@ -127,6 +122,36 @@ const Signup1 = ({ navigation }) => {
     const deletePassword = () => {
         setPassword('');
     }
+
+    const handleEmail = (email) => {
+        setEmail(email);
+        const emailCondition = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        setEmailError(emailCondition.test(email) ? '' : '유효한 이메일 주소를 입력하세요.');
+    }
+
+    const handlePassword = (password) => {
+        setPassword(password);
+        const passwordCondition =  /^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+        setPasswordError(passwordCondition.test(password) ? '' : '8자 이상, 대문자와 특수문자를 포함하세요');
+    }
+
+    const handleNext = () => {
+        if (!setEmail || !setPassword) {
+        }
+        navigation.navigate('Signup2', {
+            name,
+            email,
+            password,
+        })
+    }
+
+    useEffect(() => {
+        if (name!=='' && email!=='' && password!='' && emailError==='' && passwordError==='') {
+            setReady(true);
+        } else {
+            setReady(false);
+        }
+    }, [email, password, emailError, passwordError])
 
     return (
         <SignupWrapper style={{ height: height }}>
@@ -158,7 +183,9 @@ const Signup1 = ({ navigation }) => {
             <Container style={{marginTop: 28, marginBottom: 28}}>
                 <Info>
                     <Category>이메일</Category>
-                    {/* <ErrorMessage>특수문자를 포함하세요</ErrorMessage> */}
+                    {emailError !== null &&
+                        <ErrorMessage>{emailError}</ErrorMessage>
+                    }
                 </Info>
                 <InputWrapper>
                     <StyledInput
@@ -178,7 +205,9 @@ const Signup1 = ({ navigation }) => {
             <Container>
                 <Info>
                     <Category>비밀번호</Category>
-                    {/* <ErrorMessage>이미 존재하는 이메일입니다</ErrorMessage> */}
+                    {passwordError !== null && 
+                        <ErrorMessage>{passwordError}</ErrorMessage>
+                    }
                 </Info>
                 <InputWrapper>
                     <StyledInput
@@ -193,13 +222,21 @@ const Signup1 = ({ navigation }) => {
                     {password !== '' && <CloseGray onPress={deletePassword}/>}
                 </InputWrapper>
             </Container>
-            <BlackButton 
-                text="다음"
-                width={343}
-                onPress={() => navigation.navigate('Signup2')}
-                ready={ready}
-                style={{ position: 'absolute', bottom: 52 }}
-            />
+            {ready ? (
+                <BlackButton 
+                    text="다음"
+                    width={343}
+                    onPress={handleNext}
+                    ready={ready}
+                    style={{ position: 'absolute', bottom: 52 }}
+                />                
+            ) : (
+                <GrayContainer
+                    text="로그인"
+                    width={343}
+                    style={{ position: 'absolute', bottom: 52 }}
+                />
+            )}
         </SignupWrapper>
     )
 }
