@@ -11,8 +11,11 @@ import Trophy from '../assets/icons/spending/trophy.png';
 import 이우경 from '../assets/icons/user/이우경.png';
 import spark from '../assets/icons/spending/spark.png';
 import LinearGradient from 'react-native-linear-gradient';
+import Calculation from './Calculation';
+import {useTabBarVisibility} from '../utils';
 
-const Report = () => {
+const Report = ({ navigation }) => {
+    useTabBarVisibility(false);
     const [mode, setMode] = useState('dark');
     const [isMvp, setIsMvp] = useState(true);
     const [mvpName, setMvpName] = useState('이우경');
@@ -23,7 +26,7 @@ const Report = () => {
                 <Header mode={mode}>
                     <HeaderTop>
                         <HeaderText mode={mode} fontSize={15}>지출리포트</HeaderText>
-                        <Image source={CloseGray} style={{position: 'absolute', right: 16, width: 24, height: 24}}/>                    
+                        <Image source={CloseGray} onPress={() => navigation.goBack()} style={{position: 'absolute', right: 16, width: 24, height: 24}}/>                    
                     </HeaderTop>
                     <HeaderBottom>
                         <HeaderText mode={mode}>총 지출액</HeaderText>
@@ -63,7 +66,6 @@ const Report = () => {
                         }}
                     />                    
                 </Option>
-
                 <MiniPieChart/>
                 <MvpWrapper>
                     { isMvp && (
@@ -89,11 +91,12 @@ const Report = () => {
                     <BlackButton
                         text="금액 정산하기"
                         width={343}
+                        image={MoneyDark}
                         style={{
                             marginTop: 53,
                             marginBottom: 10
                         }}
-                        onPress={() => {}}
+                        onPress={() => navigation.navigate('Calculation')}
                     />
                 </MvpWrapper>
             </Container2>

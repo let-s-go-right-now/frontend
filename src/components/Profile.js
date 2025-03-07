@@ -8,7 +8,12 @@ const ProfileWrapper = styled(TouchableOpacity)`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+<<<<<<< HEAD
     opacity: ${({normal, selected}) => ((normal||selected) ? 1 : 0.2)};
+=======
+    opacity: ${({normal}) => (normal ? 1 : 0.2)};
+    height: 87px;
+>>>>>>> main
 `
 
 const ProfileImage = styled(Image)`
@@ -17,6 +22,7 @@ const ProfileImage = styled(Image)`
     border-radius: 30px;
     border-width: ${({selected}) => (selected ? '2.5px' : '0px')};
     border-color: ${({selected}) => (selected ? '#363638' : 'transparent')};
+    opacity: ${({selected}) => (selected ? 1 : 0.2)};
 `
 
 const Info = styled.View`
@@ -26,6 +32,7 @@ const Info = styled.View`
     flex-direction: row;
     gap: 4px;
     margin-top: 8px;
+    opacity: ${({selected}) => (selected ? 1 : 0.2)};
 `
 
 const ColorBadge = styled.View`
@@ -58,7 +65,7 @@ const Profile = ({
                 selected={selected}
                 normal={normal}  // ProfileImage에 normal 전달
             />
-            <Info>
+            <Info selected={selected}>
                 {sameName && <ColorBadge color={color}></ColorBadge>}
                 <Name>{name}</Name>
                 {leader && <Image source={LeaderBadge}/>}

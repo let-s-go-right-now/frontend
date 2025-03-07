@@ -124,7 +124,7 @@ const Home = ({navigation}) => {
             isPressed={isPressed}
             onPressIn={() => setIsPressed(true)}  // 버튼이 눌렸을 때
             onPressOut={() => setIsPressed(false)} // 버튼에서 손을 뗄 때
-            onPress={() => console.log('Button Pressed')} // 버튼 클릭 시 동작
+            onPress={() => navigation.navigate('AiRecommend')} // 버튼 클릭 시 동작
           >
             AI 계획 확인하기
           </BorderWhiteButton>

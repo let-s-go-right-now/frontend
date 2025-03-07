@@ -1,6 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import {TravelCreate,TravelManage,TravelOngoing, WriteExpense } from '../screens';
+import ReportStack from './ReportStack';
 
 const Stack = createStackNavigator();
 
@@ -63,6 +64,11 @@ const OngoingTravelStack = () => {
                         backgroundColor: 'white',  // 흰색으로 배경 설정
                     },
                 }} 
+            />
+            <Stack.Screen
+                name="ReportStack"
+                component={ReportStack}
+                options={{ headerShown: false, title: '지출리포트', mode: 'dark'}}
             />
         </Stack.Navigator>
         </>
