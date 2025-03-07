@@ -11,7 +11,7 @@ import { theme } from '../../theme';
 import { TextInput } from 'react-native-gesture-handler';
 import { useTabBarVisibility } from '../../utils';
 
-const TravelManage = (navigation) => {
+const ManageForInvite = (navigation) => {
     // 바텀시트
     const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
     const bottomSheetRef = useRef(null); 
@@ -83,8 +83,7 @@ const TravelManage = (navigation) => {
                 <Text style={styles.dateText}>{startDate} - {endDate}</Text>
             </View>
             <TextInput style={styles.memoInput} placeholder="메모를 입력하세요" multiline />
-            <Text style={styles.leaderText}>함꼐하는 멤버를 관리하세요</Text>
-            <Text style={styles.leaderSubText}>방장은 함께하는 멤버를 수락하거나 퇴장시키는 권한을 가져요</Text>
+            <Text style={styles.leaderText}>이번 여행에서 방장을 맡았어요</Text>
             <View style={styles.profileContainer}>
                 {members.map((member, index) => (
                     member.leader ? (
@@ -135,7 +134,7 @@ const TravelManage = (navigation) => {
                 <View style={styles.bottomSheetContainer}>{nextBottomsheet === '기본' ? (
     <>
         <Text style={styles.title}>멤버 관리</Text>
-        <Text style={styles.description}>방장 역할을 위임하거나 여행에서 내보낼 수 있어요</Text>
+        <Text style={styles.description}>함께 떠날 멤버를 초대하세요</Text>
         <Profile
             name={selectedMember?.name}
             leader={selectedMember?.leader}
@@ -212,7 +211,7 @@ const TravelManage = (navigation) => {
     </>);
 };
 
-export default TravelManage;
+export default ManageForInvite;
 
 const styles = StyleSheet.create({
     container: {
@@ -261,12 +260,6 @@ const styles = StyleSheet.create({
         fontSize: 17,
         color: '#1D1D1F',
         marginTop: 20,
-    },
-    leaderSubText:{
-        fontFamily: 'SUIT-SemiBold', 
-        marginTop:10,
-        fontSize: 12,
-        color: '#AAAAAA',
     },
     profileContainer: {
         flexDirection: 'row',

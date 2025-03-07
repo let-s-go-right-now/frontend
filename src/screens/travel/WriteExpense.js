@@ -1,14 +1,14 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, FlatList } from 'react-native';
-import { CustomBottomSheet, ImgSlide, MyCalendar, OptionList, PlusButton, TwoButton } from '../../components';
+import { CustomBottomSheet, ImgSlide, ImgSlideUpload, MyCalendar, OptionList, PlusButton, Profile, TwoButton } from '../../components';
 import { useTabBarVisibility } from '../../utils';
 import { theme } from '../../theme';
 import { launchImageLibrary } from 'react-native-image-picker'; // 이미지 선택 기능 추가
-import TraficIcon from '../../assets/icons/travel/options/TraficIcon.png';
-import FoodIcon from '../../assets/icons/travel/options/FoodIcon.png';
-import AmuseIcon from '../../assets/icons/travel/options/AmuseIcon.png';
-import ShopIcon from '../../assets/icons/travel/options/ShopIcon.png';
-import RentIcon from '../../assets/icons/travel/options/RentIcon.png';
+import profileImage1 from "../../assets/profileImgs/profileImg01.png";
+import profileImage2 from "../../assets/profileImgs/profileImg02.png";
+import profileImage3 from "../../assets/profileImgs/profileImg03.png";
+import DeleteButtonForReal from '../../assets/icons/travel/DeleteButton-forReal.png';
+import DeleteButton from '../../assets/icons/travel/DeleteButton.png';
 
 const WriteExpense = ({ navigation }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,24 +16,53 @@ const WriteExpense = ({ navigation }) => {
     const [imageUris, setImageUris] = useState([]); // 여러 이미지를 관리하기 위한 상태
     const bottomSheetRef = useRef(null);
     const snapPoints = ['70%'];
+        const tripData = {
+            tripName: "부산바캉스",
+            startDate: "08. 12",
+            endDate: "08. 15",
+            memo: "해운대에서 걸스나잇",
+            leader: true,
+            members: [
+                { id:1,name: "홍길동", leader: true, sameName: false, image: profileImage1, color: "blue", onPress: () => {} },
+                { id:2,name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red", onPress: () => {} },
+                { id:3,name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green", onPress: () => {} },
+            ],
+        };
+        const { tripName, startDate, endDate, memo, members } = tripData;
 
+    const [selectedMember, setSelectedMember] = useState(1); //선택된 멤버
+    const [excludedMember, setExcludedMember] = useState(1); // 제외 멤버 관리
     const options = [
         { 
           id: 1, 
           text: "교통", 
           image: require('../../assets/icons/travel/options/TraficIcon.png'), 
+          image_clicked: require('../../assets/icons/travel/options/TraficIcon-selected.png'), 
         },
         { 
           id: 2, 
           text: "식사", 
           image: require('../../assets/icons/travel/options/FoodIcon.png'), 
+          image_clicked: require('../../assets/icons/travel/options/FoodIcon-selected.png'), 
         },
         { 
           id: 3, 
           text: "관광", 
-          image: require('../../assets/icons/travel/options/AmuseIcon.png'), 
+          image: require('../../assets/icons/travel/options/AmuseIcon.png'),
+          image_clicked: require('../../assets/icons/travel/options/AmuseIcon-selected.png'), 
         },
-        // 다른 옵션들 추가...
+        { 
+            id: 4, 
+            text: "쇼핑", 
+            image: require('../../assets/icons/travel/options/ShopIcon.png'),
+            image_clicked: require('../../assets/icons/travel/options/ShopIcon-selected.png'), 
+          },
+          { 
+            id: 5, 
+            text: "숙소", 
+            image: require('../../assets/icons/travel/options/RentIcon.png'),
+            image_clicked: require('../../assets/icons/travel/options/RentIcon-selected.png'), 
+          },
       ];
       
       
@@ -77,6 +106,19 @@ const WriteExpense = ({ navigation }) => {
         );
     };
 
+    // 이미지 삭제 함수
+    const handleDeleteImage = (uri) => {
+        setImageUris((prevUris) => prevUris.filter((item) => item !== uri)); // 해당 이미지 삭제
+    };
+// 멤버 선택 핸들러
+const handleProfilePress = (member) => {
+    setSelectedMember(member.id); // 선택된 멤버의 name 저장
+};
+//제외 멤버 핸들러
+const excludeProfilePress = (member) => {
+    setExcludedMember(member.id); // 선택된 멤버의 name 저장
+};
+
     const renderContent = () => (
         <View style={styles.contentWrapper}>
             <View style={styles.inputWrapper}>
@@ -90,16 +132,55 @@ const WriteExpense = ({ navigation }) => {
             {/* 선택된 이미지 미리보기 */}
             <View style={styles.imgSlide} >
             {imageUris.length > 0 && (
-                <ImgSlide images={imageUris.map(uri => ({ uri }))} itemsToShow={2} scale={85} />
+                <ImgSlideUpload images={imageUris.map(uri => ({ uri }))} itemsToShow={2} scale={85} handleDeleteImage={handleDeleteImage}/>
             )}
             </View>
             {/* 이미지 선택 버튼 */}
-            <PlusButton onPress={handleImagePick} text="사진 추가하기" width={358} height={42} NoBorder={true} />
-            {/* 카테고리 선택*/}
-            <View style={styles.optionsContainer}>
-                <OptionList options={options}/>
+            <View style={styles.picup}>
+                <PlusButton onPress={handleImagePick} text="사진 추가하기" width={358} height={42} NoBorder={true} />
             </View>
-
+            {/* 카테고리 선택*/}
+            <Text style={styles.categoryText}>카테고리를 선택하세요</Text>
+            <View style={styles.optionsContainer}>
+                <OptionList options={options} Buttonwidth={64}/>
+            </View>
+            {/*결제인 */}
+            <Text style={styles.categoryText}>누가 결제했나요?</Text>
+            <View style={styles.profileContainer}>
+                {members.map((member, index) => (
+                        <Profile
+                            key={index}
+                            name={member.name}
+                            leader={member.leader}
+                            sameName={member.sameName}
+                            image={member.image}
+                            color={member.color}
+                            selected={selectedMember === member.id}
+                            normal={false}
+                            onPress={() => handleProfilePress(member)}
+                        />
+                    
+                ))}
+            </View>
+            {/*지출 제외멤버 */}
+            <Text style={styles.categoryText}>지출에서 제외할 멤버가 있나요?</Text>
+            <Text style={styles.leaderSubText}>해당 금액 정산 시 제외됩니다</Text>
+            <View style={styles.profileContainer}>
+                {members.map((member, index) => (
+                        <Profile
+                            key={index}
+                            name={member.name}
+                            leader={member.leader}
+                            sameName={member.sameName}
+                            image={member.image}
+                            color={member.color}
+                            selected={excludedMember === member.id}
+                            normal={false}
+                            onPress={() => excludeProfilePress(member)}
+                        />
+                    
+                ))}
+            </View>
             <TwoButton 
                 width={360} 
                 height={42} 
@@ -223,10 +304,19 @@ const styles = StyleSheet.create({
         marginRight:-7,
         marginBottom:10,
     },
+    picup:{
+        marginBottom:30,
+    },
+    categoryText:{
+        color: "#1D1D1F",
+        fontFamily: theme.fonts.extrabold,
+        fontSize:17,
+        marginBottom:15,
+    },
     optionsContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 20,
+        marginBottom: 30,
         height:34,
       },
       plusButton: {
@@ -234,4 +324,16 @@ const styles = StyleSheet.create({
         fontWeight: "medium",
         fontSize: 14,
       },
+    profileContainer:{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+        marginBottom:40,
+    },    
+    leaderSubText:{
+        fontFamily: 'SUIT-SemiBold', 
+        marginTop:10,
+        fontSize: 12,
+        color: '#AAAAAA',
+    },  
 });

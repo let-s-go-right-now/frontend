@@ -107,7 +107,7 @@ const TravelOngoing = ({navigation}) => {
           <>
             {/* 옵션 목록 */}
             <View style={styles.optionsContainer}>
-            <OptionList options={options} />
+            <OptionList options={options}  containerWidth={200}/>
               {/* 새 여행 떠나기 버튼 */}
               <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusButton} />
             </View>
