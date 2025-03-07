@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, ScrollView, Button } from 'react-native';
 import { CustomBottomSheet, MyCalendar, TwoButton } from '../../components';
 import {useTabBarVisibility} from '../../utils';
+import { theme } from '../../theme';
 
 const TravelCreate = ({navigation}) => {
     const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
@@ -186,12 +187,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttonText: {
-        fontFamily: 'theme.fonts.extrabold',
+        fontFamily: theme.fonts.extrabold,
         fontSize: 17,
         color: 'white',
     },
     travelNameInput: {
-        fontFamily: 'theme.fonts.extrabold',
+        fontFamily: theme.fonts.extrabold,
         fontSize: 23,
         borderColor: '#BBBBBB',
         height: 50,
