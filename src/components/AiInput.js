@@ -14,6 +14,7 @@ const AiInput = ({ label, placeholder, value, onChangeText, icon }) => {
           value={value}
           onChangeText={onChangeText}
           placeholderTextColor={'#E8E8E8'} // placeholder 색상 변경
+
         />
       </View>
     </View>
@@ -36,6 +37,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent:'center',
     position: 'relative',
   },
   icon: {
@@ -51,11 +53,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'regular', 
     color: '#E8E8E8',
-    paddingTop: 7,
     paddingLeft: 30,
     flex: 1,
     marginRight: 10, 
-    lineHeight: 18,
   },
   inputWithIcon: {
     paddingLeft: 23, // 아이콘이 있을 경우 여백 추가

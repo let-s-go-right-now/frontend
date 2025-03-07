@@ -36,5 +36,6 @@ import AiTitle from "./AiTitle";
 import AiPlace from "./AiPlace";
 import AiDesc from "./AiDesc";
 import AiTransport from "./AiTransport";
+import AiInputButton from "./AiInputButton"
 
-export {ImgSlideUpload,OptionList,WhiteButton,ExpenditureList,TravelComponent,MyCalendar,OpenToggle,ProfileImgDump,GeneralOptionButton,BorderWhiteButton,TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide, PieChartComponent, MiniPieChart, BarChartComponent, ExpenditureList2, MoneyInput, CopyAccount, CalcStateContainer, AiConditionBlack, AiConditionWhite, DateOptionButton, AiTitle, AiPlace, AiDesc, AiTransport };
+export {AiInputButton,ImgSlideUpload,OptionList,WhiteButton,ExpenditureList,TravelComponent,MyCalendar,OpenToggle,ProfileImgDump,GeneralOptionButton,BorderWhiteButton,TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide, PieChartComponent, MiniPieChart, BarChartComponent, ExpenditureList2, MoneyInput, CopyAccount, CalcStateContainer, AiConditionBlack, AiConditionWhite, DateOptionButton, AiTitle, AiPlace, AiDesc, AiTransport };

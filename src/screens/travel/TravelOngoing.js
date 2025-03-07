@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef,  } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
-import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList, OptionList } from "../../components"; // 두 번째 임포트 제거
+import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList, OptionList } from "../../components";
 import { theme } from '../../theme';
 import image1 from "../../assets/slides/image1.png";
 import image2 from "../../assets/slides/image2.png";
@@ -9,9 +9,9 @@ import image4 from "../../assets/slides/image4.png";
 import image5 from "../../assets/slides/image5.png";
 import image6 from "../../assets/slides/image6.png";
 import { FlatList } from 'react-native-gesture-handler';
-import ReportStack from '../../navigations/ReportStack';
 
 const TravelOngoing = ({navigation}) => {
+  const ongoingid = 1;  //현재 진행중인 여행의 id
   const [images] = useState([image1, image2, image3, image4, image5, image6]);
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
@@ -99,6 +99,11 @@ const TravelOngoing = ({navigation}) => {
   const handleWriteExpense = () => {
     navigation.navigate('WriteExpense');
 };
+//지출리포트로 이동하기
+const MoveExpenseReport = () => {
+  navigation.navigate('Report', { completed: false, id: ongoingid });
+}
+
 
   return (
     <>
@@ -108,7 +113,7 @@ const TravelOngoing = ({navigation}) => {
           <>
             {/* 옵션 목록 */}
             <View style={styles.optionsContainer}>
-            <OptionList options={options}  containerWidth={200}/>
+            <OptionList options={options}  containerWidth={200} Buttonwidth={80}/>
               {/* 새 여행 떠나기 버튼 */}
               <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusButton} />
             </View>
@@ -153,7 +158,7 @@ const TravelOngoing = ({navigation}) => {
                 
               <PlusButton onPress={handleWriteExpense} text="지출기록 추가하기" width={358} height={42} />
                 <View style={styles.expenditureWrap}>
-                  <ExpenditureList data={expenditures} />
+                  <ExpenditureList data={expenditures} navigation={navigation} completed={false}/>
                 </View>
                 {/* 지출 리포트 보러가기*/}
                 <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0} onPress={openBottomSheet}/></View>
@@ -169,7 +174,7 @@ const TravelOngoing = ({navigation}) => {
           <View style={styles.bottomSheetContent}>
             <Text style={styles.sheetText}>일정을 모두 마무리 하셨나요?</Text>
             <Text style={styles.sheetText2}>더 이상 지출 기록을 추가할 수 없어요</Text>
-            <BlackButton text="여행 끝내고 지출리포트&정산결과 보기" width={343} height={50} onPress={() => navigation.navigate('ReportStack')}/>
+            <BlackButton text="여행 끝내고 지출리포트&정산결과 보기" width={343} height={50} onPress={MoveExpenseReport}/>
           </View>
         </CustomBottomSheet>
       ) : null}

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Image } from 'react-native';
 import { theme } from '../theme';
-import {AiInput, AiButton,TravelCard,BorderWhiteButton} from '../components'
+import {AiInput, AiButton,TravelCard,BorderWhiteButton, CustomBottomSheet, MyCalendar, AiInputButton} from '../components'
 import carrierImage from '../assets/icons/main/carrier01.png';
 import moneyIcon from '../assets/icons/main/money-icon.png';
 import calenderIcon from '../assets/icons/main/calender-icon.png';
@@ -12,14 +12,20 @@ import nextButton from '../assets/icons/main/nextButton.png';
 
 const Home = ({navigation}) => {
   const [isPressed, setIsPressed] = useState(false);
+      const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
+      const [topComponentWidth, setTopComponentWidth] = useState(0); // 상단 컴포넌트의 너비 상태
+      const bottomSheetRef = useRef(null); 
+      const snapPoints = ['70%']; // 첫번째 요소는 가장 처음 보이는 높이, 나머지는 스와이프하면 늘어나는 정도
+      const [selectedDates, setSelectedDates] = useState(null); // 선택된 날짜 상태 관리
+      const handleSheetChanges = useCallback((index) => {
+          console.log('handleSheetChanges', index);
+      }, []);
 
   const [travelInfo, setTravelInfo] = useState({
     itinerary: '',
-    recommendedPlace: '',
     budget: '',
-    foodRecommendation: '',
+    StartPlace: '',
     transportInfo: '',
-    accommodation: '',
   });
 
   const handleChange = (field, value) => {
@@ -61,8 +67,38 @@ const Home = ({navigation}) => {
       startDate: '24.08.12',
     },
   ]);
+  
 
-  return (
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // 월
+    const day = String(d.getDate()).padStart(2, '0'); // 일
+    return `${month}.${day}`; // 'MM.DD' 형식 반환
+  };
+
+  // 상위 컴포넌트에서 날짜 선택 완료 버튼 클릭 시 호출되는 함수
+  const handleButtonPress = (startDate, endDate) => {
+    // 날짜가 유효한지 체크하고, 유효하지 않으면 빈 문자열 설정
+    const formattedStartDate = startDate ? formatDate(startDate) : '';
+    const formattedEndDate = endDate ? formatDate(endDate) : '';
+  
+    // 선택된 날짜를 상태에 반영
+    setSelectedDates({ startDate: formattedStartDate, endDate: formattedEndDate });
+  
+    // travelInfo.itinerary에 날짜가 있으면 날짜 범위로, 없으면 빈 문자열 설정
+    setTravelInfo(prevState => ({
+      ...prevState,
+      itinerary: formattedStartDate && formattedEndDate ? `${formattedStartDate}-${formattedEndDate}` : ''
+    }));
+  
+    // BottomSheet 상태 변경
+    setIsOpen(!isOpen);
+    bottomSheetRef.current?.expand();
+  };
+  
+
+  return (<>
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <View>
@@ -86,22 +122,25 @@ const Home = ({navigation}) => {
         <AiInput
           label="예산을 알려주세요"
           placeholder="인당 예산"
-          value={travelInfo.itinerary}
-          onChangeText={(value) => handleChange('itinerary', value)}
+          value={travelInfo.budget}
+          onChangeText={(value) => handleChange('budget', value)}
           icon ={moneyIcon}
         />
-        <AiInput
+        <AiInputButton
           label="일정이 어떻게 되나요?"
           placeholder="여행 기간 선택"
-          value={travelInfo.recommendedPlace}
-          onChangeText={(value) => handleChange('recommendedPlace', value)}
-          icon ={calenderIcon}
+          text={travelInfo.itinerary||"여행 기간 선택"} 
+          onChangeText={(value) => handleChange('itinerary', value)}
+          icon={calenderIcon}
+          onPress={() => setIsOpen(!isOpen)}  // 버튼 클릭 시 BottomSheet 열기
         />
+
+
         <AiInput
           label="어디에서 출발하세요?"
           placeholder="출발 지역 선택"
-          value={travelInfo.budget}
-          onChangeText={(value) => handleChange('budget', value)}
+          value={travelInfo.StartPlace}
+          onChangeText={(value) => handleChange('StartPlace', value)}
           icon ={mapIcon}
         />
           </View>
@@ -148,6 +187,12 @@ const Home = ({navigation}) => {
           />
       </View>
     </ScrollView>
+    {isOpen ? (
+        <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
+            <MyCalendar onButtonPress={handleButtonPress} /> 
+        </CustomBottomSheet>
+    ) : null}
+    </>
   );
 };
 
@@ -226,7 +271,7 @@ const styles = StyleSheet.create({
   aiLastButtonText: { fontSize: 14, fontWeight: 'bold', color: '#333' },
 
   // 여행 기록
-  travelRecordContainer: { height: 342, paddingHorizontal: 20, marginTop: 20 },
+  travelRecordContainer: { height: 342, paddingHorizontal: 20, marginTop: 20, },
   travelHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   travelTitle: { fontSize: 20, fontWeight: 'bold' },
 

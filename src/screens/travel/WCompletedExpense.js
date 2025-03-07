@@ -1,35 +1,52 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, FlatList } from 'react-native';
-import { CustomBottomSheet, ImgSlide, ImgSlideUpload, MyCalendar, OptionList, PlusButton, Profile, TwoButton } from '../../components';
-import { useTabBarNone } from '../../utils';
+import { CustomBottomSheet, GeneralOptionButton, ImgSlide, ImgSlideUpload, MyCalendar, OptionList, PlusButton, Profile, TwoButton } from '../../components';
+import { useTabBarNone} from '../../utils';
 import { theme } from '../../theme';
 import { launchImageLibrary } from 'react-native-image-picker'; // 이미지 선택 기능 추가
 import profileImage1 from "../../assets/profileImgs/profileImg01.png";
 import profileImage2 from "../../assets/profileImgs/profileImg02.png";
 import profileImage3 from "../../assets/profileImgs/profileImg03.png";
-import DeleteButtonForReal from '../../assets/icons/travel/DeleteButton-forReal.png';
-import DeleteButton from '../../assets/icons/travel/DeleteButton.png';
+import image1 from "../../assets/slides/image1.png";
+import image2 from "../../assets/slides/image2.png";
+import image3 from "../../assets/slides/image3.png";
+import image4 from "../../assets/slides/image4.png";
+import image5 from "../../assets/slides/image5.png";
+import image6 from "../../assets/slides/image6.png";
 
-const WriteExpense = ({ navigation }) => {
+const WCompletedExpense = ({ route, navigation }) => {
     useTabBarNone(false);
+    const { expenditureId } = route.params; //수정할 id
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDates, setSelectedDates] = useState(null);
     const [imageUris, setImageUris] = useState([]); // 여러 이미지를 관리하기 위한 상태
     const bottomSheetRef = useRef(null);
     const snapPoints = ['70%'];
-        const tripData = {
-            tripName: "부산바캉스",
-            startDate: "08. 12",
-            endDate: "08. 15",
-            memo: "해운대에서 걸스나잇",
-            leader: true,
-            members: [
-                { id:1,name: "홍길동", leader: true, sameName: false, image: profileImage1, color: "blue", onPress: () => {} },
-                { id:2,name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red", onPress: () => {} },
-                { id:3,name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green", onPress: () => {} },
-            ],
-        };
-        const { tripName, startDate, endDate, memo, members } = tripData;
+    const [tripData, setTripData] = useState({
+        title: "부산바캉스",
+        startDate: "08. 12",
+        endDate: "08. 15",
+        memo: "해운대에서 걸스나잇",
+        leader: true,
+        members: [
+            { id: 1, name: "홍길동", leader: true, sameName: false, image: profileImage1, color: "blue", onPress: () => {} },
+            { id: 2, name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red", onPress: () => {} },
+            { id: 3, name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green", onPress: () => {} },
+        ],
+        images: [
+            image1,
+            image2,
+            image3,
+            image4,
+            image5,
+            image6,
+        ],
+        selectedOption: 6,  // 기존 selectedOption
+        money: '24000',  // 기존 money
+    });
+        const { title, money, memo, members,selectedOption,leader,startDate,endDate,images } = tripData;
+
+
 
     const [selectedMember, setSelectedMember] = useState(1); //선택된 멤버
     const [excludedMember, setExcludedMember] = useState(1); // 제외 멤버 관리
@@ -37,60 +54,51 @@ const WriteExpense = ({ navigation }) => {
         { 
           id: 1, 
           text: "교통", 
-          image: require('../../assets/icons/travel/options/TraficIcon.png'), 
-          image_clicked: require('../../assets/icons/travel/options/TraficIcon-selected.png'), 
+          image: require('../../assets/icons/travel/completedOptions/TraficIcon.png'), 
         },
         { 
           id: 2, 
           text: "식사", 
-          image: require('../../assets/icons/travel/options/FoodIcon.png'), 
-          image_clicked: require('../../assets/icons/travel/options/FoodIcon-selected.png'), 
+          image: require('../../assets/icons/travel/completedOptions/FoodIcon.png'), 
         },
         { 
           id: 3, 
           text: "관광", 
-          image: require('../../assets/icons/travel/options/AmuseIcon.png'),
-          image_clicked: require('../../assets/icons/travel/options/AmuseIcon-selected.png'), 
+          image: require('../../assets/icons/travel/completedOptions/AmuseIcon.png'),
         },
         { 
             id: 4, 
             text: "쇼핑", 
-            image: require('../../assets/icons/travel/options/ShopIcon.png'),
-            image_clicked: require('../../assets/icons/travel/options/ShopIcon-selected.png'), 
+            image: require('../../assets/icons/travel/completedOptions/ShopIcon.png'),
           },
           { 
             id: 5, 
             text: "숙소", 
-            image: require('../../assets/icons/travel/options/RentIcon.png'),
-            image_clicked: require('../../assets/icons/travel/options/RentIcon-selected.png'), 
+            image: require('../../assets/icons/travel/completedOptions/RentIcon.png'),
           },
           { 
             id: 6, 
             text: "기타", 
-            image: require('../../assets/icons/travel/options/etc.png'),
-            image_clicked: require('../../assets/icons/travel/options/etc-selected.png'), 
+            image: require('../../assets/icons/travel/completedOptions/etc.png'),
           },
       ];
-      
-      
-
-    const openBottomSheet = () => {
-        setIsOpen(!isOpen);
-        bottomSheetRef.current?.expand();
-    };
+        // selectedOptionData를 tripData에서 가져오기
+        const selectedOptionData = options.find(option => option.id === selectedOption);
+        // tripData 객체의 값을 업데이트하려면 setTripData 사용
+        const updateTripData = (newData) => {
+            setTripData(prevData => ({
+                ...prevData,
+                ...newData,
+            }));
+        };
+        
 
     const handleSaveExpense = () => {
-        navigation.reset({
-            index:0,
-            routes: [{name:'TravelOngoing'}]
-        });
+        navigation.replace('TravelOngoing');
     };
 
     const handleReplaceTravel = () => {
-        navigation.reset({
-            index:0,
-            routes: [{name:'TravelOngoing'}]
-        });
+        navigation.replace('TravelOngoing');
     };
 
     const handleButtonPress = (startDate, endDate) => {
@@ -98,29 +106,7 @@ const WriteExpense = ({ navigation }) => {
         setIsOpen(!isOpen);
         bottomSheetRef.current?.expand();
     };
-
-
-    // 이미지 선택 함수
-    const handleImagePick = () => {
-        launchImageLibrary(
-            {
-                mediaType: 'photo', // 사진만 선택
-                maxWidth: 600,
-                maxHeight: 600,
-                quality: 0.8,
-            },
-            (response) => {
-                if (response.assets && response.assets.length > 0) {
-                    setImageUris((prevUris) => [...prevUris, response.assets[0].uri]); // 기존 배열에 새 이미지 URI 추가
-                }
-            }
-        );
-    };
-
-    // 이미지 삭제 함수
-    const handleDeleteImage = (uri) => {
-        setImageUris((prevUris) => prevUris.filter((item) => item !== uri)); // 해당 이미지 삭제
-    };
+    
 // 멤버 선택 핸들러
 const handleProfilePress = (member) => {
     setSelectedMember(member.id); // 선택된 멤버의 name 저장
@@ -132,31 +118,23 @@ const excludeProfilePress = (member) => {
 
     const renderContent = () => (
         <View style={styles.contentWrapper}>
-            <View style={styles.inputWrapper}>
-                <TextInput style={styles.travelNameInput} placeholder="지출 제목을 입력하세요" />
-                <View style={styles.dateInputWrapper}>
-                    <TextInput style={styles.dateInputwon} placeholder="지출 금액을 입력하세요" />
-                    <Text style={styles.dateText}>원</Text>
-                </View>
+            <View style={styles.optionContainer}>
+                 <Image source={selectedOptionData?.image} style={styles.optionImage} resizeMode='contain'/>
+                 <Text style={styles.optionText}>{selectedOptionData?.text}</Text>
             </View>
-            <TextInput style={styles.memoInput} placeholder="메모를 입력하세요" multiline />
+            <Text style={styles.travelNameInput}>{title}</Text>
+            <View style={styles.dateInputWrapper}>
+                    <Text style={styles.dateText}>{money}</Text>
+                    <Text style={styles.dateText}> 원</Text>
+                </View>
+            <Text style={styles.travelMemo}>{memo}</Text>
             {/* 선택된 이미지 미리보기 */}
             <View style={styles.imgSlide} >
-            {imageUris.length > 0 && (
-                <ImgSlideUpload images={imageUris.map(uri => ({ uri }))} itemsToShow={2} scale={85} handleDeleteImage={handleDeleteImage}/>
-            )}
+                <ImgSlide images={images} itemsToShow={2} scale={85}/>
             </View>
-            {/* 이미지 선택 버튼 */}
-            <View style={styles.picup}>
-                <PlusButton onPress={handleImagePick} text="사진 추가하기" width={358} height={42} NoBorder={true} />
-            </View>
-            {/* 카테고리 선택*/}
-            <Text style={styles.categoryText}>카테고리를 선택하세요</Text>
-            <View style={styles.optionsContainer}>
-                <OptionList options={options} Buttonwidth={64}/>
-            </View>
+
             {/*결제인 */}
-            <Text style={styles.categoryText}>누가 결제했나요?</Text>
+            <Text style={styles.categoryText}>결제한 멤버</Text>
             <View style={styles.profileContainer}>
                 {members.map((member, index) => (
                         <Profile
@@ -167,15 +145,13 @@ const excludeProfilePress = (member) => {
                             image={member.image}
                             color={member.color}
                             selected={selectedMember === member.id}
-                            normal={false}
-                            onPress={() => handleProfilePress(member)}
+                            normal={true}
                         />
                     
                 ))}
             </View>
             {/*지출 제외멤버 */}
-            <Text style={styles.categoryText}>지출에서 제외할 멤버가 있나요?</Text>
-            <Text style={styles.leaderSubText}>해당 금액 정산 시 제외됩니다</Text>
+            <Text style={styles.categoryText}>지출에 포함된 멤버</Text>
             <View style={styles.profileContainer}>
                 {members.map((member, index) => (
                         <Profile
@@ -186,20 +162,12 @@ const excludeProfilePress = (member) => {
                             image={member.image}
                             color={member.color}
                             selected={excludedMember === member.id}
-                            normal={false}
+                            normal={true}
                             onPress={() => excludeProfilePress(member)}
                         />
                     
                 ))}
             </View>
-            <TwoButton 
-                width={360} 
-                height={42} 
-                textLeft='저장' 
-                textRight='취소'
-                onPressLeft={handleSaveExpense}
-                onPressRight={handleReplaceTravel} 
-            />
         </View>
     );
 
@@ -221,21 +189,19 @@ const excludeProfilePress = (member) => {
     );
 };
 
-export default WriteExpense;
+export default WCompletedExpense;
 
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 20,
         backgroundColor: '#fff',
-        marginTop:-20,
     },
     contentWrapper: {
         flex: 1,
-    },
-    inputWrapper: {
-        justifyContent: 'center',
-        marginBottom: 20,
+        backgroundColor: '#fff',
+        
+        marginTop:-20,
     },
     sectionText: {
         fontSize: 15,
@@ -243,26 +209,16 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     dateInputWrapper: {
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        position:'relative',
-    },
-    dateInputwon: {
+        flexDirection: 'row',
+        paddingLeft:20,
+        marginTop:-40,
         width: 350,
         height: 50,
-        paddingLeft: 10,
-        paddingRight: 10,
-        fontSize: 15,
-        backgroundColor: '#F8F8F8',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
     },
     dateText: {
-        fontSize: 17,
+        fontSize: 19,
         color: '#1D1D1F',
         fontFamily: 'SUIT-SemiBold', 
-        position:'absolute',
         top:15,
         right:15,
     },
@@ -300,6 +256,7 @@ const styles = StyleSheet.create({
         fontSize: 23,
         borderColor: '#BBBBBB',
         height: 50,
+        marginTop:-15,
         marginBottom: 15,
         fontFamily: theme.fonts.extrabold,
     },
@@ -313,7 +270,8 @@ const styles = StyleSheet.create({
     imgSlide:{
         marginLeft:-8,
         marginRight:-7,
-        marginBottom:10,
+        marginTop:10,
+        marginBottom:40,
     },
     picup:{
         marginBottom:30,
@@ -324,12 +282,26 @@ const styles = StyleSheet.create({
         fontSize:17,
         marginBottom:15,
     },
-    optionsContainer: {
+    optionContainer: {
         flexDirection: "row",
-        justifyContent: "space-between",
+        justifyContent: 'center',
+        alignContent: "center",
         marginBottom: 30,
-        height:34,
+        width:52,
+        height:26,
+        backgroundColor:'#F7F7F7',
       },
+    optionImage:{
+        width:14,
+        height:14,
+        marginTop:6,
+    },
+    optionText:{
+        marginTop:7,
+        marginLeft:3,
+        fontFamily: 'SUIT-SemiBold', 
+        fontSize: 13,
+    },
       plusButton: {
         color: "white",
         fontWeight: "medium",

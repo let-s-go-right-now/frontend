@@ -3,17 +3,14 @@ import styled from 'styled-components/native';
 import LeaderBadge from '../assets/icons/user/leader_badge.png';
 import { Alert, Image, TouchableOpacity } from 'react-native';
 
+
+/// normal을 false로 입력하면 진하지 않게 됩니다!
 const ProfileWrapper = styled(TouchableOpacity)`
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-<<<<<<< HEAD
-    opacity: ${({normal, selected}) => ((normal||selected) ? 1 : 0.2)};
-=======
-    opacity: ${({normal}) => (normal ? 1 : 0.2)};
-    height: 87px;
->>>>>>> main
+    opacity: ${({normal,selected}) => (normal || selected ? 1 : 0.2)};
 `
 
 const ProfileImage = styled(Image)`
@@ -22,7 +19,6 @@ const ProfileImage = styled(Image)`
     border-radius: 30px;
     border-width: ${({selected}) => (selected ? '2.5px' : '0px')};
     border-color: ${({selected}) => (selected ? '#363638' : 'transparent')};
-    opacity: ${({selected}) => (selected ? 1 : 0.2)};
 `
 
 const Info = styled.View`
@@ -32,7 +28,6 @@ const Info = styled.View`
     flex-direction: row;
     gap: 4px;
     margin-top: 8px;
-    opacity: ${({selected}) => (selected ? 1 : 0.2)};
 `
 
 const ColorBadge = styled.View`
@@ -56,7 +51,7 @@ const Profile = ({
     color,
     selected,
     onPress,
-    normal = true  // 기본값을 true로 설정
+    normal = false  // 기본값을 true로 설정
 }) => {
     return (
         <ProfileWrapper selected={selected} onPress={onPress} normal={normal}>

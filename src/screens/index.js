@@ -18,5 +18,7 @@ import Calculation from './Calculation';
 import Finish from './Finish';
 import AiRecommend from './AiRecommend';
 import AiDetail from './AiDetail';
+import WEditExpense from './travel/WEditExpense';
+import WCompletedExpense from './travel/WCompletedExpense';
 
-export {TravelManage, WriteExpense,CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report, Calculation, Finish, AiRecommend, AiDetail};
+export {WCompletedExpense,WEditExpense,TravelManage, WriteExpense,CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report, Calculation, Finish, AiRecommend, AiDetail};

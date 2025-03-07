@@ -1,12 +1,22 @@
 import React from 'react';
-import { FlatList, View, Text, StyleSheet } from 'react-native';
+import { FlatList, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const ExpenditureList = ({ data }) => {
+const ExpenditureList = ({ data,navigation,completed }) => {
+    const handlePress = (id) => {
+    // 항목 클릭 시 WEditExpense로 이동
+    if(completed){
+      navigation.navigate('WCompletedExpense', { expenditureId: id });
+    }else{
+      navigation.navigate('WEditExpense', { expenditureId: id });
+    }
+
+  };
+
   return (
     <FlatList
       data={data} // data로 받은 항목을 FlatList의 데이터로 사용
       renderItem={({ item }) => (
-        <View style={styles.expenditureItem}>
+        <TouchableOpacity onPress={() => handlePress(item.id)} style={styles.expenditureItem}>
           <View style={styles.row}>
             <Text style={styles.expenditureTitle}>{item.title}</Text>
             <Text style={styles.expenditureCategory}>{item.category}</Text>
@@ -15,9 +25,9 @@ const ExpenditureList = ({ data }) => {
             <Text style={styles.expenditureCost}>{item.cost}</Text>
             <Text style={styles.expenditureDate}>{item.date}</Text>
           </View>
-        </View>
+          </TouchableOpacity>
       )}
-      keyExtractor={(item, index) => index.toString()} // 고유 key 생성
+      keyExtractor={(item) => item.id ? item.id.toString() : String(item)}
     />
   );
 };
