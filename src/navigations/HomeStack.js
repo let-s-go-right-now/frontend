@@ -54,11 +54,6 @@ const HomeStack = () => {
                 component={HomeTravelStack}
                 options={{ headerShown: false, mode: 'light' }}
             />
-            <Stack.Screen
-                name="TravelInvite"  //AI화면 연결
-                component={TravelInvite}
-                options={{ title: 'AI', mode: 'light' }}
-            />
         </Stack.Navigator>
     );
 };

@@ -2,11 +2,11 @@ import React, { useCallback, useRef, useState } from 'react';
 import { StyleSheet,View, Image, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView, Text } from 'react-native-gesture-handler';
 import CloseGray from '../assets/icons/user/close_gray.png';
-import { useTabBarNone } from '../utils';
+import { useTabBarNone, useTabBarVisibility } from '../utils';
 
-const ImgZoomInTab = ({ navigation,route}) => {
+const ImgZoomIn = ({ navigation,route}) => {
   const {imageIndex, images} = route.params;
-  useTabBarNone(false);
+  useTabBarVisibility(false);
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -44,4 +44,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ImgZoomInTab;
+export default ImgZoomIn;

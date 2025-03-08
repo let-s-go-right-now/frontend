@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import {Calculation, Finish, Report, TravelCreate,TravelManage,TravelOngoing, WEditExpense, WriteExpense } from '../screens';
+import {Calculation, Finish, ImgZoomIn, ImgZoomInTab, Report, TravelCreate,TravelInvite,TravelManage,TravelOngoing, WEditExpense, WriteExpense } from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -97,6 +97,21 @@ const OngoingTravelStack = () => {
                 name="Finish"
                 component={Finish}
                 options={{ headerShown: false, mode: 'light' }}
+            />
+            <Stack.Screen
+                name="ImgZoomIn"
+                component={ImgZoomIn}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+                        <Stack.Screen
+                name="ImgZoomInTab"
+                component={ImgZoomInTab}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+            <Stack.Screen
+                name="TravelInvite"  
+                component={TravelInvite}
+                options={{ title: '여행 초대', mode: 'light' }}
             />
         </Stack.Navigator>
         </>

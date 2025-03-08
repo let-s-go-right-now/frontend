@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Calculation, CompletedDetail, CompletedProfile, Finish, Report, TravelCompleted, WCompletedExpense } from '../screens';
+import { Calculation, CompletedDetail, CompletedProfile, Finish, ImgZoomIn, ImgZoomInTab, Report, TravelCompleted, WCompletedExpense } from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -79,6 +79,16 @@ const CompletedTravelStack = ({ navigation, route }) => {
             <Stack.Screen
                 name="Finish"
                 component={Finish}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+            <Stack.Screen
+                name="ImgZoomIn"
+                component={ImgZoomIn}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+                                    <Stack.Screen
+                name="ImgZoomInTab"
+                component={ImgZoomInTab}
                 options={{ headerShown: false, mode: 'light' }}
             />
         </Stack.Navigator>
