@@ -183,7 +183,7 @@ const Signup2 = ({ navigation }) => {
         formData.append('name', name);
         formData.append('email', email);
         formData.append('password', password);
-        formData.append('accountNumber', `${bank}${accountNumber}`);
+        formData.append('accountNumber', `${bank} ${accountNumber}`);
 
         formData.append('image', {
             uri: image.uri,
@@ -199,7 +199,13 @@ const Signup2 = ({ navigation }) => {
             console.log('회원가입 성공:', response);
             navigation.navigate('Main');
         } catch(error) {
+            if (error.response.status===403) {
             console.log('회원가입 에러:', error);
+            console.log('error.response',error.response);
+                Alert.alert('사진의 용량이 너무 큽니다.')
+            } else {
+                Alert.alert('문제가 발생했습니다. 다시 시도해주세요.')
+            }
         }
     }
     

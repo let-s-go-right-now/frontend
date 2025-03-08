@@ -134,6 +134,9 @@ const Login = ({ navigation, setIsLogin }) => {
                 setPasswordError(true);
                 setEmailError(false);
             }
+            else {
+                Alert.alert('이메일과 비밀번호를 다시 확인한 후 시도해주세요.')
+            }
         }
     }
 

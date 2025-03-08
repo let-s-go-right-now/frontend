@@ -37,6 +37,7 @@ const ProfileImg = styled(Image)`
 	height: 44px;
 	margin-right: 12px;
 	margin-left: 6px;
+	border-radius: 22px;
 `
 
 const Name = styled.Text`
@@ -214,6 +215,7 @@ const Mypage = ({ navigation, route }) => {
 			const response = await axiosInstance.get('api/member/info');
 			console.log('getInfo 성공:', response);
 			setName(response.data.result.name);
+			setImageUri(response.data.result.profileImageLink)
 		} catch(error) {
 			console.log('getInfo 실패:', error);
 		}

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { TextInput, View, Image, TouchableOpacity, Dimensions, Button, Text, PermissionsAndroid  } from 'react-native';
+import { TextInput, View, Image, TouchableOpacity, Dimensions, Button, Text, PermissionsAndroid, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import { GrayButton, MiniGrayButton, BlackButton } from '../components';
 import DefaultImg from '../assets/icons/user/profile.png';
@@ -230,7 +230,7 @@ const Mypage2 = ({ navigation }) => {
             selectionLimit: 1,
             includeBase64: false,
         }, 
-        response => {
+        async (response) => {
             if (response.didCancel) {
                 return;
             }
@@ -239,16 +239,35 @@ const Mypage2 = ({ navigation }) => {
                 return;
             }
             if (response.assets?.length>0) {
-                setImageUri(response.assets[0].uri);
+                const formData = new FormData();
+                const image = response.assets[0];
+                formData.append('profileImgLink', {
+                    uri: image.uri,
+                    type: image.type || 'image/jpeg',
+                    name: image.fileName || 'profile.jpg'
+                });
+                try {
+                    const response = await axiosInstance.put('api/member/profile-image', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        }
+                    })
+                    console.log('프로필 사진 변경 성공', response);
+                    setIsOpen(false);
+                    setImageUri(image.uri);
+                } catch(error) {
+                    console.log('프로필 사진 변경 에러: ', error.response);
+                }
             }
         })
     }
-
+    
     const getInfo = async () => {
         try {
             const response = await axiosInstance.get('api/member/info');
             console.log('getInfo 성공:', response);
             setName(response.data.result.name);
+            setImageUri(response.data.result.profileImageLink)
         } catch(error) {
             console.log('getInfo 실패:', error);
         }
@@ -271,6 +290,15 @@ const Mypage2 = ({ navigation }) => {
         }
     }
     
+    const getImage = async () => {
+        try {
+            const response = await axiosInstance.get('api/member/info');
+            console.log('getInfo 성공:', response);
+            setImageUri(response.data.result.profileImageLink)
+        } catch(error) {
+            console.log('getInfo 실패:', error);
+        }
+    }
 
     useEffect(() => {
         getInfo();
