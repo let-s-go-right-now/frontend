@@ -15,7 +15,14 @@ const CompletedDetail = ({  route, navigation }) => {
   //tabbar 삭제
 useTabBarVisibility(false);
   const { id } = route.params; //여행 id
-  const [images] = useState([image1, image2, image3, image4, image5, image6]);
+  const [images] = useState([
+    { id: 1, image: image1 },
+    { id: 2, image: image2 },
+    { id: 3, image: image3 },
+    { id: 4, image: image4 },
+    { id: 5, image: image5 },
+    { id: 6, image: image6 }
+  ]);
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
 
@@ -76,6 +83,15 @@ useTabBarVisibility(false);
     navigation.navigate("CompletedProfile", { id: id })
   };
 
+    // 이미지 클릭 시 상세 이미지로 이동
+    const handleImagePress = (index) => {
+      navigation.navigate("ImgZoomIn", {
+        imageIndex: index,
+        images: images, // 전체 이미지 배열을 전달
+      });
+    };
+    
+
   return (
     <>
       <FlatList
@@ -101,7 +117,7 @@ useTabBarVisibility(false);
                   <Text style={styles.manageButtonText}>상세보기</Text>
                 </TouchableOpacity>
               </View>
-              <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} />
+              <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} onImagePress={handleImagePress}  />
             </View>
 
             {/* 지출 정보 */}

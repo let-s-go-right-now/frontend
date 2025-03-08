@@ -20,5 +20,8 @@ import AiRecommend from './AiRecommend';
 import AiDetail from './AiDetail';
 import WEditExpense from './travel/WEditExpense';
 import WCompletedExpense from './travel/WCompletedExpense';
+import ImgZoomIn from './ImgZoomIn';
+import ImgZoomInTab from './ImgZoomTab';
+import WCreateExpense from './travel/WCreateExpense';
 
-export {WCompletedExpense,WEditExpense,TravelManage, WriteExpense,CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report, Calculation, Finish, AiRecommend, AiDetail};
+export {WCreateExpense,ImgZoomIn,ImgZoomInTab,WCompletedExpense,WEditExpense,TravelManage, WriteExpense,CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report, Calculation, Finish, AiRecommend, AiDetail};

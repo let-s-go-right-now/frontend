@@ -33,14 +33,14 @@ const WCompletedExpense = ({ route, navigation }) => {
             { id: 2, name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red", onPress: () => {} },
             { id: 3, name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green", onPress: () => {} },
         ],
-        images: [
-            image1,
-            image2,
-            image3,
-            image4,
-            image5,
-            image6,
-        ],
+    images: [
+        { id: 1, image: image1 },
+        { id: 2, image: image2 },
+        { id: 3, image: image3 },
+        { id: 4, image: image4 },
+        { id: 5, image: image5 },
+        { id: 6, image: image6 }
+      ],
         selectedOption: 6,  // 기존 selectedOption
         money: '24000',  // 기존 money
     });
@@ -116,6 +116,15 @@ const excludeProfilePress = (member) => {
     setExcludedMember(member.id); // 선택된 멤버의 name 저장
 };
 
+  // 이미지 클릭 시 상세 이미지로 이동
+  const handleImagePress = (index) => {
+    navigation.navigate("ImgZoomIn", {
+      imageIndex: index,
+      images: images, // 전체 이미지 배열을 전달
+    });
+  };
+  
+
     const renderContent = () => (
         <View style={styles.contentWrapper}>
             <View style={styles.optionContainer}>
@@ -130,7 +139,7 @@ const excludeProfilePress = (member) => {
             <Text style={styles.travelMemo}>{memo}</Text>
             {/* 선택된 이미지 미리보기 */}
             <View style={styles.imgSlide} >
-                <ImgSlide images={images} itemsToShow={2} scale={85}/>
+                <ImgSlide images={images} itemsToShow={2} scale={85} onImagePress={handleImagePress}  />
             </View>
 
             {/*결제인 */}

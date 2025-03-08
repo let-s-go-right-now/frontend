@@ -16,7 +16,14 @@ const travelData = [
     title: '부산바캉스',
     days: '3박 4일',
     cost: '80만',
-    images: [image1,image2,image3,image4,image5,image6],
+    images: [
+        { id: 1, image: image1 },
+        { id: 2, image: image2 },
+        { id: 3, image: image3 },
+        { id: 4, image: image4 },
+        { id: 5, image: image5 },
+        { id: 6, image: image6 }
+      ],
     profileImage: profileImg,
     name: '김보영',
     people: 2,
@@ -26,7 +33,14 @@ const travelData = [
     title: '부산바캉스',
     days: '3박 4일',
     cost: '80만',
-    images: [image1,image2,image3,image4,image5,image6],
+    images: [
+      { id: 1, image: image1 },
+      { id: 2, image: image2 },
+      { id: 3, image: image3 },
+      { id: 4, image: image4 },
+      { id: 5, image: image5 },
+      { id: 6, image: image6 }
+    ],
     profileImage: profileImg,
     name: '김보영',
     people: 2,
@@ -37,7 +51,14 @@ const travelData = [
     title: '부산바캉스',
     days: '3박 4일',
     cost: '80만',
-    images: [image1,image2,image3,image4,image5,image6],
+    images: [
+      { id: 1, image: image1 },
+      { id: 2, image: image2 },
+      { id: 3, image: image3 },
+      { id: 4, image: image4 },
+      { id: 5, image: image5 },
+      { id: 6, image: image6 }
+    ],
     profileImage: profileImg,
     name: '김보영',
     people: 2,
@@ -48,7 +69,14 @@ const travelData = [
     title: '부산바캉스',
     days: '3박 4일',
     cost: '80만',
-    images: [image1,image2,image3,image4,image5,image6],
+    images: [
+      { id: 1, image: image1 },
+      { id: 2, image: image2 },
+      { id: 3, image: image3 },
+      { id: 4, image: image4 },
+      { id: 5, image: image5 },
+      { id: 6, image: image6 }
+    ],
     profileImage: profileImg,
     name: '김보영',
     people: 2,
@@ -57,7 +85,20 @@ const travelData = [
   // 추가 데이터
 ];
 
+
 const TravelCompleted = ({navigation}) => {
+    // 이미지 클릭 시 상세 이미지로 이동
+    const handleImagePress = (travelId, index) => {
+      const selectedTravel = travelData.find((travel) => travel.id === travelId);
+      if (selectedTravel) {
+        navigation.navigate("ImgZoomInTab", {
+          imageIndex: index,
+          images: selectedTravel.images, // 선택한 여행의 이미지 배열만 전달
+          pretabVisible:true,
+        });
+      }
+    };
+    
       return (
       <FlatList
         style={styles.flatcards}
@@ -82,7 +123,14 @@ const TravelCompleted = ({navigation}) => {
   
             {/* 이미지 슬라이드 */}
             <View style={styles.imgslidePad}>
-              <ImgSlide images={item.images} itemsToShow={3} scale={82} style={styles.imgslidePad} />
+              <ImgSlide 
+                  images={item.images} 
+                  itemsToShow={3} 
+                  scale={82} 
+                  style={styles.imgslidePad} 
+                  onImagePress={(index) => handleImagePress(item.id, index)} 
+                />
+
             </View>
   
             {/* 하단 정보 (프로필 & 작성일) */}
