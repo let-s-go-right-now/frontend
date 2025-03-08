@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { TextInput, View, Image, TouchableOpacity, Dimensions, Button, Text } from 'react-native';
+import { TextInput, View, Image, TouchableOpacity, Dimensions, Button, Text, PermissionsAndroid  } from 'react-native';
 import styled from 'styled-components/native';
 import { GrayButton, MiniGrayButton, BlackButton } from '../components';
 import DefaultImg from '../assets/icons/user/profile.png';
@@ -9,6 +9,7 @@ import { CustomBottomSheet, TwoButton } from '../components';
 import { WhiteButton } from '../components';
 import CloseGray from '../assets/icons/user/close_gray';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { axiosInstance } from '../utils';
 
 const MypageWrapper = styled.View`
     width: 375px;
@@ -119,7 +120,7 @@ const Mypage2 = ({ navigation }) => {
     useEffect(() => {
         navigation.setOptions({
             tabBarVisible: false,
-            creenOptions:{ tabBarStyle: { display: 'none' } }
+            screenOptions:{ tabBarStyle: { display: 'none' } }
         });
 
         return () => {
@@ -133,7 +134,7 @@ const Mypage2 = ({ navigation }) => {
 
     const [isEdit, setIsEdit] = useState(false);
     const [imageUri, setImageUri] = useState(null);
-    const [name, setName] = useState('박시우');
+    const [name, setName] = useState('');
     const [bank, setBank] = useState('국민은행');
     const [accountNumber, setAccountNumber] = useState('123-45A-678901');
     const [isOpen, setIsOpen] = useState(false);
@@ -184,7 +185,7 @@ const Mypage2 = ({ navigation }) => {
         setBottom('update');
     }
 
-    const handleName = name => {
+    const handleName = (name) => {
         setName(name);
     }
 
@@ -203,45 +204,77 @@ const Mypage2 = ({ navigation }) => {
     }
 
     const handlePermission = async () => {
-            try {
-                const granted = await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                    {
-                        title: '사진 접근 권한 요청',
-                        message: '프로필 사진을 변경하려면 기기의 사진 및 미디어 파일에 접근해야 합니다.',
-                    }
-                );
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    console.log('권한이 허용되었습니다.');
-                } else {
-                    console.log('권한이 거부되었습니다.');
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                {
+                    title: '사진 접근 권한 요청',
+                    message: '프로필 사진을 변경하려면 기기의 사진 및 미디어 파일에 접근해야 합니다.',
                 }
-            } catch (error) {
-                console.warn(error);
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log('권한이 허용되었습니다.');
+            } else {
+                console.log('권한이 거부되었습니다.');
             }
-        };
-    
-        const handleImage = async () => {
-            await handlePermission();
-    
-            launchImageLibrary({
-                mediaType: 'photo',
-                selectionLimit: 1,
-                includeBase64: false,
-            }, 
-            response => {
-                if (response.didCancel) {
-                    return;
-                }
-                if (response.errorCode) {
-                    Alert.alert('사진 변경에서 에러가 발생했습니다.');
-                    return;
-                }
-                if (response.assets?.length>0) {
-                    setImageUri(response.assets[0].uri);
-                }
-            })
+        } catch (error) {
+            console.warn(error);
         }
+    };
+
+    const handleImage = async () => {
+        await handlePermission();
+
+        launchImageLibrary({
+            mediaType: 'photo',
+            selectionLimit: 1,
+            includeBase64: false,
+        }, 
+        response => {
+            if (response.didCancel) {
+                return;
+            }
+            if (response.errorCode) {
+                Alert.alert('사진 변경에서 에러가 발생했습니다.');
+                return;
+            }
+            if (response.assets?.length>0) {
+                setImageUri(response.assets[0].uri);
+            }
+        })
+    }
+
+    const getInfo = async () => {
+        try {
+            const response = await axiosInstance.get('api/member/info');
+            console.log('getInfo 성공:', response);
+            setName(response.data.result.name);
+        } catch(error) {
+            console.log('getInfo 실패:', error);
+        }
+    }
+
+    const changeName = async () => {
+        const formData = new FormData();
+        formData.append('name', name);
+        console.log('이름 변경 formData: ', formData);
+        try {
+            const response = await axiosInstance.put('api/member/name', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            });
+            console.log('이름 변경 성공:', response.data);
+            setIsOpen(false);
+        } catch (error) {
+            console.log('이름 변경 에러:', error);
+        }
+    }
+    
+
+    useEffect(() => {
+        getInfo();
+    }, []);
 
     return (
         <>
@@ -349,7 +382,7 @@ const Mypage2 = ({ navigation }) => {
                                 textLeft="저장"
                                 textRight="취소"
                                 width={343}
-                                onPressLeft={closeBottomSheet}
+                                onPressLeft={changeName}
                                 onPressRight={closeBottomSheet}
                             />
                         </>

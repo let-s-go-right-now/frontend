@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { GrayButton } from '../components';
 import styled from 'styled-components/native';
@@ -8,6 +8,7 @@ import HeartFull from '../assets/icons/user/heart_full.png';
 import Money from '../assets/icons/user/money.png';
 import Calender from '../assets/icons/user/calender.png';
 import Transport from '../assets/icons/user/transport.png';
+import { axiosInstance } from '../utils';
 
 const MypageWrapper = styled.View`
 	display: flex;
@@ -111,12 +112,11 @@ const Bottom = styled.View`
 	border-bottom-style: solid;
 `
 
-const Mypage = ({ navigation }) => {
+const Mypage = ({ navigation, route }) => {
 	const [imageUri, setImageUri] = useState(null);
 	const [name, setName] = useState('');
 
 	const width = Dimensions.get('window').width;
-	
 
 	const PostList= [
 		{
@@ -208,6 +208,26 @@ const Mypage = ({ navigation }) => {
 			title: '순천만의 자연과 한옥의 정취를 느끼는 여행',
 		},
 	]
+
+	const getInfo = async () => {
+		try {
+			const response = await axiosInstance.get('api/member/info');
+			console.log('getInfo 성공:', response);
+			setName(response.data.result.name);
+		} catch(error) {
+			console.log('getInfo 실패:', error);
+		}
+	}
+
+	useEffect(() => {
+		const unsubscribe = navigation.addListener('focus', () => {
+			getInfo();
+		});
+
+		getInfo();
+
+		return unsubscribe;
+	}, [navigation]);
 	
     return (
 		<View style={{flex: 1, backgroundColor: '#FFFFFF', width: '100%'}}>
