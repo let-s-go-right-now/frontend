@@ -6,6 +6,7 @@ import CloseDarkgray from '../assets/icons/user/close_darkgray.svg';
 import CloseGray from '../assets/icons/user/close_gray.svg';
 import { axiosInstance } from '../utils';
 import Home from './Home';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginWrapper = styled.View`
     width: 100%;
@@ -99,6 +100,14 @@ const Login = ({ navigation, setIsLogin }) => {
         setPassword('');
     }
 
+    const storeToken = async (token) => {
+        try {
+            await AsyncStorage.setItem('jwtToken', token);
+        } catch (error) {
+            console.error('토큰 저장 중 에러 발생:', error);
+        }
+    };
+
     const handleLogin = async () => {
         try {
             const response = await axiosInstance.post('api/member/login', {
@@ -107,12 +116,15 @@ const Login = ({ navigation, setIsLogin }) => {
             })
             if (response.status===200) {
                 console.log('로그인 성공:', response);
+                const token = response.headers.authorization;
+                await storeToken(token);
+                console.log('jwtToken:', token);
                 setIsLogin(true);
                 navigation.navigate('Home');
                 console.log(setIsLogin);                
             }
         } catch (error) {
-            console.log('error.response:', error.response);
+            console.log('error:', error);
             console.log('error.response.data.code:', error.response.data.code);
             if (error.response.data.code==="MEMBER4001") {
                 setEmailError(true);

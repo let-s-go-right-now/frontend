@@ -89,6 +89,7 @@ const Home = ({navigation}) => {
           value={travelInfo.itinerary}
           onChangeText={(value) => handleChange('itinerary', value)}
           icon ={moneyIcon}
+          keyboardType="number-pad"
         />
         <AiInput
           label="일정이 어떻게 되나요?"
