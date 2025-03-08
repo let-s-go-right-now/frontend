@@ -267,7 +267,12 @@ const Mypage2 = ({ navigation }) => {
             const response = await axiosInstance.get('api/member/info');
             console.log('getInfo 성공:', response);
             setName(response.data.result.name);
-            setImageUri(response.data.result.profileImageLink)
+            setImageUri(response.data.result.profileImageLink);
+            const [bank, number] = response.data.result.accountNumber.split(' ');
+            console.log('bank',bank);
+            console.log('number',number);
+            setBank(bank);
+            setAccountNumber(number);
         } catch(error) {
             console.log('getInfo 실패:', error);
         }
@@ -289,14 +294,21 @@ const Mypage2 = ({ navigation }) => {
             console.log('이름 변경 에러:', error);
         }
     }
-    
-    const getImage = async () => {
+
+    const handleInfo = async () => {
+        const formData = new FormData();
+        formData.append('accountNumber', `${bank} ${accountNumber}`);
+        console.log('formData:', formData);
         try {
-            const response = await axiosInstance.get('api/member/info');
-            console.log('getInfo 성공:', response);
-            setImageUri(response.data.result.profileImageLink)
-        } catch(error) {
-            console.log('getInfo 실패:', error);
+            const response = await axiosInstance.put('api/member/account-number', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                }
+            })
+            console.log('회원 정보 수정 성공: ', response);
+            setIsEdit(false);
+        } catch (error) {
+            console.log('회원 정보 수정 에러: ', error);
         }
     }
 
@@ -328,7 +340,13 @@ const Mypage2 = ({ navigation }) => {
                     fontColor="#838383"
                     fontSize={15}
                     fontWeight="Medium"
-                    onPress={() => handleEditButton()}
+                    onPress={() => {
+                        if (isEdit) {
+                            handleInfo()
+                        } else {
+                            setIsEdit(true)
+                        }
+                    }}
                 />
                 <Wrapper>
                     <Title>정산 시 사용할 계좌</Title>
