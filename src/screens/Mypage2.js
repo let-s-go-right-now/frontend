@@ -312,6 +312,17 @@ const Mypage2 = ({ navigation }) => {
         }
     }
 
+    const deleteImage = async () => {
+        try {
+            const response = await axiosInstance.delete('api/member/profile-image');
+            console.log('사진 삭제 성공: ', response);
+            setIsOpen(false);
+            getInfo();
+        } catch (error) {
+            console.log('사진 삭제 실패:', error);
+        }
+    }
+
     useEffect(() => {
         getInfo();
     }, []);
@@ -439,7 +450,7 @@ const Mypage2 = ({ navigation }) => {
                                 textLeft="삭제"
                                 textRight="취소"
                                 width={343}
-                                onPressLeft={closeBottomSheet}
+                                onPressLeft={deleteImage}
                                 onPressRight={closeBottomSheet}
                             />
                         </>
