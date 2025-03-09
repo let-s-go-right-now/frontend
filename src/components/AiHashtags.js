@@ -6,8 +6,6 @@ import PropTypes from 'prop-types';
 import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
 import Cost from '../assets/icons/ai/cost.png';
 import Search from '../assets/icons/ai/search.png';
-import Eat from '../assets/icons/ai/eat.png';
-import Attraction from '../assets/icons/ai/attraction.png';
 
 const Wrapper = styled.View`
     display: flex;
@@ -27,7 +25,6 @@ const Line = styled.View`
 
 const Content = styled.View`
     padding: 12px;
-    background-color: #F7F7F7;
     flex: 1;
 `
 
@@ -38,7 +35,7 @@ const RowWrapper = styled.View`
 `
 
 const Title = styled.Text`
-    font-size: 15px;
+    font-size: 19px;
     font-family: 'SUIT-Bold';
     color: #363638;
     margin-right: 9px;
@@ -75,31 +72,42 @@ const SearchText = styled.Text`
     font-family: 'SUIT-Light';
     color: #5588F4;
 `
+
 const Desc = styled.Text`
-    font-size: 13px;
+    font-size: 15px;
     font-family: 'SUIT-Medium';
-    color: #838383;
-`
-const Icon = styled(Image)`
-    width: 26px;
-    height: 26px;
-    margin-right: 9px;
+    color: #363638;
 `
 
-const AiPlace = ({ location, details, cost, link=null, type=null }) => {
+const HashtagsWrapper = styled.View`
+    background-color: #F7F7F7;
+    padding: 4px 5px;
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+    width: auto;
+    align-self: flex-start;
+    margin-bottom: 10px;
+`
+
+const Hashtag = styled.Text`
+    font-size: 11px;
+    font-family: 'SUIT-Medium';
+    color: #999999;
+`
+
+const AiHashtags = ({ location, details, cost=null, link="https://naver.com", hashtags }) => {
     const openURL = (url) => {
         Linking.openURL(url).catch(err => console.error("An error occurred", err));
     };
-
-    console.log(location, details, cost, link, type );
     
     return (
         <Wrapper>
             <Line></Line>
+            {/* <Text>{hashtags}</Text> */}
             <Content>
-                <RowWrapper style={{justifyContent: 'space-between', marginBottom: 11}}>
+                <RowWrapper style={{justifyContent: 'space-between', marginBottom: 6}}>
                     <RowWrapper>
-                        <Icon source={type==='eat' ? Eat : type==='attraction' ? Attraction : null}/>
                         <Title>{location}</Title>
                         {link!==null && (
                             <SearchWrapper onPress={() => openURL(link)}>
@@ -115,17 +123,22 @@ const AiPlace = ({ location, details, cost, link=null, type=null }) => {
                         </RowWrapper>                         
                     )}
                 </RowWrapper>
+                <HashtagsWrapper>
+                    {hashtags && hashtags.map((hashtag, index) => (
+                        <Hashtag key={index}>{hashtag}</Hashtag>
+                    ))}
+                </HashtagsWrapper>
                 <Desc>{details}</Desc>
             </Content>
         </Wrapper>
     )
 }
 
-AiPlace.propTypes = {
+AiHashtags.propTypes = {
     location: PropTypes.string.isRequired,
     details: PropTypes.string,
     cost: PropTypes.number,
     link: PropTypes.string,
 }
 
-export default AiPlace
+export default AiHashtags

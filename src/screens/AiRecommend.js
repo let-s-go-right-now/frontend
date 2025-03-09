@@ -28,7 +28,7 @@ const Img = styled(Image)`
 
 const Top = styled.View`
     display: flex;
-    align-items: center;
+    align-items: start;
     flex-direction: row;
     justify-content: space-between;
     margin-top: 16px;
@@ -39,6 +39,7 @@ const Title = styled.Text`
     font-size: 21px;
     font-family: 'SUIT-Bold';
     color: #1D1D1F;
+    max-width: 258px;
 `
 
 const Heart = styled(Image)`
@@ -67,7 +68,7 @@ const BlackText = styled.Text`
 
 const GrayText = styled.Text`
     font-size: 13px;
-    font-family: 'SUIT-Rehular';
+    font-family: 'SUIT-Regular';
     color: #AAAAAA;
 `
 
@@ -100,6 +101,7 @@ const AiRecommend = ({ navigation, route }) => {
             })
             console.log('ai 여행 코스 생성 성공:', response.data);
             setTripData(response.data[0]);
+            console.log('tripData!!!',tripData);
         } catch (error) {
             console.log('ai 여행 코스 생성 실패:', error);
         } finally {
@@ -121,10 +123,10 @@ const AiRecommend = ({ navigation, route }) => {
                     transport={travelInfo.transportInfo}
                 />
                 {loading ? (
-                    <ActivityIndicator size="large" color="#000000"/>
+                    <ActivityIndicator size="large" color="#000000" marginTop="50%"/>
                 ) : (
                     <>
-                    <SlideWrapper onPress={() => navigation.navigate('AiDetail')}>
+                    <SlideWrapper onPress={() => navigation.navigate("AiDetail", { state: tripData, departure: travelInfo.StartPlace })}>
                         <Img source={{ uri: tripData.tripImage}} />
                         <Top>
                             <Title>{tripData.title}</Title>
