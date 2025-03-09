@@ -3,11 +3,11 @@ import BottomTab from './BottomTab';
 import LoginStack from './LoginStack';
 
 const Navigation = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   
   return (
     <>
-      {isLogin ? <BottomTab/> : <LoginStack />}
+      {isLogin ? <BottomTab setIsLogin={setIsLogin}/> : <LoginStack setIsLogin={setIsLogin}/>}
     </>
   );
 };

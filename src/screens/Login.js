@@ -1,9 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components/native';
-import { BlackButton } from '../components';
+import { BlackButton, GrayContainer } from '../components';
 import { TextInput } from 'react-native';
 import CloseDarkgray from '../assets/icons/user/close_darkgray.svg';
 import CloseGray from '../assets/icons/user/close_gray.svg';
+import { axiosInstance } from '../utils';
+import Home from './Home';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginWrapper = styled.View`
     width: 100%;
@@ -72,10 +75,12 @@ const StyledInput = styled(TextInput)`
     width: 289px;
 `
 
-const Login = ({ navigation }) => {
+const Login = ({ navigation, setIsLogin }) => {
     const [ready, setReady] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [emailError, setEmailError] = useState(false);
+    const [passwordError, setPasswordError] = useState(false);
 
     const passwordRef = useRef(null);
 
@@ -95,6 +100,54 @@ const Login = ({ navigation }) => {
         setPassword('');
     }
 
+    const storeToken = async (token) => {
+        try {
+            await AsyncStorage.setItem('jwtToken', token);
+        } catch (error) {
+            console.error('토큰 저장 중 에러 발생:', error);
+        }
+    };
+
+    const handleLogin = async () => {
+        try {
+            const response = await axiosInstance.post('api/member/login', {
+                email: email,
+                password: password,
+            })
+            if (response.status===200) {
+                console.log('로그인 성공:', response);
+                const token = response.headers.authorization;
+                await storeToken(token);
+                console.log('jwtToken:', token);
+                setIsLogin(true);
+                navigation.navigate('Home');
+                console.log(setIsLogin);                
+            }
+        } catch (error) {
+            console.log('로그인 에러:', error.response);
+            console.log('error.response.data.code:', error.response.data.code);
+            if (error.response.data.code==="MEMBER4001") {
+                setEmailError(true);
+                setPasswordError(false);
+            }
+            else if (error.response.data.code==="MEMBER4002") {
+                setPasswordError(true);
+                setEmailError(false);
+            }
+            else {
+                Alert.alert('이메일과 비밀번호를 다시 확인한 후 시도해주세요.')
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (email!=='' && password!=='') {
+            setReady(true);
+        } else {
+            setReady(false);
+        }
+    }, [email, password])
+
     return (
         <LoginWrapper>
             <Top>
@@ -104,7 +157,7 @@ const Login = ({ navigation }) => {
             <Container style={{marginTop: 60}}>
                 <Info>
                     <Category>이메일</Category>
-                    {/* <ErrorMessage>존재하는 이메일이 아닙니다</ErrorMessage> */}
+                    {emailError && <ErrorMessage>존재하는 이메일이 아닙니다</ErrorMessage>}
                 </Info>
                 <InputWrapper>
                     <StyledInput
@@ -122,7 +175,7 @@ const Login = ({ navigation }) => {
             <Container style={{marginTop: 28, marginBottom: 60}}>
                 <Info>
                     <Category>비밀번호</Category>
-                    {/* <ErrorMessage>비밀번호가 회원정보와 일치하지 않습니다</ErrorMessage> */}
+                    {passwordError && <ErrorMessage>비밀번호가 회원정보와 일치하지 않습니다</ErrorMessage>}
                 </Info>
                 <InputWrapper>
                     <StyledInput
@@ -137,12 +190,19 @@ const Login = ({ navigation }) => {
                     {password !== '' && <CloseGray onPress={deletePassword} />}
                 </InputWrapper>
             </Container>
-            <BlackButton 
-                text="로그인"
-                width={343}
-                onPress={() => navigation.navigate('Main')}
-                ready={ready}
-            />
+            {ready ? (
+                <BlackButton 
+                    text="로그인"
+                    width={343}
+                    onPress={handleLogin}
+                    ready={ready}
+                />
+            ) : (
+                <GrayContainer
+                    text="로그인"
+                    width={343}
+                />              
+            )}
         </LoginWrapper>
     )
 }

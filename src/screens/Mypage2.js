@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { TextInput, View, Image, TouchableOpacity, Dimensions, Button, Text } from 'react-native';
+import { TextInput, View, Image, TouchableOpacity, Dimensions, Button, Text, PermissionsAndroid, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import { GrayButton, MiniGrayButton, BlackButton } from '../components';
 import DefaultImg from '../assets/icons/user/profile.png';
@@ -9,6 +9,8 @@ import { CustomBottomSheet, TwoButton } from '../components';
 import { WhiteButton } from '../components';
 import CloseGray from '../assets/icons/user/close_gray';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { axiosInstance } from '../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MypageWrapper = styled.View`
     width: 375px;
@@ -115,11 +117,11 @@ const StyledInput = styled(TextInput)`
     max-width: 289px;
 `
 
-const Mypage2 = ({ navigation }) => {
+const Mypage2 = ({ navigation, setIsLogin }) => {
     useEffect(() => {
         navigation.setOptions({
             tabBarVisible: false,
-            creenOptions:{ tabBarStyle: { display: 'none' } }
+            screenOptions:{ tabBarStyle: { display: 'none' } }
         });
 
         return () => {
@@ -133,7 +135,7 @@ const Mypage2 = ({ navigation }) => {
 
     const [isEdit, setIsEdit] = useState(false);
     const [imageUri, setImageUri] = useState(null);
-    const [name, setName] = useState('박시우');
+    const [name, setName] = useState('');
     const [bank, setBank] = useState('국민은행');
     const [accountNumber, setAccountNumber] = useState('123-45A-678901');
     const [isOpen, setIsOpen] = useState(false);
@@ -184,7 +186,7 @@ const Mypage2 = ({ navigation }) => {
         setBottom('update');
     }
 
-    const handleName = name => {
+    const handleName = (name) => {
         setName(name);
     }
 
@@ -192,56 +194,168 @@ const Mypage2 = ({ navigation }) => {
         setName('');
     }
 
-    const handleLogout = () => {
+    const handleLogoutBottom = () => {
         setIsOpen(true);
         setBottom('logout');
     }
 
-    const handleDeleteId = () => {
+    const deleteIdBottom = () => {
+        setBottom('deleteId')
         setIsOpen(true);
-        setBottom('deleteId');
     }
 
     const handlePermission = async () => {
-            try {
-                const granted = await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                    {
-                        title: '사진 접근 권한 요청',
-                        message: '프로필 사진을 변경하려면 기기의 사진 및 미디어 파일에 접근해야 합니다.',
-                    }
-                );
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    console.log('권한이 허용되었습니다.');
-                } else {
-                    console.log('권한이 거부되었습니다.');
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                {
+                    title: '사진 접근 권한 요청',
+                    message: '프로필 사진을 변경하려면 기기의 사진 및 미디어 파일에 접근해야 합니다.',
                 }
-            } catch (error) {
-                console.warn(error);
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log('권한이 허용되었습니다.');
+            } else {
+                console.log('권한이 거부되었습니다.');
             }
-        };
-    
-        const handleImage = async () => {
-            await handlePermission();
-    
-            launchImageLibrary({
-                mediaType: 'photo',
-                selectionLimit: 1,
-                includeBase64: false,
-            }, 
-            response => {
-                if (response.didCancel) {
-                    return;
+        } catch (error) {
+            console.warn(error);
+        }
+    };
+
+    const handleImage = async () => {
+        await handlePermission();
+
+        launchImageLibrary({
+            mediaType: 'photo',
+            selectionLimit: 1,
+            includeBase64: false,
+        }, 
+        async (response) => {
+            if (response.didCancel) {
+                return;
+            }
+            if (response.errorCode) {
+                Alert.alert('사진 변경에서 에러가 발생했습니다.');
+                return;
+            }
+            if (response.assets?.length>0) {
+                const formData = new FormData();
+                const image = response.assets[0];
+                formData.append('profileImgLink', {
+                    uri: image.uri,
+                    type: image.type || 'image/jpeg',
+                    name: image.fileName || 'profile.jpg'
+                });
+                try {
+                    const response = await axiosInstance.put('api/member/profile-image', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        }
+                    })
+                    console.log('프로필 사진 변경 성공', response);
+                    setIsOpen(false);
+                    setImageUri(image.uri);
+                } catch(error) {
+                    console.log('프로필 사진 변경 에러: ', error.response);
                 }
-                if (response.errorCode) {
-                    Alert.alert('사진 변경에서 에러가 발생했습니다.');
-                    return;
+            }
+        })
+    }
+    
+    const getInfo = async () => {
+        try {
+            const response = await axiosInstance.get('api/member/info');
+            console.log('getInfo 성공:', response);
+            setName(response.data.result.name);
+            setImageUri(response.data.result.profileImageLink);
+            const [bank, number] = response.data.result.accountNumber.split(' ');
+            console.log('bank',bank);
+            console.log('number',number);
+            setBank(bank);
+            setAccountNumber(number);
+        } catch(error) {
+            console.log('getInfo 실패:', error);
+        }
+    }
+
+    const changeName = async () => {
+        const formData = new FormData();
+        formData.append('name', name);
+        console.log('이름 변경 formData: ', formData);
+        try {
+            const response = await axiosInstance.put('api/member/name', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
                 }
-                if (response.assets?.length>0) {
-                    setImageUri(response.assets[0].uri);
+            });
+            console.log('이름 변경 성공:', response.data);
+            setIsOpen(false);
+        } catch (error) {
+            console.log('이름 변경 에러:', error);
+        }
+    }
+
+    const handleInfo = async () => {
+        const formData = new FormData();
+        formData.append('accountNumber', `${bank} ${accountNumber}`);
+        console.log('formData:', formData);
+        try {
+            const response = await axiosInstance.put('api/member/account-number', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
                 }
             })
+            console.log('회원 정보 수정 성공: ', response);
+            setIsEdit(false);
+        } catch (error) {
+            console.log('회원 정보 수정 에러: ', error);
         }
+    }
+
+    const deleteImage = async () => {
+        try {
+            const response = await axiosInstance.delete('api/member/profile-image');
+            console.log('사진 삭제 성공: ', response);
+            setIsOpen(false);
+            getInfo();
+        } catch (error) {
+            console.log('사진 삭제 실패:', error);
+        }
+    }
+    console.log('props:', {navigation, setIsLogin});
+
+    const handleLogout = async () => {
+        try {
+            const response = await axiosInstance.post('api/member/logout');
+            console.log('로그아웃 성공: ', response);
+            setIsLogin(false);
+            if (setIsLogin) {
+                setIsLogin(false);
+                navigation.navigate('LoginStack');
+            } else {
+                console.log('setIsLogin이 정의되지 않음');
+            }
+        } catch (error) {
+            console.log('로그아웃 에러: ', error.response);
+        }
+    }
+
+    const handleDeleteId = async () => {
+        try {
+            console.log(AsyncStorage.getItem('jwtToken'));
+            const response = await axiosInstance.post('api/member/leave');
+            console.log('회원탈퇴 성공:', response);
+            setIsOpen(false);
+            navigation.reset({routes: [{name: 'LoginStack'}]})
+        } catch (error) {
+            console.log('회원탈퇴 에러:', error);
+        }
+    }
+
+    useEffect(() => {
+        getInfo();
+    }, []);
 
     return (
         <>
@@ -267,7 +381,13 @@ const Mypage2 = ({ navigation }) => {
                     fontColor="#838383"
                     fontSize={15}
                     fontWeight="Medium"
-                    onPress={() => handleEditButton()}
+                    onPress={() => {
+                        if (isEdit) {
+                            handleInfo()
+                        } else {
+                            setIsEdit(true)
+                        }
+                    }}
                 />
                 <Wrapper>
                     <Title>정산 시 사용할 계좌</Title>
@@ -303,14 +423,14 @@ const Mypage2 = ({ navigation }) => {
                             marginTop: 100, 
                             marginBottom: 30,
                         }}
-                        onPress={handleLogout}
+                        onPress={handleLogoutBottom}
                     />
                     <MiniGrayButton 
                         text="탈퇴하기"
                         color="#BBBBBB"
                         underline={false}
                         fontSize={15}
-                        onPress={handleDeleteId}
+                        onPress={deleteIdBottom}
                     />                    
                 </ButtonWrapper>
             </MypageWrapper>
@@ -349,7 +469,7 @@ const Mypage2 = ({ navigation }) => {
                                 textLeft="저장"
                                 textRight="취소"
                                 width={343}
-                                onPressLeft={closeBottomSheet}
+                                onPressLeft={changeName}
                                 onPressRight={closeBottomSheet}
                             />
                         </>
@@ -360,7 +480,7 @@ const Mypage2 = ({ navigation }) => {
                                 textLeft="삭제"
                                 textRight="취소"
                                 width={343}
-                                onPressLeft={closeBottomSheet}
+                                onPressLeft={deleteImage}
                                 onPressRight={closeBottomSheet}
                             />
                         </>
@@ -376,7 +496,7 @@ const Mypage2 = ({ navigation }) => {
                                 textLeft="회원 탈퇴하기"
                                 textRight="취소"
                                 width={343}
-                                onPressLeft={closeBottomSheet}
+                                onPressLeft={handleDeleteId}
                                 onPressRight={closeBottomSheet}
                             />
                         </>
@@ -387,7 +507,7 @@ const Mypage2 = ({ navigation }) => {
                                 textLeft="로그아웃"
                                 textRight="취소"
                                 width={343}
-                                onPressLeft={closeBottomSheet}
+                                onPressLeft={handleLogout}
                                 onPressRight={closeBottomSheet}
                             />
                         </>

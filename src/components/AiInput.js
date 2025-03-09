@@ -1,7 +1,7 @@
 import React from 'react';
 import { TextInput, StyleSheet, View, Text, Image } from 'react-native';
 
-const AiInput = ({ label, placeholder, value, onChangeText, icon }) => {
+const AiInput = ({ label, placeholder, value, onChangeText, icon, keyboardType }) => {
   return (
     <View style={styles.inputContainer}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -14,7 +14,7 @@ const AiInput = ({ label, placeholder, value, onChangeText, icon }) => {
           value={value}
           onChangeText={onChangeText}
           placeholderTextColor={'#E8E8E8'} // placeholder 색상 변경
-
+          keyboardType={keyboardType}
         />
       </View>
     </View>
