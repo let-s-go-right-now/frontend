@@ -10,6 +10,7 @@ import { WhiteButton } from '../components';
 import CloseGray from '../assets/icons/user/close_gray';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { axiosInstance } from '../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MypageWrapper = styled.View`
     width: 375px;
@@ -116,7 +117,7 @@ const StyledInput = styled(TextInput)`
     max-width: 289px;
 `
 
-const Mypage2 = ({ navigation }) => {
+const Mypage2 = ({ navigation, setIsLogin }) => {
     useEffect(() => {
         navigation.setOptions({
             tabBarVisible: false,
@@ -193,7 +194,7 @@ const Mypage2 = ({ navigation }) => {
         setName('');
     }
 
-    const handleLogout = () => {
+    const handleLogoutBottom = () => {
         setIsOpen(true);
         setBottom('logout');
     }
@@ -322,6 +323,23 @@ const Mypage2 = ({ navigation }) => {
             console.log('사진 삭제 실패:', error);
         }
     }
+    console.log('props:', {navigation, setIsLogin});
+
+    const handleLogout = async () => {
+        try {
+            const response = await axiosInstance.post('api/member/logout');
+            console.log('로그아웃 성공: ', response);
+            setIsLogin(false);
+            if (setIsLogin) {
+                setIsLogin(false);
+                navigation.navigate('LoginStack');
+            } else {
+                console.log('setIsLogin이 정의되지 않음');
+            }
+        } catch (error) {
+            console.log('로그아웃 에러: ', error.response);
+        }
+    }
 
     useEffect(() => {
         getInfo();
@@ -393,7 +411,7 @@ const Mypage2 = ({ navigation }) => {
                             marginTop: 100, 
                             marginBottom: 30,
                         }}
-                        onPress={handleLogout}
+                        onPress={handleLogoutBottom}
                     />
                     <MiniGrayButton 
                         text="탈퇴하기"
@@ -477,7 +495,7 @@ const Mypage2 = ({ navigation }) => {
                                 textLeft="로그아웃"
                                 textRight="취소"
                                 width={343}
-                                onPressLeft={closeBottomSheet}
+                                onPressLeft={handleLogout}
                                 onPressRight={closeBottomSheet}
                             />
                         </>

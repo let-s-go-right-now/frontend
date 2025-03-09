@@ -7,7 +7,7 @@ const Navigation = () => {
   
   return (
     <>
-      {isLogin ? <BottomTab/> : <LoginStack setIsLogin={setIsLogin}/>}
+      {isLogin ? <BottomTab setIsLogin={setIsLogin}/> : <LoginStack setIsLogin={setIsLogin}/>}
     </>
   );
 };

@@ -18,7 +18,7 @@ const TabIcon = ({ source, size }) => {
   );
 };
 
-const BottomTab = () => {
+const BottomTab = ({ setIsLogin }) => {
   return (
     <Tab.Navigator
       initialRouteName="HomeStack"
@@ -125,7 +125,7 @@ const BottomTab = () => {
       />
       <Tab.Screen
         name="MypageStack"
-        component={MypageStack}
+        // component={MypageStack}
         options={{ headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
@@ -167,7 +167,9 @@ const BottomTab = () => {
             </TouchableOpacity>
           ),
         }}
-      />
+      >
+        {() => <MypageStack setIsLogin={setIsLogin} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

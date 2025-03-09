@@ -124,7 +124,7 @@ const Login = ({ navigation, setIsLogin }) => {
                 console.log(setIsLogin);                
             }
         } catch (error) {
-            console.log('error:', error);
+            console.log('로그인 에러:', error.response);
             console.log('error.response.data.code:', error.response.data.code);
             if (error.response.data.code==="MEMBER4001") {
                 setEmailError(true);

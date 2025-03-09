@@ -2,7 +2,6 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Main, Signup1, Signup2, Login, Home } from '../screens';  //splash
 
-
 const Stack = createStackNavigator();
 
 const LoginStack = ({ setIsLogin }) => {
