@@ -8,8 +8,12 @@ import profileImage1 from "../../assets/profileImgs/profileImg01.png";
 import profileImage2 from "../../assets/profileImgs/profileImg02.png";
 import profileImage3 from "../../assets/profileImgs/profileImg03.png";
 import { theme } from '../../theme';
+import { useTabBarNone } from '../../utils';
 
-const CompletedProfile = (navigation) => {
+const CompletedProfile = ({navigation,route}) => {
+  //tabbar 삭제
+useTabBarNone(false);
+  const { id } = route.params; //여행 id
     const tripData = {
         tripName: "부산바캉스",  // 여행 제목
         startDate: "08. 12",  // 시작 날짜

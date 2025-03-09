@@ -39,17 +39,17 @@ const IconContainer = styled.View`
   bottom: 10px;
 `;
 
-const BigTwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, bgColorLeft, bgColorRight }) => {
+const BigTwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, bgColorLeft, bgColorRight, RightOnpress,LeftOnpress }) => {
   const leftWidth = (width / 2) - 10;
   const rightWidth = (width / 2) - 10;
 
   return (
     <ButtonContainer width={width}>
-      <Button width={leftWidth} bgColor={bgColorLeft || '#1D1D1F'} height={height}>
+      <Button width={leftWidth} bgColor={bgColorLeft || '#1D1D1F'} height={height} onPress={LeftOnpress}>
         <Title color="#FFFFFF">{textLeft}</Title>
         {imageLeft && <IconContainer>{imageLeft}</IconContainer>}
       </Button>
-      <Button width={rightWidth} bgColor={bgColorRight || '#FFFFFF'} height={height}>
+      <Button width={rightWidth} bgColor={bgColorRight || '#FFFFFF'} height={height} onPress={RightOnpress}>
         <Title color="#1D1D1F">{textRight}</Title>
         {imageRight && <IconContainer>{imageRight}</IconContainer>}
       </Button>

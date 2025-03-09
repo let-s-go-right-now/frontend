@@ -51,7 +51,7 @@ const TwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, 
 
 TwoButton.propTypes = {
   width: PropTypes.number.isRequired,
-  height: PropTypes.string, // height prop 추가
+  height: PropTypes.number, // height prop 추가
   textLeft: PropTypes.string.isRequired,
   textRight: PropTypes.string.isRequired,
   imageLeft: PropTypes.node,

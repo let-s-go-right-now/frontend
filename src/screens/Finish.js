@@ -31,17 +31,24 @@ const Desc = styled.Text`
     margin: 19px auto 95px auto;
 `
 
-const Finish = () => {
+const Finish = ({navigation}) => {
+    const backToHome =() => {
+        navigation.reset({
+            index:0,
+            routes: [{name:'TravelOngoing'}]
+        });
+    }
     return (
         <FinishWrapper>
             <BoldWrapper>
                 <Bold>고생하셨어요</Bold>
                 <Image source={spark} style={{width: 32, height: 32}}/>
             </BoldWrapper>
-            <Desc>여행기록 > 이전여행 에서 확인할 수 있어요</Desc>
+            <Desc>여행기록 &gt; 이전여행 에서 확인할 수 있어요</Desc>
             <BlackButton 
                 text="홈으로 돌아가기"
                 width={327}
+                onPress={backToHome}
             />
         </FinishWrapper>
     )

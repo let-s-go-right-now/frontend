@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { CompletedDetail, CompletedProfile, TravelCompleted } from '../screens';
+import { Calculation, CompletedDetail, CompletedProfile, Finish, ImgZoomIn, ImgZoomInTab, Report, TravelCompleted, WCompletedExpense } from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -45,6 +45,51 @@ const CompletedTravelStack = ({ navigation, route }) => {
                         backgroundColor: 'white',  // 흰색으로 배경 설정
                     },
                 }} 
+            />
+            <Stack.Screen
+                name="WCompletedExpense"
+                component={WCompletedExpense}
+                options={{ title: '여행 지출 확인하기', headerTitleStyle: {
+                    fontSize: 15,  // 폰트 크기 15
+                    color: '#1D1D1F',  // 폰트 색상
+                    fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                },
+                headerStyle: {
+                    backgroundColor: 'white',  // 흰색으로 배경 설정
+                }, }}
+                
+            />
+                                    <Stack.Screen
+                name="Report"
+                component={Report}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+            <Stack.Screen
+                name="Calculation"
+                component={Calculation}
+                options={{ title: '금액 정산하기',headerTitleStyle: {
+                    fontSize: 15,  // 폰트 크기 15
+                    color: '#1D1D1F',  // 폰트 색상
+                    fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                },
+                headerStyle: {
+                    backgroundColor: 'white',  // 흰색으로 배경 설정
+                }, }}
+            />
+            <Stack.Screen
+                name="Finish"
+                component={Finish}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+            <Stack.Screen
+                name="ImgZoomIn"
+                component={ImgZoomIn}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+                                    <Stack.Screen
+                name="ImgZoomInTab"
+                component={ImgZoomInTab}
+                options={{ headerShown: false, mode: 'light' }}
             />
         </Stack.Navigator>
     );

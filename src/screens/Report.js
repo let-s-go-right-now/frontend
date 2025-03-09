@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { CategoryOptionButton, PieChartComponent, MiniPieChart, BarChartComponent, BlackButton } from '../components';
 import CloseGray from '../assets/icons/user/close_gray.png';
@@ -14,19 +14,37 @@ import LinearGradient from 'react-native-linear-gradient';
 import Calculation from './Calculation';
 import {useTabBarVisibility} from '../utils';
 
-const Report = ({ navigation }) => {
+const Report = ({ navigation,route }) => {
     useTabBarVisibility(false);
+    const { completed, id } = route.params;
     const [mode, setMode] = useState('dark');
     const [isMvp, setIsMvp] = useState(true);
     const [mvpName, setMvpName] = useState('이우경');
 
+    const backToTravelongoing = () =>{
+        if(completed===true){
+            navigation.reset({
+                index:0,
+                routes: [{name:'TravelCompleted'}]
+            });
+        }else{
+            navigation.reset({
+                index:0,
+                routes: [{name:'TravelOngoing'}]
+            });
+        }
+
+
+    }
     return (
         <ContainerWrapper>
             <Container1 mode={mode}>
                 <Header mode={mode}>
                     <HeaderTop>
                         <HeaderText mode={mode} fontSize={15}>지출리포트</HeaderText>
-                        <Image source={CloseGray} onPress={() => navigation.goBack()} style={{position: 'absolute', right: 16, width: 24, height: 24}}/>                    
+                        <TouchableOpacity onPress={backToTravelongoing} style={{ position: 'absolute', right: 16 }}>
+                            <Image source={CloseGray} style={{ width: 24, height: 24 }} />
+                        </TouchableOpacity>                   
                     </HeaderTop>
                     <HeaderBottom>
                         <HeaderText mode={mode}>총 지출액</HeaderText>

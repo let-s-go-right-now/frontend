@@ -11,8 +11,18 @@ import image6 from "../../assets/slides/image6.png";
 import { FlatList } from 'react-native-gesture-handler';
 import {useTabBarVisibility} from '../../utils';
 
-const CompletedDetail = ({ navigation }) => {
-  const [images] = useState([image1, image2, image3, image4, image5, image6]);
+const CompletedDetail = ({  route, navigation }) => {
+  //tabbar 삭제
+useTabBarVisibility(false);
+  const { id } = route.params; //여행 id
+  const [images] = useState([
+    { id: 1, image: image1 },
+    { id: 2, image: image2 },
+    { id: 3, image: image3 },
+    { id: 4, image: image4 },
+    { id: 5, image: image5 },
+    { id: 6, image: image6 }
+  ]);
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
 
@@ -54,8 +64,7 @@ const CompletedDetail = ({ navigation }) => {
     },
   ];
 
-//tabbar 삭제
-useTabBarVisibility(false);
+
 
   //최신순
   const [selectedSort, setSelectedSort] = useState("최신순");
@@ -67,10 +76,21 @@ useTabBarVisibility(false);
   const bottomSheetRef = useRef(null); 
  
   const openBottomSheet = () => {
+    navigation.navigate('Report', { completed: true, id: id });
+
   };
   const movePage= () => {
-    navigation.navigate("CompletedProfile")
+    navigation.navigate("CompletedProfile", { id: id })
   };
+
+    // 이미지 클릭 시 상세 이미지로 이동
+    const handleImagePress = (index) => {
+      navigation.navigate("ImgZoomIn", {
+        imageIndex: index,
+        images: images, // 전체 이미지 배열을 전달
+      });
+    };
+    
 
   return (
     <>
@@ -97,7 +117,7 @@ useTabBarVisibility(false);
                   <Text style={styles.manageButtonText}>상세보기</Text>
                 </TouchableOpacity>
               </View>
-              <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} />
+              <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} onImagePress={handleImagePress}  />
             </View>
 
             {/* 지출 정보 */}
@@ -116,10 +136,10 @@ useTabBarVisibility(false);
                 {/* 지출 내역 */}
             
                 <View style={styles.expenditureWrap}>
-                  <ExpenditureList data={expenditures} />
+                  <ExpenditureList data={expenditures} navigation={navigation} completed={true}/>
                 </View>
                 {/* 지출 리포트 보러가기*/}
-                <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0} onPress={openBottomSheet}/></View>
+                <View style={styles.blackButtonText}><BlackButton text="여행 결과 보기" width={360} height={0} onPress={openBottomSheet}/></View>
             </View>
           </>
         }
