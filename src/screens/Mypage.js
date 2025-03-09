@@ -217,7 +217,7 @@ const Mypage = ({ navigation, route }) => {
 			setName(response.data.result.name);
 			setImageUri(response.data.result.profileImageLink)
 		} catch(error) {
-			console.log('getInfo 실패:', error);
+			console.log('getInfo 실패:', error.response);
 		}
 	}
 

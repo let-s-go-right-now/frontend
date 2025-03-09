@@ -200,9 +200,9 @@ const Signup2 = ({ navigation }) => {
             navigation.navigate('Main');
         } catch(error) {
             if (error.response.status===403) {
-            console.log('회원가입 에러:', error);
-            console.log('error.response',error.response);
-                Alert.alert('사진의 용량이 너무 큽니다.')
+                console.log('회원가입 에러:', error);
+                console.log('error.response',error.response);
+                Alert.alert('사진의 용량이 너무 큽니다.');
             } else {
                 Alert.alert('문제가 발생했습니다. 다시 시도해주세요.')
             }

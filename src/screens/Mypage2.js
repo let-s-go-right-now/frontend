@@ -199,9 +199,9 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
         setBottom('logout');
     }
 
-    const handleDeleteId = () => {
+    const deleteIdBottom = () => {
+        setBottom('deleteId')
         setIsOpen(true);
-        setBottom('deleteId');
     }
 
     const handlePermission = async () => {
@@ -341,6 +341,18 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
         }
     }
 
+    const handleDeleteId = async () => {
+        try {
+            console.log(AsyncStorage.getItem('jwtToken'));
+            const response = await axiosInstance.post('api/member/leave');
+            console.log('회원탈퇴 성공:', response);
+            setIsOpen(false);
+            navigation.reset({routes: [{name: 'LoginStack'}]})
+        } catch (error) {
+            console.log('회원탈퇴 에러:', error);
+        }
+    }
+
     useEffect(() => {
         getInfo();
     }, []);
@@ -418,7 +430,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
                         color="#BBBBBB"
                         underline={false}
                         fontSize={15}
-                        onPress={handleDeleteId}
+                        onPress={deleteIdBottom}
                     />                    
                 </ButtonWrapper>
             </MypageWrapper>
@@ -484,7 +496,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
                                 textLeft="회원 탈퇴하기"
                                 textRight="취소"
                                 width={343}
-                                onPressLeft={closeBottomSheet}
+                                onPressLeft={handleDeleteId}
                                 onPressRight={closeBottomSheet}
                             />
                         </>

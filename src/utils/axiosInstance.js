@@ -7,9 +7,12 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
     async (config) => {
-        const token = await AsyncStorage.getItem('jwtToken');
-        if (token) {
-            config.headers.Authorization = token;
+        if (!config.url.includes('api/member/join') && !config.url.includes('api/member/login')) {
+            const token = await AsyncStorage.getItem('jwtToken');
+            console.log("Token: ", token);
+            if (token) {
+                config.headers.Authorization = `${token}`;
+            }
         }
         return config;
     },

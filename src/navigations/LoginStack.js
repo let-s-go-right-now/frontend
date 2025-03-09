@@ -1,10 +1,12 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Main, Signup1, Signup2, Login, Home } from '../screens';  //splash
+import { useTabBarVisibility } from '../utils';
 
 const Stack = createStackNavigator();
 
 const LoginStack = ({ setIsLogin }) => {
+    useTabBarVisibility(false);
     return (
         <Stack.Navigator
             initialRouteName='Main'
