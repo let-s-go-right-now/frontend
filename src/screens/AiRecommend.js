@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react';
-import { Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { Text, View, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import { BlackButton, AiConditionBlack } from '../components';
 import AiDetail from './AiDetail';
 import heartWhite from '../assets/icons/ai/heart_white.png';
 import moneyBlack from '../assets/icons/ai/money_black.png';
 import transportBlack from '../assets/icons/ai/transport_black.png';
+import { axiosInstance } from '../utils';
 
 const AiWrapper = styled.View`
     width: 375px;
@@ -15,7 +16,7 @@ const SlideWrapper = styled(TouchableOpacity)`
     width: 343px;
     height: 480px;
     padding: 14px;
-    margin: 31px 12px 0 0;
+    margin: 31px auto 29px auto;
     border: 0.5px solid #1D1D1F;
 `
 
@@ -77,134 +78,82 @@ const Desc = styled.Text`
     color: #4E4E4E;
 `
 
-const IndicatorWrapper = styled.View`
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 29px;
-    gap: 13px;
-    margin-bottom: 51px;
-`
+const AiRecommend = ({ navigation, route }) => {
+    const { travelInfo } = route.params.state;
+    console.log('전달받은 travelInfo',travelInfo);
+    const [tripData, setTripData] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-const Indicator = styled.View`
-    width: 8px;
-    height: 8px;
-    background-color: ${({active}) => active ? '#1D1D1F' : '#EEEEEE'};
-`
-
-const AiRecommend = ({ navigation }) => {
-    const [date, useDate] = useState('12.12 - 12.14');
-    const [money, setMoney] = useState(50);
-    const [location, setLocation] = useState('서울시 중동');
-    const [transport, setTransport] = useState('대중교통');
-
-    // 슬라이드
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const flatListRef = useRef(0);
-    const handleScroll = (event) => {
-        const contentOffsetX = event.nativeEvent.contentOffset.x;
-        const index = Math.round(contentOffsetX / 355); // 현재 페이지 인덱스 계산
-        setCurrentIndex(index);
+    const getRecommend = async () => {
+        setLoading(true);
+        try {
+            const [start, end] = travelInfo.itinerary.split('-');
+            const startDate = `2024-${start.replace('.', '-')}`;
+            const endDate = `2024-${end.replace('.', '-')}`;
+            
+            const response = await axiosInstance.post('/api/trips/recommend', {
+                startDate: startDate,
+                endDate: endDate,
+                budget: parseInt(travelInfo.budget),
+                transportMode: travelInfo.transportInfo,
+                departure: travelInfo.StartPlace,
+            })
+            console.log('ai 여행 코스 생성 성공:', response.data);
+            setTripData(response.data[0]);
+        } catch (error) {
+            console.log('ai 여행 코스 생성 실패:', error);
+        } finally {
+            setLoading(false);
+        }
     }
 
-    const RecommendList = [
-        {
-            title: "강원도 속초 힐링 여행",
-            description: "자연 경관이 아름다운 속초에서 여유로운 시간을 보내기",
-            transportation: "자가용",
-            cost: 12345,
-            itinerary: "",
-            imageUrl: require('../assets/icons/ai/sokcho.png'),
-        },
-        {
-            title: "전북 전주 한옥마을 탐방",
-            description: "전주의 전통과 현대를 동시에 느낄 수 있는 여행",
-            transportation: "자가용",
-            cost: 350000,
-            itinerary: "",
-            imageUrl: require('../assets/icons/ai/sokcho.png'),
-        },
-        {
-            title: "경북 경주 역사 탐험",
-            description: "경주에서 역사적인 유적지를 탐방하며 과거로의 여행",
-            transportation: "자가용",
-            cost: 450000,
-            itinerary: "",
-            imageUrl: require('../assets/icons/ai/sokcho.png'),
-        },
-        {
-            title: "제주도 자연 속 힐링",
-            description: "아름다운 자연 경관을 자랑하는 제주도에서의 힐링 여행",
-            transportation: "자가용+렌터카",
-            cost: 500000,
-            itinerary: "",
-            imageUrl: require('../assets/icons/ai/sokcho.png'),
-        },
-        {
-            title: "전남 여수 바다 여행",
-            description: "여수에서 바다를 만끽하며 여유롭게 보내는 여행",
-            transportation: "자가용",
-            cost: 380000,
-            itinerary: "",
-            imageUrl: require('../assets/icons/ai/sokcho.png'),
-        }
-    ]
+    useEffect(() => {
+        getRecommend();
+    }, [])
 
     return (
         <View style={{flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center'}}>
             <AiWrapper>
                 <AiConditionBlack 
-                    date={date}
-                    money={money}
-                    location={location}
-                    transport={transport}
+                    date={travelInfo.itinerary}
+                    money={travelInfo.budget}
+                    location={travelInfo.StartPlace}
+                    transport={travelInfo.transportInfo}
                 />
-                <FlatList
-                    ref={flatListRef}
-                    data={RecommendList}
-                    horizontal
-                    pagingEnabled
-                    snapToAlignment='start'
-                    snapToInterval={355}
-                    showsHorizontalScrollIndicator={false}
-                    onScroll={handleScroll}
-                    keyExtractor={(item, index) => index}
-                    renderItem={({item}) => (
-                        
-                        <SlideWrapper onPress={() => navigation.navigate('AiDetail')}>
-                            <Img source={item.imageUrl} />
-                            <Top>
-                                <Title>{item.title}</Title>
-                                <Heart source={heartWhite}/>
-                            </Top>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#000000"/>
+                ) : (
+                    <>
+                    <SlideWrapper onPress={() => navigation.navigate('AiDetail')}>
+                        <Img source={{ uri: tripData.tripImage}} />
+                        <Top>
+                            <Title>{tripData.title}</Title>
+                            <Heart source={heartWhite}/>
+                        </Top>
+                        <RowWrapper>
                             <RowWrapper>
-                                <RowWrapper>
-                                    <Icon source={moneyBlack} />
-                                    <BlackText>{item.cost > 10000 ? `${Math.floor(item.cost/10000)}만원` : `${item.cost}원`}</BlackText>
-                                    <GrayText>/인</GrayText>
-                                </RowWrapper>
-                                <RowWrapper>
-                                    <Icon source={transportBlack} />
-                                    <BlackText>{item.transportation}</BlackText>
-                                </RowWrapper>
+                                <Icon source={moneyBlack} />
+                                <BlackText>{tripData.cost > 10000 ? `${Math.floor(tripData.cost/10000)}만원` : `${tripData.cost}원`}</BlackText>
+                                <GrayText>/인</GrayText>
                             </RowWrapper>
-                            <Desc>{item.description}</Desc>
-                        </SlideWrapper>
-                    )}
-                />
-                {/* 인디케이터 */}
-                <IndicatorWrapper>
-                    {RecommendList.map((_, index) => (
-                        <Indicator key={index} active={index===currentIndex} />
-                    ))}
-                </IndicatorWrapper>
-                <BlackButton
-                    text="새로 추천받기"
-                    width={343}
-                    style={{
-                        alignSelf: 'center',
-                        marginBottom: 10,
-                    }}
-                />
+                            <RowWrapper>
+                                <Icon source={transportBlack} />
+                                <BlackText>{tripData.transportation}</BlackText>
+                            </RowWrapper>
+                        </RowWrapper>
+                        <Desc>{tripData.description}</Desc>
+                    </SlideWrapper>
+                    <BlackButton
+                        text="새로 추천받기"
+                        width={343}
+                        style={{
+                            alignSelf: 'center',
+                            marginBottom: 10,
+                        }}
+                        onPress={getRecommend}
+                    />   
+                </>
+                )}
             </AiWrapper>
         </View>
     )

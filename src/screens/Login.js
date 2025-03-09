@@ -110,6 +110,9 @@ const Login = ({ navigation, setIsLogin }) => {
 
     const handleLogin = async () => {
         try {
+            console.log('Login navigation:', navigation);
+            console.log('setIsLogin:', setIsLogin);
+
             const response = await axiosInstance.post('api/member/login', {
                 email: email,
                 password: password,
@@ -120,12 +123,14 @@ const Login = ({ navigation, setIsLogin }) => {
                 await storeToken(token);
                 console.log('jwtToken:', token);
                 setIsLogin(true);
-                navigation.navigate('Home');
-                console.log(setIsLogin);                
+                console.log(setIsLogin);      
+                setTimeout(() => {
+                    navigation.navigate('Home');
+                }, 500);
             }
         } catch (error) {
-            console.log('로그인 에러:', error.response);
-            console.log('error.response.data.code:', error.response.data.code);
+            console.log('로그인 에러:', error);
+            console.log('error.response.data:', error.response.data);
             if (error.response.data.code==="MEMBER4001") {
                 setEmailError(true);
                 setPasswordError(false);

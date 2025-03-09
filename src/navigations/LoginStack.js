@@ -6,6 +6,8 @@ import { useTabBarVisibility } from '../utils';
 const Stack = createStackNavigator();
 
 const LoginStack = ({ setIsLogin }) => {
+    console.log('LoginStack에서 받은 setIsLogin:', setIsLogin);
+
     useTabBarVisibility(false);
     return (
         <Stack.Navigator
