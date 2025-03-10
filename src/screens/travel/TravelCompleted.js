@@ -1,153 +1,132 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import {ImgSlide} from '../../components';
-import image1 from "../../assets/slides/image1.png";
-import image2 from "../../assets/slides/image2.png";
-import image3 from "../../assets/slides/image3.png";
-import image4 from "../../assets/slides/image4.png";
-import image5 from "../../assets/slides/image5.png";
-import image6 from "../../assets/slides/image6.png";
-import profileImg from '../../assets/profileImgs/profileImg01.png';
-import { FlatList, Text } from 'react-native-gesture-handler';
-import { Image } from 'react-native-svg';
-const travelData = [
-  {
-    id:1,
-    title: '부산바캉스',
-    days: '3박 4일',
-    cost: '80만',
-    images: [
-        { id: 1, image: image1 },
-        { id: 2, image: image2 },
-        { id: 3, image: image3 },
-        { id: 4, image: image4 },
-        { id: 5, image: image5 },
-        { id: 6, image: image6 }
-      ],
-    profileImage: profileImg,
-    name: '김보영',
-    people: 2,
-    date: '24. 08. 12',
-  },  {
-    id:2,
-    title: '부산바캉스',
-    days: '3박 4일',
-    cost: '80만',
-    images: [
-      { id: 1, image: image1 },
-      { id: 2, image: image2 },
-      { id: 3, image: image3 },
-      { id: 4, image: image4 },
-      { id: 5, image: image5 },
-      { id: 6, image: image6 }
-    ],
-    profileImage: profileImg,
-    name: '김보영',
-    people: 2,
-    date: '24. 08. 12',
-  },
-  {
-    id:3,
-    title: '부산바캉스',
-    days: '3박 4일',
-    cost: '80만',
-    images: [
-      { id: 1, image: image1 },
-      { id: 2, image: image2 },
-      { id: 3, image: image3 },
-      { id: 4, image: image4 },
-      { id: 5, image: image5 },
-      { id: 6, image: image6 }
-    ],
-    profileImage: profileImg,
-    name: '김보영',
-    people: 2,
-    date: '24. 08. 12',
-  },
-  {
-    id:4,
-    title: '부산바캉스',
-    days: '3박 4일',
-    cost: '80만',
-    images: [
-      { id: 1, image: image1 },
-      { id: 2, image: image2 },
-      { id: 3, image: image3 },
-      { id: 4, image: image4 },
-      { id: 5, image: image5 },
-      { id: 6, image: image6 }
-    ],
-    profileImage: profileImg,
-    name: '김보영',
-    people: 2,
-    date: '24. 08. 12',
-  },
-  // 추가 데이터
-];
+import { ImgSlide } from '../../components';
+import { FlatList, Text, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const TravelCompleted = ({ navigation }) => {
+  const [travelData, setTravelData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const TravelCompleted = ({navigation}) => {
-    // 이미지 클릭 시 상세 이미지로 이동
-    const handleImagePress = (travelId, index) => {
-      const selectedTravel = travelData.find((travel) => travel.id === travelId);
-      if (selectedTravel) {
-        navigation.navigate("ImgZoomInTab", {
-          imageIndex: index,
-          images: selectedTravel.images, // 선택한 여행의 이미지 배열만 전달
-          pretabVisible:true,
+  useEffect(() => {
+    const fetchTravelData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('jwtToken');
+        if (!token) {
+          console.log('토큰이 없습니다.');
+          return;
+        }
+
+        const response = await fetch('https://letsgorightnow.shop/api/trip/ended', {
+          method: 'GET',
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json',
+          },
         });
+
+        const result = await response.json();
+        console.log('서버 응답:', result);
+        if (result.isSuccess) {
+          setTravelData(result.result);
+        } else {
+          console.error('데이터 가져오기 실패:', result.message);
+        }
+      } catch (error) {
+        console.error('에러 발생:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    
-      return (
-      <FlatList
-        style={styles.flatcards}
-        data={travelData}
-        keyExtractor={(item) => item.id.toString()}  // id를 고유 키로 사용
-        renderItem={({ item }) => (
+
+    fetchTravelData();
+    const unsubscribe = navigation.addListener('focus', fetchTravelData);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation]);
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${month}.${day}`;
+  };
+
+  const calculateDays = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const timeDifference = end - start;
+    const days = timeDifference / (1000 * 3600 * 24);
+    return days;
+  };
+
+  const handleImagePress = (travelId, index) => {
+    const selectedTravel = travelData.find((travel) => travel.id === travelId);
+    if (selectedTravel) {
+      navigation.navigate('ImgZoomInTab', {
+        imageIndex: index,
+        images: selectedTravel.images,
+        pretabVisible: true,
+      });
+    }
+  };
+
+  return (
+    <FlatList
+      style={styles.flatcards}
+      data={travelData}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => {
+        const days = calculateDays(item.startDate, item.endDate);
+        return (
           <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('CompletedDetail', {id: item.id })}
+            onPress={() => navigation.navigate('CompletedDetail', { id: item.id })}
           >
             {/* 제목 & 여행 기간 */}
             <View style={styles.header}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.duration}>{item.days}</Text>
+              <Text style={styles.title}>{item.name}</Text>
+              <Text style={styles.duration}>{days}박 {days + 1}일</Text>
             </View>
-  
+
             {/* 총 지출 */}
             <View style={styles.costContainer}>
               <Text style={styles.costLabel}>총 지출</Text>
-              <Text style={styles.costValue}>| {item.cost}원</Text>
+              <Text style={styles.costValue}>| {item.totalExpense}원</Text>
             </View>
-  
+
             {/* 이미지 슬라이드 */}
             <View style={styles.imgslidePad}>
-              <ImgSlide 
-                  images={item.images} 
-                  itemsToShow={3} 
-                  scale={82} 
-                  style={styles.imgslidePad} 
-                  onImagePress={(index) => handleImagePress(item.id, index)} 
-                />
-
+              <ImgSlide
+                images={item.expenseImageUrls}
+                itemsToShow={3}
+                scale={82}
+                style={styles.imgslidePad}
+                onImagePress={(index) => handleImagePress(item.id, index)}
+              />
             </View>
-  
+
             {/* 하단 정보 (프로필 & 작성일) */}
             <View style={styles.footer}>
               <View style={styles.profileContainer}>
-                <Image source={item.profileImage} style={styles.profileImage} />
+                <Image source={{ uri: item.members[0]?.profileImageLink }} style={styles.profileImage} />
                 <Text style={styles.participants}>
-                  {item.name} 외 {item.people}인
+                  {item.name} 
+                  {item.people > 0 ? ` 외 ${item.people}인` : ''}
                 </Text>
               </View>
-              <Text style={styles.date}>{item.date}</Text>
+              <Text style={styles.date}>{formatDate(item.startDate)}</Text>
             </View>
           </TouchableOpacity>
-        )}
-      />
+        );
+      }}
+    />
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -165,9 +144,9 @@ width: 343,
 height: 232,
 backgroundColor: '#FFFFFF',
 padding: 16,
-marginBottom: 16,
 borderBlockColor:'#1D1D1F',
 borderWidth: 0.8,
+marginTop:20,
 },
 header: {
 flexDirection: 'row',
