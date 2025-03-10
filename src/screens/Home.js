@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { theme } from '../theme';
 import {AiInput, AiButton,TravelCard,BorderWhiteButton, CustomBottomSheet, MyCalendar, AiInputButton} from '../components'
 import carrierImage from '../assets/icons/main/carrier01.png';
@@ -49,7 +49,7 @@ const Home = ({navigation}) => {
           console.log('토큰이 없습니다.');
           return;
         }
-    
+
         const response = await fetch('https://letsgorightnow.shop/api/trip/ongoing', {
           method: 'GET',
           headers: {
@@ -57,7 +57,7 @@ const Home = ({navigation}) => {
             'Content-Type': 'application/json',
           },
         });
-    
+
         const result = await response.json();
         console.log('서버 응답:', result);  // 여기서 서버 응답을 확인
         if (result.isSuccess) {
@@ -71,9 +71,17 @@ const Home = ({navigation}) => {
         setLoading(false);
       }
     };
-    
-      fetchTravelData();
-  }, []);
+
+    fetchTravelData();
+
+    // 페이지 이동 시마다 fetchTravelData 호출
+    const unsubscribe = navigation.addListener('focus', fetchTravelData);
+
+    // 컴포넌트가 unmount될 때 listener 제거
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation]); 
 
   if (loading) {
       return <Text>로딩 중...</Text>;
