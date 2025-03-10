@@ -13,39 +13,10 @@ const HomeTravelStack = () => {
     return (
         <Stack.Navigator 
             initialRouteName='Home'
-            screenOptions={({ navigation, route }) => {
-                const darkMode = route.name === 'AiDetail';
-                return {
-                    headerStyle: {
-                        height: 36,
-                        borderBottomWidth: 0,
-                        backgroundColor: darkMode ? '#1D1D1F' : '#FFFFFF',
-                        shadowOpacity: 0,
-                        elevation: 0,
-                    },
-                    headerTitleAlign: 'center',
-                    headerTitleStyle: {
-                        color: darkMode ? '#FFFFFF' : '#1D1D1F', 
-                        fontSize: 15,
-                        fontFamily: 'SUIT-SemiBold'
-                    },
-                    headerLeft: () => (
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <Image
-                                source={darkMode ? BackBright : BackDark}
-                                style={{ width: 16, height: 13, marginLeft: 18 }}
-                            />
-                        </TouchableOpacity>
-                    ),
-                    headerRight: () => (
-                        <TouchableOpacity>
-                            <Image
-                                source={darkMode ? HeartEmpty : null}
-                                style={{ width: 26, height: 26, marginRight: 18 }}
-                            />
-                        </TouchableOpacity>
-                    )
-                }
+            screenOptions={{
+                headerStyle: { backgroundColor: 'white' },
+                headerShadowVisible: false,
+                headerTitleAlign: 'center',  // 제목 중앙 정렬
             }}
         >
             <Stack.Screen
@@ -56,12 +27,30 @@ const HomeTravelStack = () => {
             <Stack.Screen
                 name="TravelCreate"
                 component={TravelCreate}
-                options={{ title: '여행 만들기', mode: 'light' }}
+                options={{ title: '여행 만들기', mode: 'light',
+                    headerTitleStyle: {
+                        fontSize: 15,  // 폰트 크기 15
+                        color: '#1D1D1F',  // 폰트 색상
+                        fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                    },
+                    headerStyle: {
+                        backgroundColor: 'white',  // 흰색으로 배경 설정
+                    },
+                 }}
             />
             <Stack.Screen
                 name="TravelInvite"  
                 component={TravelInvite}
-                options={{ title: '여행 초대', mode: 'light' }}
+                options={{ title: '여행 초대', mode: 'light',
+                    headerTitleStyle: {
+                        fontSize: 15,  // 폰트 크기 15
+                        color: '#1D1D1F',  // 폰트 색상
+                        fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                    },
+                    headerStyle: {
+                        backgroundColor: 'white',  // 흰색으로 배경 설정
+                    },
+                 }}
             />
             <Stack.Screen
                 name="WCreateExpense"
@@ -78,17 +67,35 @@ const HomeTravelStack = () => {
                         <Stack.Screen
                 name="Report"
                 component={Report}
-                options={{ headerShown: false, mode: 'light' }}
+                options={{ headerShown: false, mode: 'light', }}
             />
             <Stack.Screen
                 name="AiRecommend"
                 component={AiRecommend}
-                options={{ title: 'AI 여행 계획', mode: 'light'}}
+                options={{ title: 'AI 여행 계획', mode: 'light',
+                    headerTitleStyle: {
+                        fontSize: 15,  // 폰트 크기 15
+                        color: '#1D1D1F',  // 폰트 색상
+                        fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                    },
+                    headerStyle: {
+                        backgroundColor: 'white',  // 흰색으로 배경 설정
+                    },
+                }}
             />
             <Stack.Screen
                 name="AiDetail"
                 component={AiDetail}
-                options={{ title: 'AI 여행 계획', mode: 'dark'}}
+                options={{ title: 'AI 여행 계획', mode: 'dark',
+                    headerTitleStyle: {
+                        fontSize: 15,  // 폰트 크기 15
+                        color: '#1D1D1F',  // 폰트 색상
+                        fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                    },
+                    headerStyle: {
+                        backgroundColor: 'white',  // 흰색으로 배경 설정
+                    },
+                }}
             />
 
         </Stack.Navigator>
