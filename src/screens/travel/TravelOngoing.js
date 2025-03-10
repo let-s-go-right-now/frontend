@@ -96,7 +96,7 @@ const TravelOngoing = ({navigation}) => {
 
   //지출기록하기
   const handleWriteExpense = () => {
-    navigation.navigate('WriteExpense',{id:ongoingid});
+    navigation.navigate('WriteExpense');
 };
 //지출리포트로 이동하기
 const MoveExpenseReport = () => {
@@ -156,6 +156,53 @@ const MoveExpenseReport = () => {
     };
   }, [navigation]); 
 
+  //특정 여행 id로 보내기
+  const [travelDetailData, setTravelDetailData] = useState([]);  
+  
+  useEffect(() => {
+    //selectedId가 변경될때마다 asyncstorage에
+    // selectedId가 변경될 때마다 호출되는 fetchTravelData 함수
+    const fetchTravelData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('jwtToken');
+        if (!token) {
+          console.log('토큰이 없습니다.');
+          return;
+        }
+
+        // selectedId 값이 변경될 때마다 AsyncStorage에 'tripId'로 저장
+        await AsyncStorage.setItem('tripId', selectedId.toString());
+
+
+        // API 호출 URL을 selectedId에 맞춰 동적으로 설정
+        const response = await fetch(`https://letsgorightnow.shop/api/trip/${selectedId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result = await response.json();
+        console.log('서버 응답:', result);
+        if (result.isSuccess) {
+          setTravelDetailData(result.result);
+          console.log(travelDetailData);
+        } else {
+          console.error('데이터 가져오기 실패:', result.message);
+        }
+      } catch (error) {
+        console.error('에러 발생:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // selectedId가 변경될 때마다 데이터 가져오기
+    fetchTravelData();
+
+  }, [selectedId]); // selectedId가 변경될 때마다 실행
+
 
   return (
     <>
@@ -180,7 +227,7 @@ const MoveExpenseReport = () => {
             {/* 여행 상세 정보 */}
             <View style={styles.travelDetails}>
               <View style={styles.travelInfo}>
-                <Text style={styles.travelTitle}>강릉뿌시기 <Text style={styles.travelLong}>2박 3일</Text></Text>
+                <Text style={styles.travelTitle}>{travelDetailData.name}<Text style={styles.travelLong}>2박 3일</Text></Text>
                 <Text style={styles.travelDate}>24.12.20</Text>
               </View>
               <View style={styles.row}>
