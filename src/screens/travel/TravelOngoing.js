@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef,  } from 'react';
+import React, { useState, useCallback, useRef, useEffect,  } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
 import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList, OptionList } from "../../components";
 import { theme } from '../../theme';
@@ -9,6 +9,7 @@ import image4 from "../../assets/slides/image4.png";
 import image5 from "../../assets/slides/image5.png";
 import image6 from "../../assets/slides/image6.png";
 import { FlatList } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TravelOngoing = ({navigation}) => {
   const ongoingid = 1;  //현재 진행중인 여행의 id
@@ -23,16 +24,6 @@ const TravelOngoing = ({navigation}) => {
   
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
-
-  const options = [
-    { id: 1, text: "강릉뿌시기" },
-    { id: 2, text: "별보러가자" },
-    { id: 3, text: "캠핑하러가자" },
-    { id: 4, text: "한강피크닉" },
-    { id: 5, text: "여수밤바다" },
-  ];
-
-  const [selectedId, setSelectedId] = useState(1);
 
   
   const expenditures = [
@@ -121,6 +112,51 @@ const MoveExpenseReport = () => {
   };
   
 
+  const [selectedId, setSelectedId] = useState(1); 
+  const [travelData, setTravelData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTravelData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('jwtToken');
+        if (!token) {
+          console.log('토큰이 없습니다.');
+          return;
+        }
+
+        const response = await fetch('https://letsgorightnow.shop/api/trip/ongoing', {
+          method: 'GET',
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result = await response.json();
+        console.log('서버 응답:', result);
+        if (result.isSuccess) {
+          setTravelData(result.result);
+        } else {
+          console.error('데이터 가져오기 실패:', result.message);
+        }
+      } catch (error) {
+        console.error('에러 발생:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTravelData();
+
+    const unsubscribe = navigation.addListener('focus', fetchTravelData);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation]); 
+
+
   return (
     <>
       <FlatList
@@ -129,7 +165,14 @@ const MoveExpenseReport = () => {
           <>
             {/* 옵션 목록 */}
             <View style={styles.optionsContainer}>
-            <OptionList options={options}  containerWidth={200} Buttonwidth={80}/>
+            <OptionList options={travelData.map((travel) => ({
+                  id: travel.id,
+                  text: travel.name,
+                }))}  containerWidth={200} Buttonwidth={80}
+                selectedId={selectedId} 
+                setSelectedId={setSelectedId} 
+                
+                />
               {/* 새 여행 떠나기 버튼 */}
               <PlusButton width={130} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusButton} />
             </View>

@@ -83,10 +83,6 @@ const Home = ({navigation}) => {
     };
   }, [navigation]); 
 
-  if (loading) {
-      return <Text>로딩 중...</Text>;
-  }
-  
 
   const formatDate = (date) => {
     if (!date) return '';
