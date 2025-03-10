@@ -65,15 +65,15 @@ useTabBarVisibility(false);
     
             console.log('서버 응답:', response); // 응답 출력
     
-            if (response.status === 200) {
-                // 여행 생성 성공 시 처리
-                alert('여행이 성공적으로 만들어졌습니다!');
-                navigation.navigate('TravelInvite'); // 여행 초대 화면으로 이동
-            } else {
-                // 실패 시 오류 처리
-                alert(`여행 만들기 실패: ${response.data.message}`);
-            }
-        } catch (error) {
+        // 여행 생성 성공 시 처리
+        const tripId = response.data?.result?.tripId;
+                    // tripId를 string으로 변환 (문자열로 저장)
+                    const tripIdString = String(tripId);
+
+                    // tripId를 AsyncStorage에 저장
+                    await AsyncStorage.setItem('tripId', tripIdString);
+            navigation.navigate('TravelInvite'); // 여행 초대 화면으로 이동
+        }catch (error) {
             // 네트워크 오류 등 예외 처리
             console.error('여행 만들기 실패:', error); // 에러 출력
             alert('여행 만들기 중 오류가 발생했습니다.');
