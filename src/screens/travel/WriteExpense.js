@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, FlatList } from 'react-native';
 import { CustomBottomSheet, ImgSlide, ImgSlideUpload, MyCalendar, OptionList, PlusButton, Profile, TwoButton } from '../../components';
-import { useTabBarNone } from '../../utils';
+import { useTabBarVisibility } from '../../utils';
 import { theme } from '../../theme';
 import { launchImageLibrary } from 'react-native-image-picker'; // 이미지 선택 기능 추가
 import profileImage1 from "../../assets/profileImgs/profileImg01.png";
@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
 const WriteExpense = ({ navigation }) => {
-    useTabBarNone(false);
+    useTabBarVisibility(false);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDates, setSelectedDates] = useState(null);
     const [imageUris, setImageUris] = useState([]); // 여러 이미지를 관리하기 위한 상태
