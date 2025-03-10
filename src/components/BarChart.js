@@ -1,4 +1,11 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components/native";
+
+const ExtraTitle = styled.Text`
+    color: #000000;
+    font-size: 20px;
+    font-family: 'SUIT-ExtraBold';
+`
 
 const ChartWrapper = styled.ScrollView.attrs(() => ({
     horizontal: true,
@@ -41,39 +48,50 @@ const Value = styled.Text`
     font-family: 'SUIT-SemiBold';
 `
 
-const BarChartComponent = () => {
+const BarChartComponent = ({ barData=[] }) => {
+    const [maxDay, setMaxDay] = useState(1);
+    const [maxValue, setMaxValue] = useState(0);
+    const filteredData = barData.filter(item => item.day >= 1);
 
-    const barData = [
-        {
-            id: 1,
-            label: '1일차',
-            value: 467000,
-            height: 0.735,
-        },
-        {
-            id: 2,
-            label: '2일차',
-            value: 635000,
-            height: 1,
-        },
-        {
-            id: 3,
-            label: '3일차',
-            value: 458000,
-            height: 0.721,
-        },
-    ];
+    const getMaxData = () => {
+        try {
+            console.log('BarChartComponent의 barData', barData);
+            let maxDay = filteredData[0]?.day || 1;
+            let maxValue = filteredData[0].totalAmount || 0;
+            console.log('filteredData',filteredData);
+            for (let i=0;i<filteredData.length;i++) {
+                if (maxValue < filteredData[i].totalAmount) {
+                    maxValue = filteredData[i].totalAmount;
+                    maxDay = i+1;
+                }
+            }
+            setMaxDay(maxDay);
+            setMaxValue(maxValue);
+            console.log('maxDay', maxDay);
+            console.log('maxValue', maxValue);
+        } catch (error) {
+            console.log('barData')
+        }        
+    }
+
+    useEffect(() => {
+        getMaxData();
+    }, )
+
 
     return (
-        <ChartWrapper horizontal={true}>
-        {barData.map((data) => (
-            <Container key={data.id}>
-                <Chart height={data.height}></Chart>
-                <Label>{data.label}</Label>
-                <Value>{data.value}</Value>
-            </Container>
-        ))}
-        </ChartWrapper>
+        <>
+            <ExtraTitle>{maxDay}일차에 가장 많이 썼어요</ExtraTitle>
+            <ChartWrapper horizontal={true}>
+            {filteredData.length > 0 && filteredData.map((data, index) => (
+                <Container key={index}>
+                    <Chart height={data.totalAmount/maxValue}></Chart>
+                    <Label>{data.day}일차</Label>
+                    <Value>{data.totalAmount.toLocaleString()}원</Value>
+                </Container>
+            ))}
+            </ChartWrapper>
+        </>
     );
 };
 

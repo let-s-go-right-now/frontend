@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View, Image, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { CategoryOptionButton, PieChartComponent, MiniPieChart, BarChartComponent, BlackButton } from '../components';
@@ -10,16 +10,28 @@ import PersonLight from '../assets/icons/spending/person_light.png';
 import Trophy from '../assets/icons/spending/trophy.png';
 import 이우경 from '../assets/icons/user/이우경.png';
 import spark from '../assets/icons/spending/spark.png';
+import profile from '../assets/icons/user/profile.png';
 import LinearGradient from 'react-native-linear-gradient';
 import Calculation from './Calculation';
 import {useTabBarVisibility} from '../utils';
+import { axiosInstance } from '../utils';
 
 const Report = ({ navigation,route }) => {
     useTabBarVisibility(false);
     const { completed, id } = route.params;
     const [mode, setMode] = useState('dark');
-    const [isMvp, setIsMvp] = useState(true);
+    const [isMvp, setIsMvp] = useState(false);
     const [mvpName, setMvpName] = useState('이우경');
+    console.log('지출리포트에서 보여주는 여행의 id',id);
+    const [pieData, setPieData] = useState([]);
+    const [barData, setBarData] = useState([]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(1);
+    const [memberData, setMemberData] = useState([]);
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [memberCount, setMemberCount] = useState(0);
+    const [mvpInfo, setMvpInfo] = useState([]);
+    const [mvpAmount, setMvpAmount] = useState(0); 
+
 
     const backToTravelongoing = () =>{
         if(completed===true){
@@ -33,9 +45,107 @@ const Report = ({ navigation,route }) => {
                 routes: [{name:'TravelOngoing'}]
             });
         }
-
-
     }
+
+    const handleInfo = async () => {
+        try {
+            const response = await axiosInstance.get(`api/expense/${id}/member-expenses`);
+
+            console.log('회원별 총 지출액', response.data.result);
+            setTotalAmount(response.data.result.totalAmount);
+            setMemberCount(response.data.result.memberCount);
+            // mvp
+            if (response.data.result.memberTotalExpenses.length===1) {
+                setIsMvp(true);
+                setMvpInfo(response.data.result.memberTotalExpenses[0].memberProfile);
+                setMvpAmount(response.data.result.memberTotalExpenses[0].amount);
+                console.log('mvp 존재함');
+            } else if (response.data.result.memberTotalExpenses.length>1) {
+                if (response.data.result.memberTotalExpenses[0].amount > response.data.result.memberTotalExpenses[1].amount) {
+                    setIsMvp(true);
+                    setMvpInfo(response.data.result.memberTotalExpenses[0].memberProfile);
+                    setMvpAmount(response.data.result.memberTotalExpenses[0].amount);
+                    console.log('mvp 존재함');
+                } else {
+                    setIsMvp(false);
+                    console.log('mvp 존재하지 않음');
+                }
+            }
+        } catch (error) {
+            console.log('회원별 총 지출액 에러', error);
+        }
+    }
+
+    const handleCategoryReport = async () => {
+        try {
+            const response = await axiosInstance(`api/expense/${id}/category-report`);
+            console.log('handleCategoryReport 성공', response);
+            setPieData(response.data.result);
+        } catch(error) {
+            console.log('handleCategoryReport 실패', error);
+        }
+    }
+
+    const handleDailyExpense = async () => {
+        try {
+            const response = await axiosInstance.get(`api/expense/${id}/daily-expense`);
+            console.log('handleDailyExpense 성공', response.data.result);
+            setBarData(response.data.result);
+            console.log('바차트에 보낼 데이터',barData);
+        } catch (error) {
+            console.log('handleDailyExpense 실패', error);
+        }
+    }
+
+    const getCategoryId = (id) => {
+        switch (id) {
+            case 1: 
+                return 'TRANSPORTATION';
+            case 2: 
+                return "MEALS";
+            case 3: 
+                return "SIGHTSEEING";
+            case 4: 
+                return "SHOPPING";
+            case 5: 
+                return "ACCOMMODATION";
+            case 6: 
+                return "ETC";
+            default: 
+                return "ETC";
+        }
+    }
+
+
+    const handleMember = async () => {
+        const category = getCategoryId(selectedCategoryId);
+        try {
+            const response = await axiosInstance.get(`api/expense/${id}/member-category-report?category=${category}`);
+            console.log('handleMember 성공', response);
+            setMemberData(response.data.result);
+            console.log('response.data.result',response.data.result);
+        } catch (error) {
+            console.log('handleMember 실패', error);
+        }
+    }
+
+    useEffect(() => {
+        handleInfo();
+        handleCategoryReport();
+        handleDailyExpense();
+        handleMember();
+    }, []);
+
+    useEffect(() => {
+        console.log('pie chart 데이터 변경', pieData);
+    }, [pieData]);
+    
+    useEffect(() => {
+        if (id && selectedCategoryId) {
+            handleMember();  // 선택된 카테고리로 데이터 요청
+        }
+    }, [selectedCategoryId]);
+    
     return (
         <ContainerWrapper>
             <Container1 mode={mode}>
@@ -50,10 +160,10 @@ const Report = ({ navigation,route }) => {
                         <HeaderText mode={mode}>총 지출액</HeaderText>
                         <InfoWrapper>
                             <Image source={mode==='dark' ? MoneyDark : MoneyLight} style={{marginRight: 3}}/>
-                            <HeaderText mode={mode} style={{marginRight: 9}}>156만원</HeaderText>
+                            <HeaderText mode={mode} style={{marginRight: 9}}>{totalAmount > 10000 ? `${Math.floor(totalAmount/10000)}만원` : `${totalAmount}원`}</HeaderText>
                             <PersonWrapper mode={mode}>
                                 <Image source={mode==='dark' ? PersonDark : PersonLight}/>
-                                <Member mode={mode}>3인</Member>
+                                <Member mode={mode}>{memberCount}인</Member>
                             </PersonWrapper>
                         </InfoWrapper>
                     </HeaderBottom>
@@ -63,15 +173,30 @@ const Report = ({ navigation,route }) => {
                 <InfoWrapper style={{marginTop: 27}}>
                     <ExtraTitle style={{marginRight: 20}}>나의 총 지출액</ExtraTitle>
                     <Image source={MoneyLight} style={{marginRight: 3}}/>
-                        <SemiTitle>52만원</SemiTitle>
+                        <SemiTitle>52만원</SemiTitle> {/* 여행 id 받아온 후 수정  */}
                 </InfoWrapper>
-                <ExtraTitle style={{marginTop: 44}}>교통에 가장 많이 썼어요</ExtraTitle>
-                <PieChartComponent />
-                <ExtraTitle>2일차에 가장 많이 썼어요</ExtraTitle>
-                <BarChartComponent />
+                {pieData.length > 0 && (
+                    <>
+                        <ExtraTitle style={{marginTop: 44}}>
+                            {pieData[0].categoryName==="TRANSPORTATION" ? "교통"
+                            :pieData[0].categoryName==="MEALS" ? "식사"
+                            :pieData[0].categoryName==="SHOPPING" ? "쇼핑"
+                            :pieData[0].categoryName==="SIGHTSEEING" ? "관광"
+                            :pieData[0].categoryName==="ACCOMMODATION" ? "숙소"
+                            :pieData[0].categoryName==="ETC" ? "기타"
+                            :"기타"}
+                            에 가장 많이 썼어요</ExtraTitle>
+                        <PieChartComponent pieData={pieData}/>
+                    </>
+                )}
+                {barData.length > 0 && (<BarChartComponent barData={barData}/>)}
                 <ExtraTitle style={{marginTop: 60, marginBottom: 24}}>멤버별 지출을 알려드려요</ExtraTitle>
                 <Option>
-                    <CategoryOptionButton style={{paddingRight: 64}}/>
+                    <CategoryOptionButton 
+                        style={{paddingRight: 64}} 
+                        selectedOptionId={selectedCategoryId}
+                        setSelectedOptionId={setSelectedCategoryId} 
+                    />
                     <LinearGradient
                         start={{x:0, y:0}}
                         end={{x:1, y:0}}
@@ -84,7 +209,7 @@ const Report = ({ navigation,route }) => {
                         }}
                     />                    
                 </Option>
-                <MiniPieChart/>
+                <MiniPieChart memberData={memberData}/>
                 <MvpWrapper>
                     { isMvp && (
                         <>
@@ -92,11 +217,11 @@ const Report = ({ navigation,route }) => {
                                 <ExtraTitle>지출 MVP</ExtraTitle>
                                 <Image source={Trophy} style={{}} />                                
                             </InfoWrapper>
-                            <Profile source={이우경}/>
-                            <Name>{mvpName}</Name>
+                            <Profile source={mvpInfo.profileImageUrl!==null ? mvpInfo.profileImageUrl : profile}/>
+                            <Name>{mvpInfo.name}</Name>
                             <InfoWrapper>
                                 <MvpText>총</MvpText>
-                                <MvpText3> {58}만원 </MvpText3>
+                                <MvpText3> {mvpAmount> 10000 ? `${Math.floor(mvpAmount/10000)}만원` : `${mvpAmount}원`}</MvpText3>
                                 <MvpText>지출</MvpText>
                             </InfoWrapper>
                             <InfoWrapper>
@@ -131,8 +256,8 @@ const Container1 = styled.View`
     width: 100%;
     padding: 0 16px;
     background-color: ${({mode}) => mode==='dark' ? '#1D1D1F' : '#FFFFFF'};
-
 `
+
 const Container2 = styled.View`
     width: 100%;
     padding: 0 16px;
@@ -142,6 +267,7 @@ const Header = styled.View`
     /* height: 36px; */
     background-color: ${({mode}) => mode==='dark' ? '#1D1D1F' : '#FFFFFF'};
 `
+
 const HeaderTop = styled.View`
     display: flex;
     flex-direction: row;

@@ -38,8 +38,7 @@ const OptionButton = ({ text, OptionImage, onPress, isSelected}) => {
     )
 }
 
-const CategoryOptionButton = () => {
-    const [selectedId, setSelectedId] = useState(1);
+const CategoryOptionButton = ({ selectedOptionId, setSelectedOptionId }) => {
 
     const Category = [
         {
@@ -86,9 +85,9 @@ const CategoryOptionButton = () => {
                 <OptionButton
                     key={option.id}
                     text={option.text}
-                    OptionImage={selectedId === option.id ? option.image_clicked : option.image}
-                    onPress={() => setSelectedId(option.id)}
-                    isSelected={selectedId === option.id}
+                    OptionImage={selectedOptionId === option.id ? option.image_clicked : option.image}
+                    onPress={() => setSelectedOptionId(option.id)}
+                    isSelected={selectedOptionId === option.id}
                 />
             ))}
         </OptionButtonWarpper>

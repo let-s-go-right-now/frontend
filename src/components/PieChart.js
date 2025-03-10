@@ -56,16 +56,52 @@ const Price = styled.Text`
     color: #363638;
 `
 
-const PieChartComponent = () => {
+const PieChartComponent = ({ pieData=[] }) => {
 
-    const pieData = [
-        {id: 1, value: 468000, color: 'rgba(29, 29, 31, 1)', text: '교통', category: '교통', percent: 30, price: 468000},
-        {id: 2, value: 390000, color: 'rgba(29, 29, 31, 0.7)', text: '숙박', category: '숙박', percent: 25, price: 390000},
-        {id: 3, value: 312000, color: 'rgba(29, 29, 31, 0.5)', text: '식사', category: '식사', percent: 20, price: 312000},
-        {id: 4, value: 156000, color: 'rgba(29, 29, 31, 0.3)', text: '관광 ', category: '관광', percent: 10, price: 156000},
-        {id: 5, value: 156000, color: 'rgba(29, 29, 31, 0.2)', text: '쇼핑', category: '쇼핑', percent: 10, price: 156000},
-        {id: 6, value: 78000, color: 'rgba(29, 29, 31, 0.1)', text: '기타', category: '기타', percent: 5, price: 78000},
-    ];
+    const colorData = [
+        'rgba(29, 29, 31, 1)',
+        'rgba(29, 29, 31, 0.7)',
+        'rgba(29, 29, 31, 0.5)',
+        'rgba(29, 29, 31, 0.3)',
+        'rgba(29, 29, 31, 0.2)',
+        'rgba(29, 29, 31, 0.1)'
+    ]
+
+    const data =  pieData.map((data, index) => {
+        let category;
+        switch (data.categoryName) {
+            case 'TRANSPORTATION':
+                category = '교통';
+                break;
+            case 'MEALS':
+                category = '식사';
+                break;
+            case 'SHOPPING':
+                category = '쇼핑';
+                break;
+            case 'SIGHTSEEING':
+                category = '관광';
+                break;
+            case 'ACCOMMODATION':
+                category = '숙소';
+                break;
+            case 'ETC':
+                category = '기타';
+                break;
+            default:
+                category = '기타';
+        }
+
+        return {
+            id: index + 1,
+            value: data.totalAmount,
+            color: colorData[index % colorData.length], // 색상 배열을 순환
+            text: category,
+            category: category,
+            percentage: Math.round(data.percentage),
+            totalAmount: data.totalAmount
+        }
+    });
     
     return(
         <ChartWrapper>
@@ -74,7 +110,7 @@ const PieChartComponent = () => {
                 textColor="white"
                 radius={140}
                 textSize={17}
-                data={pieData}
+                data={data}
                 labelsPosition="mid"
                 focusScale={2}
                 style={{
@@ -85,15 +121,15 @@ const PieChartComponent = () => {
                 }}
             />
             <LabelWrapper>
-                {pieData.map((data) => {
+                {data.length > 0 && data.map((item, index) => {
                     return (
-                        <Label key={data.id}>
+                        <Label key={index}>
                             <Wrapper>
-                                <Color color={data.color}></Color>
-                                <Category>{data.category}</Category>
-                                <Percent>{data.percent}%</Percent>
+                                <Color color={colorData[index]}></Color>
+                                <Category>{item.text}</Category>
+                                <Percent>{Math.round(item.percentage)}%</Percent>
                             </Wrapper>
-                            <Price>{data.price.toLocaleString()}원</Price>
+                            <Price>{item.totalAmount.toLocaleString()}원</Price>
                         </Label>                    
                     )
                 })}
