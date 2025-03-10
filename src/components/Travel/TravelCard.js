@@ -1,9 +1,13 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
+import defaultImage from '../../assets/profileImgs/default.png';
 
 const TravelCard = ({ title, days, cost, image, profileImage, participant, extraCount, startDate }) => {
+  // 유효한 URI인지 확인하는 함수
+  const isValidUri = (uri) => uri && typeof uri === 'string' && uri.trim() !== '';
+
   return (
-    <View style={styles.cardContainer}>
+    <View style={[styles.cardContainer, { height: isValidUri(image) ? 230 : 100 }]}>
       <View style={styles.rowspace}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.days}>{days}박 {days + 1}일</Text>
@@ -12,13 +16,24 @@ const TravelCard = ({ title, days, cost, image, profileImage, participant, extra
         <Text style={styles.costLabel}>총지출</Text>
         <Text style={styles.cost}>| {cost}원</Text>
       </View>
-      <Image source={image} style={styles.travelImage} />
+      {isValidUri(image?.uri) && (
+        <Image 
+          source={{ uri: image.uri }} 
+          style={styles.travelImage} 
+        />
+      )}
       <View style={styles.profileContainer}>
-        <Image source={profileImage} style={styles.profileImage} />
+        <Image 
+          source={isValidUri(profileImage?.uri) ? { uri: profileImage.uri } : defaultImage} 
+          style={styles.profileImage} 
+        />
         <View style={styles.profilewrpper}>
           <View style={styles.profileTextwrpper}>
             <Text style={styles.participant}>{participant}</Text>
-            <Text style={styles.extraCount}> 외 {extraCount}인</Text>
+            <Text style={styles.extraCount}>
+              {extraCount > 0 && ` 외 ${extraCount}인`}
+            </Text>
+
           </View>
           <Text style={styles.startDate}>{startDate}</Text>
         </View>
@@ -30,7 +45,6 @@ const TravelCard = ({ title, days, cost, image, profileImage, participant, extra
 const styles = StyleSheet.create({
   cardContainer: {
     width: 232,
-    height: 230,
     backgroundColor: 'white',
     borderColor: '#1D1D1F',
     borderWidth: 1,
@@ -78,6 +92,7 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     marginRight: 5,
+    marginTop:8,
   },
   profilewrpper:{
     width:190,

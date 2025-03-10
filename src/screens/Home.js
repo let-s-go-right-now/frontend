@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { theme } from '../theme';
 import {AiInput, AiButton,TravelCard,BorderWhiteButton, CustomBottomSheet, MyCalendar, AiInputButton} from '../components'
 import carrierImage from '../assets/icons/main/carrier01.png';
@@ -9,6 +9,8 @@ import mapIcon from '../assets/icons/main/map-icon.png';
 import TransportIcon from '../assets/icons/main/TransportIcon.png';
 import handleIcon from '../assets/icons/main/handleIcon.png';
 import nextButton from '../assets/icons/main/nextButton.png';
+import LoadingTravel from '../assets/loadingTravel.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = ({navigation}) => {
   const [isPressed, setIsPressed] = useState(false);
@@ -39,43 +41,55 @@ const Home = ({navigation}) => {
       setReady(false);
     }
   };
+  const toTravel = () => {
+    navigation.navigate('TravelTab');
+  }
   
-  const [travelData, setTravelData] = useState([
-    {
-      id: '1',
-      title: '부산바캉스',
-      days: 3,
-      cost: 98,
-      image: require('../assets/icons/main/exImage.png'),
-      profileImage: require('../assets/icons/main/ProfileImage.png'),
-      participant: '김보영',
-      extraCount: 2,
-      startDate: '24.08.12',
-    },
-    {
-      id: '2',
-      title: '부산바캉스',
-      days: 3,
-      cost: 98,
-      image: require('../assets/icons/main/exImage.png'),
-      profileImage: require('../assets/icons/main/ProfileImage.png'),
-      participant: '김보영',
-      extraCount: 2,
-      startDate: '24.08.12',
-    },
-    {
-      id: '3',
-      title: '부산바캉스',
-      days: 3,
-      cost: 98,
-      image: require('../assets/icons/main/exImage.png'),
-      profileImage: require('../assets/icons/main/ProfileImage.png'),
-      participant: '김보영',
-      extraCount: 2,
-      startDate: '24.08.12',
-    },
-  ]);
-  
+  const [travelData, setTravelData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTravelData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('jwtToken');
+        if (!token) {
+          console.log('토큰이 없습니다.');
+          return;
+        }
+
+        const response = await fetch('https://letsgorightnow.shop/api/trip/ongoing', {
+          method: 'GET',
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result = await response.json();
+        console.log('서버 응답:', result);  // 여기서 서버 응답을 확인
+        if (result.isSuccess) {
+          setTravelData(result.result);
+        } else {
+          console.error('데이터 가져오기 실패:', result.message);
+        }
+      } catch (error) {
+        console.error('에러 발생:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTravelData();
+
+    // 페이지 이동 시마다 fetchTravelData 호출
+    const unsubscribe = navigation.addListener('focus', fetchTravelData);
+
+    // 컴포넌트가 unmount될 때 listener 제거
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation]); 
+
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -122,6 +136,17 @@ const Home = ({navigation}) => {
     const isReady = Object.values(travelInfo).every(value => value !== null && value !== ''); 
     setReady(isReady);
   }, [travelInfo]);
+
+
+  //여행일 계산
+  const calculateDays = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+  
+    const timeDifference = end - start; // 밀리초 단위로 날짜 차이 계산
+    const days = timeDifference / (1000 * 3600 * 24); // 밀리초를 일 단위로 변환
+    return days;
+  }
 
   return (<>
     <ScrollView style={styles.container}>
@@ -204,18 +229,50 @@ const Home = ({navigation}) => {
       <View style={styles.travelRecordContainer}>
         <View style={styles.travelHeader}>
           <Text style={styles.travelTitle}>여행 기록</Text>
-          <TouchableOpacity>
-            <Image source={nextButton} style={styles.nextImage}/>
+          <TouchableOpacity onPress={toTravel}>
+            <Image source={nextButton} style={styles.nextImage} />
           </TouchableOpacity>
         </View>
-        <FlatList
+
+        {loading ? (
+          // 로딩 중일 때
+          <Image source={LoadingTravel} style={styles.loadingImage} />
+        ) : travelData.length === 0 ? (
+          // 데이터가 없을 때
+          <Image source={LoadingTravel} style={styles.loadingImage} />
+        ) : (
+          // 데이터가 있을 때
+          <FlatList
             data={travelData}
             horizontal
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <TravelCard{...item} />}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => {
+              const days = calculateDays(item.startDate, item.endDate); // 'startDate'와 'endDate'를 전달하여 'days' 계산
+              const profileImageLink = item.members.length > 0 ? item.members[0].profileImageLink : null;
+              // members 배열의 길이를 extraCount로 설정
+              const extraCount = item.members.length-1;
+                    // 첫 번째 멤버 이름을 participant로 설정
+              const participant = item.members.length > 0 ? item.members[0].name : '';
+              const totalExpense =item.totalExpense;
+              return (
+                <TravelCard
+                  title={item.name}
+                  days={days} // 계산된 'days'를 전달
+                  cost={totalExpense}
+                  image={{ uri: item.expenseImageUrls[0] }}
+                  profileImage={profileImageLink ? { uri: profileImageLink } : null}  // 조건부로 프로필 이미지 설정
+                  participant={participant}
+                  extraCount={extraCount}
+                  startDate={formatDate(item.endDate)}  // 끝나는 날
+                />
+              );
+            }}
             showsHorizontalScrollIndicator={false}
           />
+
+        )}
       </View>
+
     </ScrollView>
     {isOpen ? (
         <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
