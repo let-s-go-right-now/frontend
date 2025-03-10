@@ -300,7 +300,6 @@ const calculateDays = (startDate, endDate) => {
           </>
         }
         data={expenditures}
-        keyExtractor={(item) => item.date}
       />
     {/*바텀시트*/}
     {isOpen ? (
