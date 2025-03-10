@@ -3,6 +3,8 @@ import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, ScrollView,
 import { CustomBottomSheet, MyCalendar, TwoButton } from '../../components';
 import {useTabBarVisibility} from '../../utils';
 import { theme } from '../../theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const TravelCreate = ({navigation}) => {
     const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
@@ -13,6 +15,8 @@ const TravelCreate = ({navigation}) => {
     const handleSheetChanges = useCallback((index) => {
         console.log('handleSheetChanges', index);
     }, []);
+    const [travelName, setTravelName] = useState(''); // 여행 이름 상태
+    const [travelIntroduce, setTravelIntroduce] = useState(''); // 여행 소개 상태
     
     //tabbar 삭제
 useTabBarVisibility(false);
@@ -28,10 +32,54 @@ useTabBarVisibility(false);
         setTopComponentWidth(width); // 상단 컴포넌트의 너비 상태 업데이트
     };
 
-    const handleCreateTravel = () => {
-        // 여행 만들기 버튼 클릭 시 TravelInvite 화면으로 이동
-        navigation.navigate('TravelInvite');
+    const handleCreateTravel = async () => {
+        const token = await AsyncStorage.getItem('jwtToken'); // JWT 토큰 가져오기
+    
+        if (!token) {
+            // 토큰이 없다면 오류 처리
+            alert('로그인 상태가 아닙니다.');
+            return;
+        }
+    
+        // 여행 생성 API 요청 본문
+        const requestBody = {
+            name: travelName,
+            introduce: travelIntroduce,
+            startDate: selectedDates?.startDate,
+            endDate: selectedDates?.endDate,
+        };
+    
+        console.log('요청 본문:', requestBody); // 요청 본문 출력
+    
+        try {
+            const response = await axios.post(
+                'https://letsgorightnow.shop/api/trip', // API 엔드포인트
+                requestBody, // 요청 본문
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `${token}`, // JWT 토큰을 Authorization 헤더에 포함
+                    },
+                }
+            );
+    
+            console.log('서버 응답:', response); // 응답 출력
+    
+            if (response.status === 200) {
+                // 여행 생성 성공 시 처리
+                alert('여행이 성공적으로 만들어졌습니다!');
+                navigation.navigate('TravelInvite'); // 여행 초대 화면으로 이동
+            } else {
+                // 실패 시 오류 처리
+                alert(`여행 만들기 실패: ${response.data.message}`);
+            }
+        } catch (error) {
+            // 네트워크 오류 등 예외 처리
+            console.error('여행 만들기 실패:', error); // 에러 출력
+            alert('여행 만들기 중 오류가 발생했습니다.');
+        }
     };
+    
 
     // 상위 컴포넌트에서 날짜 선택 완료 버튼 클릭 시 호출되는 함수
     const handleButtonPress = (startDate, endDate) => {
@@ -60,6 +108,8 @@ useTabBarVisibility(false);
                         style={styles.travelNameInput} 
                         placeholder="여행 이름을 입력하세요" 
                         placeholderTextColor="#BBBBBB" 
+                        value={travelName}
+                        onChangeText={setTravelName} 
                     />
                     <View style={styles.dateInputWrapper}>
                         <View>
@@ -88,7 +138,7 @@ useTabBarVisibility(false);
                 </View>
 
                 <Text style={styles.sectionText}>어떤 여행인가요?</Text>
-                <TextInput style={styles.memoInput} placeholder="메모를 입력하세요" multiline />
+                <TextInput style={styles.memoInput} placeholder="메모를 입력하세요" multiline value={travelIntroduce} onChangeText={setTravelIntroduce}/>
                 
                 <TouchableOpacity style={styles.button} onPress={handleCreateTravel}>
                     <Text style={styles.buttonText}>여행 만들기</Text>
