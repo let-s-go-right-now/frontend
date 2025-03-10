@@ -50,10 +50,11 @@ const TravelCompleted = ({ navigation }) => {
   const formatDate = (date) => {
     if (!date) return '';
     const d = new Date(date);
+    const year = String(d.getFullYear()).slice(2); // 연도의 마지막 두 자리 추출
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
-    return `${month}.${day}`;
-  };
+    return `${year}.${month}.${day}`;
+};
 
   const calculateDays = (startDate, endDate) => {
     const start = new Date(startDate);

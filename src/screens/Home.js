@@ -94,10 +94,12 @@ const Home = ({navigation}) => {
   const formatDate = (date) => {
     if (!date) return '';
     const d = new Date(date);
-    const month = String(d.getMonth() + 1).padStart(2, '0'); // 월
-    const day = String(d.getDate()).padStart(2, '0'); // 일
-    return `${month}.${day}`; // 'MM.DD' 형식 반환
-  };
+    const year = String(d.getFullYear()).slice(2); // 연도의 마지막 두 자리 추출
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+};
+
 
   // 상위 컴포넌트에서 날짜 선택 완료 버튼 클릭 시 호출되는 함수
   const handleButtonPress = (startDate, endDate) => {
