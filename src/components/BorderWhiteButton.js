@@ -1,21 +1,22 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-const BorderWhiteButton = ({ onPressIn, onPressOut, onPress, isPressed, children }) => {
+const BorderWhiteButton = ({ onPressIn, onPressOut, onPress, isPressed, children, ready }) => {
   return (
     <TouchableOpacity
       style={[
         styles.button,
         isPressed ? styles.buttonPressed : styles.buttonUnpressed,
       ]}
-      onPressIn={onPressIn}  // 부모에서 받은 함수 실행
-      onPressOut={onPressOut} // 부모에서 받은 함수 실행
-      onPress={onPress}
+      // onPressIn={onPressIn}  // 부모에서 받은 함수 실행
+      // onPressOut={onPressOut} // 부모에서 받은 함수 실행
+      onPress={ready ? onPress : null}
+      disabled={!ready}
     >
       <Text
         style={[
           styles.buttonText,
-          isPressed ? styles.buttonTextPressed : styles.buttonTextUnpressed,
+          ready ? styles.buttonTextPressed : styles.buttonTextUnpressed,
         ]}
       >
         {children}

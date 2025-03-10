@@ -27,12 +27,11 @@ const DateText = styled.Text`
 `
 
 const DateOptionButton = ({ text, date, onPress, isSelected, day }) => {
-    const dateList = date.split('-');
 
     return (
         <OptionButton isSelected={isSelected} onPress={() => onPress(day)}>
             <StyledText isSelected={isSelected}>{text}</StyledText>
-            <DateText isSelected={isSelected}>{dateList[1]}.{dateList[2]}</DateText>
+            <DateText isSelected={isSelected}>{date}</DateText>
         </OptionButton>
     )
 }

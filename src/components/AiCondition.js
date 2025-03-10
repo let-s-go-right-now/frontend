@@ -94,10 +94,6 @@ const AiConditionBlack = ({ date, money, location, transport }) => {
 }
 
 const AiConditionWhite = ({ startDate, endDate, money, location, transport, style=null }) => {
-    const start = startDate.replace(/-/g, ' ').split(' ');
-    const end = endDate.replace(/-/g, ' ').split(' ');
-    console.log('start', start);
-    console.log('end', end);
     
     return (
         <ConditionWrapper style={[style]}>
@@ -118,7 +114,7 @@ const AiConditionWhite = ({ startDate, endDate, money, location, transport, styl
             <Line>|</Line>
             <Category>
                 <Img source={calendarWhite}/>
-                <WhiteText>{start[1]}.{start[2]} - {end[1]}.{end[2]}</WhiteText>
+                <WhiteText>{startDate} - {endDate}</WhiteText>
             </Category>
         </ConditionWrapper>
     )

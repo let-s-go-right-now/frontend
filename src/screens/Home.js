@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Image } from 'react-native';
 import { theme } from '../theme';
 import {AiInput, AiButton,TravelCard,BorderWhiteButton, CustomBottomSheet, MyCalendar, AiInputButton} from '../components'
@@ -12,14 +12,16 @@ import nextButton from '../assets/icons/main/nextButton.png';
 
 const Home = ({navigation}) => {
   const [isPressed, setIsPressed] = useState(false);
-      const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
-      const [topComponentWidth, setTopComponentWidth] = useState(0); // 상단 컴포넌트의 너비 상태
-      const bottomSheetRef = useRef(null); 
-      const snapPoints = ['70%']; // 첫번째 요소는 가장 처음 보이는 높이, 나머지는 스와이프하면 늘어나는 정도
-      const [selectedDates, setSelectedDates] = useState(null); // 선택된 날짜 상태 관리
-      const handleSheetChanges = useCallback((index) => {
-          console.log('handleSheetChanges', index);
-      }, []);
+  const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
+  const [topComponentWidth, setTopComponentWidth] = useState(0); // 상단 컴포넌트의 너비 상태
+  const bottomSheetRef = useRef(null); 
+  const snapPoints = ['70%']; // 첫번째 요소는 가장 처음 보이는 높이, 나머지는 스와이프하면 늘어나는 정도
+  const [selectedDates, setSelectedDates] = useState(null); // 선택된 날짜 상태 관리
+  const handleSheetChanges = useCallback((index) => {
+      console.log('handleSheetChanges', index);
+  }, []);
+  const [ready, setReady] = useState(false);
+  const [selectedTransport, setSelectedTransport] = useState('');
 
   const [travelInfo, setTravelInfo] = useState({
     itinerary: '',
@@ -30,6 +32,12 @@ const Home = ({navigation}) => {
 
   const handleChange = (field, value) => {
     setTravelInfo(prevState => ({ ...prevState, [field]: value }));
+    const { budget, itinerary, StartPlace, transportInfo } = travelInfo;
+    if (budget && itinerary && StartPlace && transportInfo) {
+      setReady(true);
+    } else {
+      setReady(false);
+    }
   };
   
   const [travelData, setTravelData] = useState([
@@ -96,7 +104,24 @@ const Home = ({navigation}) => {
     setIsOpen(!isOpen);
     bottomSheetRef.current?.expand();
   };
-  
+
+  const handleTransportSelect = (value) => {
+    if (selectedTransport === value) {
+      // 이미 선택된 값이면 취소
+      setSelectedTransport(''); // 선택 취소
+      handleChange('transportInfo', '');
+    } else {
+      // 새로 선택
+      setSelectedTransport(value);
+      handleChange('transportInfo', value);
+    }
+  };
+
+  useEffect(() => {
+    console.log('travelInfo',travelInfo);
+    const isReady = Object.values(travelInfo).every(value => value !== null && value !== ''); 
+    setReady(isReady);
+  }, [travelInfo]);
 
   return (<>
     <ScrollView style={styles.container}>
@@ -136,7 +161,6 @@ const Home = ({navigation}) => {
           onPress={() => setIsOpen(!isOpen)}  // 버튼 클릭 시 BottomSheet 열기
         />
 
-
         <AiInput
           label="어디에서 출발하세요?"
           placeholder="출발 지역 선택"
@@ -150,13 +174,17 @@ const Home = ({navigation}) => {
           <View style={styles.aiButtonGroup}>
             <AiButton 
               label="대중교통" 
-              icon={TransportIcon} 
-              onPress={() => console.log("음식 추천 클릭됨")} 
+              icon={TransportIcon}
+              onPress={() => handleTransportSelect('대중교통')}
+              isSelected={selectedTransport === '대중교통'}
+              disabled={selectedTransport === '대중교통'} // 이미 다른 선택이 있으면 비활성화
             />
             <AiButton 
               label="자가용" 
-              icon={handleIcon} 
-              onPress={() => console.log("교통 정보 클릭됨")} 
+              icon={handleIcon}
+              onPress={() => handleTransportSelect('자가용')}
+              isSelected={selectedTransport === '자가용'}
+              disabled={selectedTransport === '자가용'} // 이미 다른 선택이 있으면 비활성화
               width={78}
             />
           </View>
@@ -164,7 +192,8 @@ const Home = ({navigation}) => {
             isPressed={isPressed}
             onPressIn={() => setIsPressed(true)}  // 버튼이 눌렸을 때
             onPressOut={() => setIsPressed(false)} // 버튼에서 손을 뗄 때
-            onPress={() => navigation.navigate('AiRecommend')} // 버튼 클릭 시 동작
+            onPress={() => navigation.navigate('AiRecommend', {state: {travelInfo}})} // 버튼 클릭 시 동작
+            ready={ready}
           >
             AI 계획 확인하기
           </BorderWhiteButton>

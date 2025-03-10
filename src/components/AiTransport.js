@@ -10,13 +10,35 @@ import Car from '../assets/icons/ai/car.png';
 import Cost from '../assets/icons/ai/cost.png';
 import Arrow from '../assets/icons/ai/arrow.png';
 
-const Wrapper = styled.View`
-    padding: 5px 0 5px 8px;
+const BigWrapper = styled.View`
+    display: flex;
+    gap: 8px;
+    width: 343px;
     margin-left: 5px;
     border-left-width: 1px;
     border-left-color: #AAAAAA;
     border-left-style: dashed;
-    width: 343px;
+`
+
+const WrapperContainer = styled.View`
+    display: flex;
+    gap: 8px;
+    margin-left: 8px;
+`
+
+const Wrapper = styled.View`
+    margin-left: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+`
+
+const Location = styled.View`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+    margin-left: 8px;
 `
 
 const RowWrapper = styled.View`
@@ -55,6 +77,11 @@ const Transport = styled.Text`
     color: #838383;
     width: 46px;
 `
+const Duration = styled.Text`
+    font-size: 13px;
+    font-family: 'SUIT-SemiBold';
+    color: #838383;
+`
 
 const Line = styled.Text`
     font-size: 13px;
@@ -75,44 +102,42 @@ const Money = styled.Text`
     color: #999999;
 `
 
-const AiTransport = ({ location, mode, duration, cost }) => {
-    const [from, to] = location.split(' → ');
+const AiTransport = ({ from, to, options }) => {
 
     return (
-        <Wrapper>
-            <RowWrapper style={{marginBottom: 12}}>
+        <BigWrapper>
+            <Location>
                 <From>{from}</From>
                 <ArrowImg source={Arrow}/>
                 <To>{to}</To>
-            </RowWrapper>
-            <RowWrapper style={{justifyContent: 'space-between'}}>
-                <RowWrapper>
-                    {
-                        mode==='도보' ? <TransportIcon source={Walk}/>
-                        :mode==='버스' ? <TransportIcon source={Bus}/>
-                        :mode==='고속버스' ? <TransportIcon source={Bus}/>
-                        :<TransportIcon source={Car}/>
-                    }
-                    <Transport>{mode}</Transport>
-                    <Line>|</Line>
-                    <Transport>{duration}</Transport>
-                </RowWrapper>
-                {cost!==null && (
-                    <RowWrapper>
-                        <MoneyImg source={Cost} />
-                        <Money>{cost.toLocaleString()}원</Money>
-                    </RowWrapper>                         
-                )}
-            </RowWrapper>
-        </Wrapper>
+            </Location>        
+            {options && options.map((data, index) => {
+                return (
+                    <WrapperContainer key={index}>
+                        <Wrapper>
+                            <RowWrapper>
+                                {
+                                    data.mode==='도보' ? <TransportIcon source={Walk}/>
+                                    :data.mode==='버스' ? <TransportIcon source={Bus}/>
+                                    :data.mode==='고속버스' ? <TransportIcon source={Bus}/>
+                                    :<TransportIcon source={Car}/>
+                                }
+                                <Transport>{data.mode}</Transport>
+                                <Line>|</Line>
+                                <Duration>{data.duration}</Duration>
+                            </RowWrapper>
+                            {data.cost !== undefined && (
+                                <RowWrapper>
+                                    <MoneyImg source={Cost} />
+                                    <Money>{data.cost.toLocaleString()}원</Money>
+                                </RowWrapper>                         
+                            )}
+                        </Wrapper>                        
+                    </WrapperContainer>
+                )
+            })}
+    </BigWrapper>
     )
-}
-
-AiTransport.propTypes = {
-    location: PropTypes.string.isRequired,
-    mode: PropTypes.string,
-    duration: PropTypes.string,
-    cost: PropTypes.number,
 }
 
 export default AiTransport

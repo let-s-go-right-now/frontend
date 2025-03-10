@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View, Image } from 'react-native';
 
-const AiButton = ({ label, icon, onPress, width = 89 }) => {
+const AiButton = ({ label, icon, onPress, width = 89, isSelected }) => {
   const [isClicked, setIsClicked] = useState(false);
 
   const handlePress = () => {
@@ -11,13 +11,13 @@ const AiButton = ({ label, icon, onPress, width = 89 }) => {
 
   return (
     <TouchableOpacity
-      style={[styles.button, { width }, isClicked && styles.buttonClicked]}
-      onPress={handlePress}
+      style={[styles.button, { width }, isSelected && styles.buttonClicked]} // isSelected로 스타일 변경
+      onPress={onPress}
     >
       <View style={styles.iconContainer}>
-        <Image source={icon} style={[styles.icon, isClicked && styles.iconClicked]} />
+        <Image source={icon} style={[styles.icon, isSelected && styles.iconClicked]} />
       </View>
-      <Text style={[styles.text, isClicked && styles.textClicked]}>{label}</Text>
+      <Text style={[styles.text, isSelected && styles.textClicked]}>{label}</Text>
     </TouchableOpacity>
   );
 };
