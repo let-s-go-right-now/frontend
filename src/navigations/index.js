@@ -36,10 +36,21 @@ const Navigation = () => {
   }, [navigation]);
 
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="Home" component={BottomTab} />
-      <Stack.Screen name="InviteScreen" component={InviteScreen} />
-    </Stack.Navigator>
+    <Stack.Navigator
+    initialRouteName={isLogin ? "BottomTab" : "LoginStack"}
+    screenOptions={{ headerShown: false }} // 모든 스크린에서 헤더 숨김
+  >
+    {isLogin ? (
+      <Stack.Screen name="BottomTab">
+        {(props) => <BottomTab {...props} setIsLogin={setIsLogin} />}
+      </Stack.Screen>
+    ) : (
+      <Stack.Screen name="LoginStack">
+        {(props) => <LoginStack {...props} setIsLogin={setIsLogin} InviteToken={InviteToken} />}
+      </Stack.Screen>
+    )}
+    <Stack.Screen name="InviteScreen" component={InviteScreen} />
+  </Stack.Navigator>
   );
 };
 

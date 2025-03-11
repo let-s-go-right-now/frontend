@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { InviteScreen, Mypage} from '../screens';
+import { Mypage} from '../screens';
 import HomeStack from './HomeStack';
 import TravelTab from './TravelTab';
 import MypageStack from './MypageStack';
@@ -170,13 +170,6 @@ const BottomTab = ({ setIsLogin }) => {
       >
         {() => <MypageStack setIsLogin={setIsLogin} />}
       </Tab.Screen>
-      <Tab.Screen
-        name="Invite"
-        component={InviteScreen}
-        options={{
-          tabBarStyle: { display: 'none' }, // 이 탭은 탭 바에 표시되지 않음
-        }}
-      />
     </Tab.Navigator>
   );
 };
