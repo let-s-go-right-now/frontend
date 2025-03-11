@@ -52,7 +52,7 @@ const Report = ({ navigation,route }) => {
         try {
             const response = await axiosInstance.get(`api/expense/${id}/member-expenses`);
 
-            console.log('회원별 총 지출액??????????', response.data.result);
+            console.log('회원별 총 지출액', response.data.result);
             setTotalAmount(response.data.result.totalAmount);
             setMemberCount(response.data.result.memberCount);
             // 나의 총 지출액
@@ -61,6 +61,8 @@ const Report = ({ navigation,route }) => {
                 if (response.data.result.memberTotalExpenses[i].memberProfile.name === name) {
                     setMyAmount(response.data.result.memberTotalExpenses[i].amount);
                     console.log('나의 총 지출액', myAmount);
+                    await AsyncStorage.setItem('myAmount', JSON.stringify(myAmount));
+                    break;
                 } else {
                     console.log('나의 총 지출액 에러');
                 }
@@ -82,7 +84,7 @@ const Report = ({ navigation,route }) => {
                 }
             }
         } catch (error) {
-            console.log('회원별 총 지출액 에러', error);
+            console.log('회원별 총 지출액 에러', error.response);
         }
     }
 
@@ -250,7 +252,7 @@ const Report = ({ navigation,route }) => {
                             marginTop: 53,
                             marginBottom: 10
                         }}
-                        onPress={() => navigation.navigate('Calculation')}
+                        onPress={() => navigation.navigate('Calculation', {id: id})}
                     />
                 </MvpWrapper>
             </Container2>

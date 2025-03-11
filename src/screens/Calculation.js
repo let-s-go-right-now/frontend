@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components/native';
 import { FlatList, Image, TouchableOpacity, TouchableWithoutFeedback , KeyboardAvoidingView, ScrollView, Platform, View, Text } from 'react-native';
 import MoneyLight from '../assets/icons/spending/money_light.png';
@@ -9,6 +9,8 @@ import CheckGray from '../assets/icons/spending/check_gray.png';
 import CheckBlue from '../assets/icons/spending/check_blue.png';
 import Finish from './Finish';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { axiosInstance } from '../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CalcWrapper = styled.View`
     width: 375px;
@@ -224,18 +226,23 @@ const CalcStateWrapper = styled.View`
     gap: 24px;
 `
 
-const Calculation = ({ navigation }) => {
+const Calculation = ({ navigation, route }) => {
     const [name, setName] = useState('이우경');
-    
+    console.log('route.params',route.params);
+    const { id } = route.params;
+    console.log('전달받은 id',id);
     // 바텀 시트
     const [isOpen, setIsOpen] = useState(false);
     const snapPoints = ['70%'];
     const bottomSheetRef = useRef(null);
+    const [myAmount, setMyAmount] = useState(0);
     const [bottom, setBottom] = useState('amount');
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedAmount, setSelectAmount] = useState(null);
     const [selectedAccount, setSelectAccount] = useState('국민 123-45A-678901');
     const [clickedAccount, setClickedAccount] = useState(false);
+    // 받아오는 데이터들
+    const [expenditures, setExpenditures] = useState([]);
 
     const openBottomSheet = () => {
         setIsOpen(!isOpen);
@@ -263,7 +270,37 @@ const Calculation = ({ navigation }) => {
     const copyAccount = () => {
         Clipboard.setString('국민 123-45A-678901');
         setClickedAccount(true);
+    }
 
+    // 정산 결과
+    const handleCalcResult = async () => {
+        try {
+            const response = await axiosInstance.get(`api/settlement/${id}/result`);
+            console.log('여행 정산 결과 가져오기 성공', response.data.result);
+        } catch (error) {
+            console.log('여행 정산 결과 가져오기 에러', error);
+        }
+    }
+
+    // 정산 현황
+    // const handleCalcStatus = async () => { 
+    //     try {
+    //         const response = await axiosInstance.get(`api/settlement/${id}/status`);
+    //         console.log('정산 현황 가져오기', response);
+    //     } catch (error) {
+    //         console.log('정산 현황 가져오기 에러????????', error);
+    //     }
+    // }
+
+    // 내가 포함된 지출 내역
+    const handleMyExpenditure = async () => {
+        try {
+            const response = await axiosInstance(`api/expense/${id}/mine?page=0&size=4`);
+            console.log('내가 포함된 지출 내역 가져오기 성공', response.data.result);
+            setExpenditures(response.data.result);
+        } catch (error) {
+            console.log('내가 포함된 지출 내역 가져오기 에러', error);
+        }
     }
 
     const CalcResList = [ // 정산 결과
@@ -355,78 +392,32 @@ const Calculation = ({ navigation }) => {
         },
     ]
 
-    const expenditures = [ // 지출 내역
-        {
-            id: 1,
-            title: '점심 칼국수',
-            cost: 27000,
-            category: '식사',
-            date: '12.22 13:21'
-        },
-        {
-            id: 2,
-            title: '택시타고 경포해변 이동',
-            cost: 24190,
-            category: '교통',
-            date: '12.22 11:50'
-        },
-        {
-            id: 3,
-            title: '편의점에서 주전부리',
-            cost: 12400,
-            category: '식사',
-            date: '12.22 09:34'
-        },
-        {
-            id: 4,
-            title: '점심 칼국수',
-            cost: 27000,
-            category: '식사',
-            date: '12.22 13:21'
-        },
-        {
-            id: 5,
-            title: '택시타고 경포해변 이동',
-            cost: 24190,
-            category: '교통',
-            date: '12.22 11:50'
-        },
-        {
-            id: 6,
-            title: '편의점에서 주전부리',
-            cost: 12400,
-            category: '식사',
-            date: '12.22 09:34'
-        },
-        {
-            id: 7,
-            title: '점심 칼국수',
-            cost: 27000,
-            category: '식사',
-            date: '12.22 13:21'
-        },
-        {
-            id: 8,
-            title: '택시타고 경포해변 이동',
-            cost: 24190,
-            category: '교통',
-            date: '12.22 11:50'
-        },
-        {
-            id: 9,
-            title: '편의점에서 주전부리',
-            cost: 12400,
-            category: '식사',
-            date: '12.22 09:34'
-        },
-        {
-            id: 10,
-            title: '점심 칼국수',
-            cost: 27000,
-            category: '식사',
-            date: '12.22 13:21'
-        },
-    ]
+    const getMyAmount = async () => {
+        try {
+            const response = await axiosInstance.get(`api/expense/${id}/member-expenses`);
+            // 나의 총 지출액
+            const name = await AsyncStorage.getItem('name');
+            setName(name);
+            for (let i=0;i<response.data.result.memberCount;i++) {
+                if (response.data.result.memberTotalExpenses[i].memberProfile.name === name) {
+                    setMyAmount(response.data.result.memberTotalExpenses[i].amount);
+                    console.log('나의 총 지출액', response.data.result.memberTotalExpenses[i].amount);
+                    break;
+                } else {
+                    console.log('나의 총 지출액 에러');
+                }
+            }
+        } catch (error) {
+            console.log('나의 총 지출액 에러', error.response);
+        }
+    }
+
+    useEffect(() => {
+        getMyAmount();
+        handleCalcResult();
+        // handleCalcStatus();
+        handleMyExpenditure();
+    }, [])
 
     return (
         <>
@@ -440,7 +431,7 @@ const Calculation = ({ navigation }) => {
                             <Bold>나의 총 지출액</Bold>
                             <MiniRowWrapper>
                                 <Image source={MoneyLight} style={{width: 21, height: 21}}/>
-                                <TotalMoney>52만원</TotalMoney>
+                                <TotalMoney>{myAmount > 10000 ? `${Math.floor(myAmount/10000)}만원` : `${myAmount}원`}</TotalMoney>
                             </MiniRowWrapper>
                         </TopWrapper>
                         <MidWrapper>

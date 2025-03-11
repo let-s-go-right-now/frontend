@@ -150,9 +150,9 @@ const Login = ({ navigation, setIsLogin }) => {
         try {
             const response = await axiosInstance.get('api/member/info');
             console.log('getName 성공:', response);
-        await AsyncStorage.setItem('name', response.data.result.name);
-        console.log('이름 저장 성공', response.data.result.name);
-    } catch(error) {
+            await AsyncStorage.setItem('name', response.data.result.name);
+            console.log('이름 저장 성공', response.data.result.name);
+        } catch(error) {
             console.log('getInfo 실패:', error.response);
         }
     }
