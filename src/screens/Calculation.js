@@ -341,60 +341,6 @@ const Calculation = ({ navigation, route }) => {
         },
     ]
 
-    const CalcStateList = [ // 정산 현황
-        {
-            id: 1,
-            name: '박시우',
-            image: require('../assets/icons/user/박시우.png'),
-            settlementStatuses: [
-                {
-                    status: 'RECEIVED',
-                    amount: 28000,
-                    relatedMemberName: [
-                        '임서현',
-                        '이우경',
-                    ]
-                },
-            ],
-        },
-        {
-            id: 2,
-            name: '이우경',
-            image: require('../assets/icons/user/이우경.png'),
-            settlementStatuses: [
-                {
-                    status: 'RECEIVED',
-                    amount: 8000,
-                    relatedMemberName: [
-                        '임서현',
-                    ]
-                },
-                {
-                    status: 'SEND',
-                    amount: 18000,
-                    relatedMemberName: [
-                        '박시우',
-                    ]
-                },
-            ],
-        },
-        {
-            id: 3,
-            name: '임서현',
-            image: require('../assets/icons/user/임서현.png'),
-            settlementStatuses: [
-                {
-                    status: 'SEND',
-                    amount: 32000,
-                    relatedMemberName: [
-                        '박시우',
-                        '이우경',
-                    ]
-                },
-            ],
-        },
-    ]
-
     const getMyAmount = async () => {
         try {
             const response = await axiosInstance.get(`api/expense/${id}/member-expenses`);
