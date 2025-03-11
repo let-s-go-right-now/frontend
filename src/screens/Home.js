@@ -12,7 +12,15 @@ import nextButton from '../assets/icons/main/nextButton.png';
 import LoadingTravel from '../assets/loadingTravel.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Home = ({navigation}) => {
+const Home = ({navigation,InviteToken}) => {
+    useEffect(() => {
+      if (InviteToken) {
+        // token이 있으면, 예를 들어 초대 페이지로 네비게이션
+        navigation.navigate('Invite', { InviteToken });
+      }
+    }, [InviteToken, navigation]);
+
+
   const [isPressed, setIsPressed] = useState(false);
   const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
   const [topComponentWidth, setTopComponentWidth] = useState(0); // 상단 컴포넌트의 너비 상태
