@@ -14,45 +14,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const TravelOngoing = ({navigation}) => {
   const [selectedId, setSelectedId] = useState(1); 
   const ongoingid = 1;  //현재 진행중인 여행의 id
-  const [images] = useState([
-    { id: 1, image: image1 },
-    { id: 2, image: image2 },
-    { id: 3, image: image3 },
-    { id: 4, image: image4 },
-    { id: 5, image: image5 },
-    { id: 6, image: image6 }
-  ]);
+  const [images, setImages] = useState([]); 
   
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
 
   
-  const expenditures = [
-    {
-      title: "강릉까지 택시",
-      category: "교통",
-      cost: "12,800원",
-      date: "12.22 14:29",
-    },
-    {
-      title: "강릉까지 택시",
-      category: "교통",
-      cost: "12,800원",
-      date: "12.22 14:29",
-    },
-    {
-      title: "강릉까지 택시",
-      category: "교통",
-      cost: "12,800원",
-      date: "12.22 14:29",
-    },
-    {
-      title: "강릉까지 택시",
-      category: "교통",
-      cost: "12,800원",
-      date: "12.22 14:29",
-    },
-  ];
+  const [expenditures,setExpenditures] = useState([])
 
 
   //최신순
@@ -207,6 +175,20 @@ const calculateDays = (startDate, endDate) => {
         const result = await response.json();
         console.log('서버 응답:', result);
         if (result.isSuccess) {
+          const expenses = result.result.expenses.map(expense => ({
+            title: expense.expenseName,
+            category: expense.category === 'TRANSPORTATION' ? '교통' : expense.category, // 예시로 'TRANSPORTATION'을 '교통'으로 변환
+            cost: `${expense.price.toLocaleString()}원`,  // 가격을 원 단위로 표시
+            date: formatDate(expense.expenseDate),  // 날짜 포맷
+          }));
+            // expenses의 imageUrls 추출하여 images 배열에 추가
+            const imagesFromExpenses = result.result.expenses.reduce((acc, expense) => {
+              return [...acc, ...expense.imageUrls]; // 모든 imageUrls를 하나의 배열로 합침
+            }, []);
+  
+            setImages(imagesFromExpenses); 
+          // expenditures 배열 업데이트
+          setExpenditures(expenses);
           setTravelDetailData(result.result);
           console.log('travelDetailData',travelDetailData);
           setDate(calculateDays(travelDetailData.startDate, travelDetailData.endDate));
@@ -280,7 +262,7 @@ const calculateDays = (startDate, endDate) => {
               <View style={styles.expenditureHeader}>
                 <View style={styles.expenditureInfo}>
                   <Text style={styles.expenditureLabel}>현재 지출</Text>
-                  <Text style={styles.expenditureAmount}>| {travelDetailData.totalExpense}만원</Text>
+                  <Text style={styles.expenditureAmount}>| {travelDetailData.totalExpense}원</Text>
                 </View>
                 <OpenToggle
                   options={sortOptions}
@@ -417,6 +399,9 @@ const styles = StyleSheet.create({
     
     paddingBottom:50,
    position:"relative"
+  },
+  expenditureWrap:{
+    marginTop:10,
   },
   expenditureHeader:{
     flexDirection: "row",

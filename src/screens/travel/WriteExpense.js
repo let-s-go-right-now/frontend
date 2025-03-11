@@ -215,13 +215,13 @@ const WriteExpense = ({ navigation }) => {
                 }
             );
             if (response.data.isSuccess) {
-                alert('지출 기록이 생성되었습니다.');
+                console.log('지출 기록이 생성되었습니다.'+tripId);
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'TravelOngoing' }],
                 });
             } else {
-                alert('지출 기록 작성 실패');
+                console.log('지출 기록 작성 실패');
             }
         } catch (error) {
             console.error('Error saving expense:', error);
