@@ -84,6 +84,7 @@ const AiRecommend = ({ navigation, route }) => {
     console.log('전달받은 travelInfo',travelInfo);
     const [tripData, setTripData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [userData, setUserData] = useState();
 
     const getRecommend = async () => {
         setLoading(true);
@@ -91,19 +92,35 @@ const AiRecommend = ({ navigation, route }) => {
             const [start, end] = travelInfo.itinerary.split('-');
             const startDate = `2024-${start.replace('.', '-')}`;
             const endDate = `2024-${end.replace('.', '-')}`;
-            
             const response = await axiosInstance.post('/api/trips/recommend', {
                 startDate: startDate,
                 endDate: endDate,
                 budget: parseInt(travelInfo.budget),
                 transportMode: travelInfo.transportInfo,
-                departure: travelInfo.StartPlace,
+                departure: travelInfo.StartPlace
             })
+            const [start2, end2] = travelInfo.itinerary.split('-');
+
+            const formatDate = (dateString) => {
+                const [year, month, day] = dateString.split('.');
+                return `20${year}-${month}-${day}`;
+            };
+
+            const data = {
+                startDate: formatDate(start2),
+                endDate: formatDate(end2),
+                budget: parseInt(travelInfo.budget),
+                transportMode: travelInfo.transportInfo,
+                departure: travelInfo.StartPlace
+            };
+
+            setUserData(data);
+
             console.log('ai 여행 코스 생성 성공:', response.data);
             setTripData(response.data[0]);
             console.log('tripData!!!',tripData);
         } catch (error) {
-            console.log('ai 여행 코스 생성 실패:', error);
+            console.log('ai 여행 코스 생성 실패:', error,response);
         } finally {
             setLoading(false);
         }
@@ -126,7 +143,17 @@ const AiRecommend = ({ navigation, route }) => {
                     <ActivityIndicator size="large" color="#000000" marginTop="50%"/>
                 ) : (
                     <>
-                    <SlideWrapper onPress={() => navigation.navigate("AiDetail", { state: tripData, departure: travelInfo.StartPlace })}>
+                    <SlideWrapper 
+                        onPress={() => {
+                            if (userData && Object.keys(userData).length > 0) {
+                            navigation.navigate("AiDetail", { 
+                                state: tripData, 
+                                departure: travelInfo.StartPlace, 
+                                userData: userData 
+                            });
+                            }
+                        }}
+                    >
                         <Img source={{ uri: tripData.tripImage}} />
                         <Top>
                             <Title>{tripData.title}</Title>

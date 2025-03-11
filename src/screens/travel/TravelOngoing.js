@@ -69,7 +69,7 @@ const TravelOngoing = ({navigation}) => {
 };
 //지출리포트로 이동하기
 const MoveExpenseReport = () => {
-  navigation.navigate('Report', { completed: false, id: ongoingid });
+  navigation.navigate('Report', { completed: false, id: selectedId });
 }
 
   // 이미지 클릭 시 상세 이미지로 이동
@@ -190,9 +190,9 @@ const calculateDays = (startDate, endDate) => {
           // expenditures 배열 업데이트
           setExpenditures(expenses);
           setTravelDetailData(result.result);
-          console.log(travelDetailData);
+          console.log('travelDetailData',travelDetailData);
           setDate(calculateDays(travelDetailData.startDate, travelDetailData.endDate));
-          console.log(date);
+          console.log('date',date);
           setMemberImages(travelDetailData.members.map((member, index) => ({
             id: index,
             source: { uri: member.profileImageLink },

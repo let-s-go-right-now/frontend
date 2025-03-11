@@ -2,32 +2,46 @@ import React, { useState } from 'react';
 import { FlatList, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import More from '../../assets/icons/spending/more.png';
 
-const ExpenditureList2 = ({ data }) => {
+const ExpenditureList2 = ({ data=[] }) => {
   const page = 3;
   const [visiblePage, setVisiblePage] = useState(page);
-
   const addPage = () => {
     setVisiblePage((prev) => Math.min(prev+page, data.length));
   }
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={data.slice(0, visiblePage)}
-        renderItem={({ item }) => (
-          <View style={styles.expenditureItem}>
-            <View style={styles.row}>
-              <Text style={styles.expenditureTitle}>{item.title}</Text>
-              <Text style={styles.expenditureCategory}>{item.category}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.expenditureCost}>{item.cost.toLocaleString()}원</Text>
-              <Text style={styles.expenditureDate}>{item.date}</Text>
-            </View>
-          </View>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      {data && data.length>0 && (
+        <FlatList
+          data={data.slice(0, visiblePage)}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => {
+            const date = new Date(item.expenseTime);
+            const formattedDate = `${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            
+            return (
+              <View style={styles.expenditureItem}>
+                <View style={styles.row}>
+                  <Text style={styles.expenditureTitle}>{item.expenseName}</Text>
+                  <Text style={styles.expenditureCategory}>
+                    {item.category==='TRANSPORTATION' ? '교통'
+                    :item.category==='MEALS' ? '식사'
+                    :item.category==='SHOPPING' ? '쇼핑'
+                    :item.category==='SIGHTSEEING' ? '관광'
+                    :item.category==='ACCOMMODATION' ? '숙소'
+                    :item.category==='ETC' ? '기타' 
+                    : '기타'}
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.expenditureCost}>{item.price.toLocaleString()}원</Text>
+                  <Text style={styles.expenditureDate}>{formattedDate}</Text>
+                </View>
+              </View>            
+            )
+          }}
+        />        
+      )}
       {visiblePage < data.length && (
         <TouchableOpacity style={styles.button} onPress={addPage}>
           <Image source={More} style={styles.image}/>
