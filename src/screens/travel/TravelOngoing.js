@@ -208,9 +208,9 @@ const calculateDays = (startDate, endDate) => {
         console.log('서버 응답:', result);
         if (result.isSuccess) {
           setTravelDetailData(result.result);
-          console.log(travelDetailData);
+          console.log('travelDetailData',travelDetailData);
           setDate(calculateDays(travelDetailData.startDate, travelDetailData.endDate));
-          console.log(date);
+          console.log('date',date);
           setMemberImages(travelDetailData.members.map((member, index) => ({
             id: index,
             source: { uri: member.profileImageLink },

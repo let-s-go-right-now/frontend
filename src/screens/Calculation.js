@@ -283,14 +283,14 @@ const Calculation = ({ navigation, route }) => {
     }
 
     // 정산 현황
-    // const handleCalcStatus = async () => { 
-    //     try {
-    //         const response = await axiosInstance.get(`api/settlement/${id}/status`);
-    //         console.log('정산 현황 가져오기', response);
-    //     } catch (error) {
-    //         console.log('정산 현황 가져오기 에러????????', error);
-    //     }
-    // }
+    const handleCalcStatus = async () => { 
+        try {
+            const response = await axiosInstance.get(`api/settlement/${id}/status`);
+            console.log('정산 현황 가져오기', response.data.result);
+        } catch (error) {
+            console.log('정산 현황 가져오기 에러', error);
+        }
+    }
 
     // 내가 포함된 지출 내역
     const handleMyExpenditure = async () => {
@@ -415,7 +415,7 @@ const Calculation = ({ navigation, route }) => {
     useEffect(() => {
         getMyAmount();
         handleCalcResult();
-        // handleCalcStatus();
+        handleCalcStatus();
         handleMyExpenditure();
     }, [])
 

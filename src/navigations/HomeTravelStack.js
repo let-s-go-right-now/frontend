@@ -83,7 +83,7 @@ const HomeTravelStack = () => {
                     },
                 }}
             />
-            <Stack.Screen
+            {/* <Stack.Screen
                 name="AiDetail"
                 component={AiDetail}
                 options={{ title: 'AI 여행 계획', mode: 'dark',
@@ -96,8 +96,38 @@ const HomeTravelStack = () => {
                         backgroundColor: 'white',  // 흰색으로 배경 설정
                     },
                 }}
+            /> */}
+            <Stack.Screen
+                name="AiDetail"
+                component={AiDetail}
+                options={({ navigation }) => ({
+                    title: 'AI 여행 계획',
+                    headerStyle: {
+                    backgroundColor: '#1D1D1F',
+                    },
+                    headerTitleStyle: {
+                    fontSize: 15,
+                    color: '#FFFFFF',
+                    fontFamily: 'SUIT-SemiBold',
+                    },
+                    headerLeft: () => (
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Image
+                        source={BackBright}
+                        style={{ width: 16, height: 13, marginLeft: 18 }}
+                        />
+                    </TouchableOpacity>
+                    ),
+                    headerRight: () => (
+                    <TouchableOpacity>
+                        <Image
+                        source={HeartEmpty}
+                        style={{ width: 26, height: 26, marginRight: 18 }}
+                        />
+                    </TouchableOpacity>
+                    ),
+                })}
             />
-
         </Stack.Navigator>
     );
 };

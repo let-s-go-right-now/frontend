@@ -3,6 +3,7 @@ import { Text, View, FlatList, ScrollView, Image, ActivityIndicator } from 'reac
 import styled from 'styled-components/native';
 import { AiConditionWhite, DateOptionButton, AiTitle, AiTransport, AiDesc, AiHashtags, AiPlace } from '../components';
 import LocationGray  from '../assets/icons/ai/location_gray.png';
+import { axiosInstance } from '../utils';
 
 const Loading = styled.View`
     width: 100%;
@@ -84,6 +85,9 @@ const Warning = styled.Text`
 const AiDetail = ({ route }) => {
     const tripData = route.params.state;
     const departure = route.params.departure;
+    const userData = route.params.userData;
+
+    const data = route.params.data;
     const [selectedDay, setSelectedDay] = useState(null);
     const [selectedItinerary, setSelectedItinerary] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -97,6 +101,29 @@ const AiDetail = ({ route }) => {
     
     console.log('전달받은 tripData', tripData);
     console.log('전달받은 departure', departure);
+    console.log('전달받은 userData',userData);
+
+    const handleScrap = async () => {  
+        try {
+            // const combinedData = Object.assign({}, userData, tripData);
+            const combinedData = {
+                ...userData,
+                ...tripData
+            };
+            console.log(Object.assign({}, userData, tripData));
+            console.log('스크랩 요청 보낼 데이터',combinedData);
+            const response = await axiosInstance.post('api/scrap', {
+                combinedData
+            });
+            console.log('스크랩 성공', response);
+        } catch (error) {
+            console.log('스크랩 실패', error.response);
+        }
+    }
+
+    useEffect(() => {
+        handleScrap();
+    },[]);
 
     useEffect(() => {
         setTimeout(() => {
@@ -140,15 +167,20 @@ const AiDetail = ({ route }) => {
                                 keyExtractor={(item, index) => index.toString()}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
-                                renderItem={({ item, index }) => (
+                                renderItem={({ item, index }) => {
+                                    console.log(item);
+                                    return (
                                     <DateOptionButton
+                                        key={index}
                                         text={item.day}
                                         date={item.date}
                                         isSelected={selectedDay === item.day}
                                         onPress={() => handleDay(item.day)}
                                         day={item.day}
-                                    />
-                                )}
+                                    />                                        
+                                    )
+
+                                }}
                             />                            
                         </View>
                     </BlackContainer>
@@ -156,9 +188,10 @@ const AiDetail = ({ route }) => {
                 {/* 여행 디테일 */}
                 <Main>
                     <Title>{selectedItinerary.title}</Title>
-                    {selectedItinerary.schedule.map((data) => (
+                    {selectedItinerary.schedule.map((data, index) => (
                         <>
                             <AiTitle
+                                key={index}
                                 time={data.time}
                                 location={data.departure}
                             />
@@ -177,6 +210,7 @@ const AiDetail = ({ route }) => {
                                     } else if (event.location && event.details && event.hashtags) {
                                         return (
                                             <AiHashtags
+                                                key={index}
                                                 location={event.location}
                                                 details={event.details}
                                                 cost={event.cost ? event.cost : null}
@@ -187,6 +221,7 @@ const AiDetail = ({ route }) => {
                                     } else if (event.location !== null && event.details !== null && !event.cost) {
                                         return (
                                             <AiDesc
+                                                key={index}
                                                 location={event.location}
                                                 details={event.details}
                                             />
@@ -194,6 +229,7 @@ const AiDetail = ({ route }) => {
                                     } else if (event.location !== null && event.details !== null && event.cost !== null) {
                                         return (
                                             <AiPlace
+                                                key={index}
                                                 location={event.location}
                                                 details={event.details}
                                                 cost={event.cost}
