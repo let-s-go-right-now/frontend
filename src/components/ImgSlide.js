@@ -8,7 +8,7 @@ const ImgSlide = ({ images, itemsToShow, scale = 100, onImagePress }) => {
 
     // marginRight 값 설정: itemsToShow가 2일 때만 10, 아니면 5
     const getMarginRight = () => (itemsToShow === 2 ? 10 : 5);
-
+    console.log('Images:', images);
     // 아이템을 렌더링하는 함수
     const renderItem = ({ item, index }) => (
         <View
@@ -20,11 +20,11 @@ const ImgSlide = ({ images, itemsToShow, scale = 100, onImagePress }) => {
         >
             <TouchableOpacity onPress={() => onImagePress(index)}>
                 <Image
-                    source={item.image}  // 이미지 소스는 item.image로 설정
+                    source={{ uri: item }}  // 이미지 URL을 uri로 설정
                     style={{
                         width: imageSize,
                         height: imageSize,
-                        resizeMode: 'contain',
+                        resizeMode: 'cover',
                     }}
                 />
             </TouchableOpacity>
