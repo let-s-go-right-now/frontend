@@ -51,17 +51,32 @@ const Price = styled.Text`
     color: #363638;
 `
 
-const data = [
-    { id: 1, name: "박시우", population: 468000, color: "rgba(29, 29, 31, 1)", legendFontColor: "#7F7F7F", legendFontSize: 14, },
-    { id: 2, name: "이우경", population: 448000, color: "rgba(29, 29, 31, 0.5)", legendFontColor: "#7F7F7F", legendFontSize: 14},
-    { id: 3, name: "임서현", population: 468000, color: "rgba(29, 29, 31, 0.2)", legendFontColor: "#7F7F7F", legendFontSize: 14},
-];
+const MiniPieChart = ({ memberData }) => {
+    const colorData = [
+        'rgba(29, 29, 31, 1)',
+        'rgba(29, 29, 31, 0.7)',
+        'rgba(29, 29, 31, 0.5)',
+        'rgba(29, 29, 31, 0.3)',
+        'rgba(29, 29, 31, 0.2)',
+        'rgba(29, 29, 31, 0.1)'
+    ]
 
-const MiniPieChart = () => {
+    const formattedData = memberData.map((data, index) => {
+        return {
+            id: index+1,
+            name: data.memberName,
+            population: data.amount || 0,
+            color: colorData[index%colorData.length],
+            legendFontColor: '#7F7F7F',
+            legendFontSize: 14,
+        }
+    })
+    console.log('formattedData',formattedData);
+
     return (
         <ChartWrapper>
             <PieChart
-                data={data}
+                data={formattedData}
                 width={157}
                 height={134}
                 chartConfig={{
@@ -76,14 +91,14 @@ const MiniPieChart = () => {
                 hasLegend={false}
             />
             <LabelWrapper>
-                {data.map((data) => {
+                {memberData.map((data, index) => {
                     return (
-                        <Label key={data.id}>
+                        <Label key={index}>
                             <Wrapper>
-                                <Color color={data.color}></Color>
-                                <Category>{data.name}</Category>
+                                <Color color={colorData[index%colorData.length]}></Color>
+                                <Category>{data.memberName}</Category>
                             </Wrapper>
-                            <Price>{data.population.toLocaleString()}원</Price>
+                            <Price>{(data.amount ?? 0).toLocaleString()}원</Price>
                         </Label>                    
                     )
                 })}
