@@ -15,6 +15,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Calculation from './Calculation';
 import {useTabBarVisibility} from '../utils';
 import { axiosInstance } from '../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Report = ({ navigation,route }) => {
     useTabBarVisibility(false);
@@ -30,8 +31,8 @@ const Report = ({ navigation,route }) => {
     const [totalAmount, setTotalAmount] = useState(0);
     const [memberCount, setMemberCount] = useState(0);
     const [mvpInfo, setMvpInfo] = useState([]);
-    const [mvpAmount, setMvpAmount] = useState(0); 
-
+    const [mvpAmount, setMvpAmount] = useState(0);
+    const [myAmount, setMyAmount] = useState(0);
 
     const backToTravelongoing = () =>{
         if(completed===true){
@@ -51,10 +52,19 @@ const Report = ({ navigation,route }) => {
         try {
             const response = await axiosInstance.get(`api/expense/${id}/member-expenses`);
 
-            console.log('회원별 총 지출액', response.data.result);
+            console.log('회원별 총 지출액??????????', response.data.result);
             setTotalAmount(response.data.result.totalAmount);
             setMemberCount(response.data.result.memberCount);
-            // mvp
+            // 나의 총 지출액
+            const name = await AsyncStorage.getItem('name');
+            for (let i=0;i<response.data.result.memberCount;i++) {
+                if (response.data.result.memberTotalExpenses[i].memberProfile.name === name) {
+                    setMyAmount(response.data.result.memberTotalExpenses[i].amount);
+                    console.log('나의 총 지출액', myAmount);
+                } else {
+                    console.log('나의 총 지출액 에러');
+                }
+            }
             if (response.data.result.memberTotalExpenses.length===1) {
                 setIsMvp(true);
                 setMvpInfo(response.data.result.memberTotalExpenses[0].memberProfile);
@@ -142,7 +152,7 @@ const Report = ({ navigation,route }) => {
     
     useEffect(() => {
         if (id && selectedCategoryId) {
-            handleMember();  // 선택된 카테고리로 데이터 요청
+            handleMember();
         }
     }, [selectedCategoryId]);
     
@@ -173,7 +183,7 @@ const Report = ({ navigation,route }) => {
                 <InfoWrapper style={{marginTop: 27}}>
                     <ExtraTitle style={{marginRight: 20}}>나의 총 지출액</ExtraTitle>
                     <Image source={MoneyLight} style={{marginRight: 3}}/>
-                        <SemiTitle>52만원</SemiTitle> {/* 여행 id 받아온 후 수정  */}
+                        <SemiTitle>{myAmount> 10000 ? `${Math.floor(myAmount/10000)}만원` : `${myAmount}원`}</SemiTitle> {/* 여행 id 받아온 후 수정  */}
                 </InfoWrapper>
                 {pieData.length > 0 && (
                     <>
@@ -217,7 +227,8 @@ const Report = ({ navigation,route }) => {
                                 <ExtraTitle>지출 MVP</ExtraTitle>
                                 <Image source={Trophy} style={{}} />                                
                             </InfoWrapper>
-                            <Profile source={mvpInfo.profileImageUrl!==null ? mvpInfo.profileImageUrl : profile}/>
+                            {mvpInfo.profileImageUrl!==null ? <Profile source={{uri: mvpInfo.profileImageUrl}} />
+                            :  <Profile source={profile} />}
                             <Name>{mvpInfo.name}</Name>
                             <InfoWrapper>
                                 <MvpText>총</MvpText>
