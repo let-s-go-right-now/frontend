@@ -8,7 +8,6 @@ const ImgSlide = ({ images, itemsToShow, scale = 100, onImagePress }) => {
 
     // marginRight 값 설정: itemsToShow가 2일 때만 10, 아니면 5
     const getMarginRight = () => (itemsToShow === 2 ? 10 : 5);
-    console.log('Images:', images);
     // 아이템을 렌더링하는 함수
     const renderItem = ({ item, index }) => (
         <View
