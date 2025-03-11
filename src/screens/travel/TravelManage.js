@@ -36,9 +36,9 @@ const TravelManage = (navigation) => {
         memo: "해운대에서 걸스나잇",
         leader: true,
         members: [
-            { name: "홍길동", leader: true, sameName: false, image: profileImage1, color: "blue", onPress: () => {} },
-            { name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red", onPress: () => {} },
-            { name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green", onPress: () => {} },
+            { name: "홍길동", leader: true, sameName: false, image: "../../assets/profileImgs/profileImg01.png", color: "blue", onPress: () => {} },
+            { name: "김철수", leader: false, sameName: false, image: "../../assets/profileImgs/profileImg01.png", color: "red", onPress: () => {} },
+            { name: "이영희", leader: false, sameName: true, image: "../../assets/profileImgs/profileImg01.png", color: "green", onPress: () => {} },
         ],
     };
     const { tripName, startDate, endDate, memo, members } = tripData;

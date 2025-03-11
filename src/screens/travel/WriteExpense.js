@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, FlatList } from 'react-native';
 import { CustomBottomSheet, ImgSlide, ImgSlideUpload, MyCalendar, OptionList, PlusButton, Profile, TwoButton } from '../../components';
-import { useTabBarNone } from '../../utils';
+import { useTabBarVisibility } from '../../utils';
 import { theme } from '../../theme';
 import { launchImageLibrary } from 'react-native-image-picker'; // 이미지 선택 기능 추가
 import profileImage1 from "../../assets/profileImgs/profileImg01.png";
@@ -9,68 +9,144 @@ import profileImage2 from "../../assets/profileImgs/profileImg02.png";
 import profileImage3 from "../../assets/profileImgs/profileImg03.png";
 import DeleteButtonForReal from '../../assets/icons/travel/DeleteButton-forReal.png';
 import DeleteButton from '../../assets/icons/travel/DeleteButton.png';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const WriteExpense = ({ navigation }) => {
-    useTabBarNone(false);
+    useTabBarVisibility(false);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDates, setSelectedDates] = useState(null);
     const [imageUris, setImageUris] = useState([]); // 여러 이미지를 관리하기 위한 상태
     const bottomSheetRef = useRef(null);
     const snapPoints = ['70%'];
-        const tripData = {
-            tripName: "부산바캉스",
-            startDate: "08. 12",
-            endDate: "08. 15",
-            memo: "해운대에서 걸스나잇",
-            leader: true,
-            members: [
-                { id:1,name: "홍길동", leader: true, sameName: false, image: profileImage1, color: "blue", onPress: () => {} },
-                { id:2,name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red", onPress: () => {} },
-                { id:3,name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green", onPress: () => {} },
-            ],
-        };
-        const { tripName, startDate, endDate, memo, members } = tripData;
 
-    const [selectedMember, setSelectedMember] = useState(1); //선택된 멤버
-    const [excludedMember, setExcludedMember] = useState(1); // 제외 멤버 관리
+    const [members, setMembers] = useState([]); // 여행 참여자 목록 상태
+    const [selectedMember, setSelectedMember] = useState(1);
+    const [excludedMember, setExcludedMember] = useState(1);
+    const [ownerEmail,setOwnerEmail] = useState('');
+    
+    // 여행 참여자 목록을 가져오는 함수
+    const fetchTripMembers = async () => {
+        try {
+            const token = await AsyncStorage.getItem('jwtToken');
+            if (!token) {
+                console.log('토큰이 없습니다.');
+                return;
+            }
+
+            const tripId = await AsyncStorage.getItem('tripId');
+            if(!tripId){
+                console.log('tripID가 없습니다');
+            }
+            console.log("여행번호"+tripId)
+
+            const response = await axios.get(
+                `https://letsgorightnow.shop/api/trip/${tripId}/trip-member`,
+                {
+                    headers: {
+                        'Authorization': `${token}`,
+                    },
+                }
+            );
+
+            if (response.data.isSuccess) {
+                setOwnerEmail(response.data.result.owner.email); 
+                // response에서 멤버 목록을 가져와서 원하는 형태로 변환
+                const updatedMembers = response.data.result.tripMembers.map((member) => ({
+                    email: member.email, // email을 id로 사용
+                    name: member.name,
+                    image: member.profileImageUrl || 'default_image_url', // profileImageUrl이 없으면 기본 이미지 URL 사용
+                }));
+                setMembers(updatedMembers); // 상태에 멤버 목록 업데이트
+            } else {
+                console.log('여행 참여자 목록을 가져오는 데 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error fetching trip members:', error);
+            // 상태 코드 확인을 위해 오류 응답의 상태 코드도 출력
+            
+                console.log('Error Status 멤버:', error.status); // 오류 상태 코드 출력
+            
+            
+        }
+    };
+
+    //이름 같은 멤버 색 부여
+    const colors = [
+        '#FF5733', '#33FF57', '#3357FF', '#F8FF33', '#FF33F6',
+        '#33FFF2', '#F433FF', '#FF8333', '#F3FF33', '#33F6FF'
+    ];
+    
+    // 멤버 목록에서 이름이 같은 멤버에게 색상 부여하기
+    const assignColors = (members) => {
+        const nameCount = {}; // 각 이름의 등장 횟수 저장
+        const updatedMembers = members.map((member, index) => {
+            if (member.sameName) {
+                // 이름이 같은 멤버가 있을 때 색상 순서대로 부여
+                if (nameCount[member.name]) {
+                    nameCount[member.name]++;
+                } else {
+                    nameCount[member.name] = 0;
+                }
+                // 색상은 순서대로 10개만 사용
+                member.color = colors[nameCount[member.name] % colors.length];
+            }
+            return member;
+        });
+    
+        return updatedMembers;
+    };
+    
+    // 화면이 포커스될 때마다 fetchTripMembers 호출
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchTripMembers(); // 화면이 다시 포커스될 때마다 참여자 목록을 가져옵니다.
+            if (members.length > 0) {
+                const updatedMembers = assignColors(members);
+                setMembers(updatedMembers);  // 색상 부여된 멤버 목록을 상태에 업데이트
+                console.log("멤버sms"+members);
+            }
+        }, [])
+    );
     const options = [
         { 
-          id: 1, 
-          text: "교통", 
-          image: require('../../assets/icons/travel/options/TraficIcon.png'), 
-          image_clicked: require('../../assets/icons/travel/options/TraficIcon-selected.png'), 
+            id: 'TRANSPORTATION', 
+            text: "교통", 
+            image: require('../../assets/icons/travel/options/TraficIcon.png'), 
+            image_clicked: require('../../assets/icons/travel/options/TraficIcon-selected.png'), 
         },
         { 
-          id: 2, 
-          text: "식사", 
-          image: require('../../assets/icons/travel/options/FoodIcon.png'), 
-          image_clicked: require('../../assets/icons/travel/options/FoodIcon-selected.png'), 
+            id: 'MEALS', 
+            text: "식사", 
+            image: require('../../assets/icons/travel/options/FoodIcon.png'), 
+            image_clicked: require('../../assets/icons/travel/options/FoodIcon-selected.png'), 
         },
         { 
-          id: 3, 
-          text: "관광", 
-          image: require('../../assets/icons/travel/options/AmuseIcon.png'),
-          image_clicked: require('../../assets/icons/travel/options/AmuseIcon-selected.png'), 
+            id: 'SIGHTSEEING', 
+            text: "관광", 
+            image: require('../../assets/icons/travel/options/AmuseIcon.png'),
+            image_clicked: require('../../assets/icons/travel/options/AmuseIcon-selected.png'), 
         },
         { 
-            id: 4, 
+            id: 'SHOPPING', 
             text: "쇼핑", 
             image: require('../../assets/icons/travel/options/ShopIcon.png'),
             image_clicked: require('../../assets/icons/travel/options/ShopIcon-selected.png'), 
-          },
-          { 
-            id: 5, 
+        },
+        { 
+            id: 'ACCOMMODATION', 
             text: "숙소", 
             image: require('../../assets/icons/travel/options/RentIcon.png'),
             image_clicked: require('../../assets/icons/travel/options/RentIcon-selected.png'), 
-          },
-          { 
-            id: 6, 
+        },
+        { 
+            id: 'ETC', 
             text: "기타", 
             image: require('../../assets/icons/travel/options/etc.png'),
             image_clicked: require('../../assets/icons/travel/options/etc-selected.png'), 
-          },
-      ];
+        },
+    ];
       
       
 
@@ -79,11 +155,79 @@ const WriteExpense = ({ navigation }) => {
         bottomSheetRef.current?.expand();
     };
 
-    const handleSaveExpense = () => {
-        navigation.reset({
-            index:0,
-            routes: [{name:'TravelOngoing'}]
+    const formatDate = (date) => {
+        const isoString = new Date(date).toISOString(); // ISO 8601 형식
+        return isoString.slice(0, 19); // "YYYY-MM-DDTHH:MM:SS" 형식으로 자르기
+      };
+    const [expenseName, setExpenseName] = useState('');
+    const [price, setPrice] = useState('');
+    const [details, setDetails] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('MEALS');
+    const [excludedMembers, setExcludedMembers] = useState([]);
+    const handleSaveExpense = async () => {
+        const formData = new FormData();
+        formData.append('expenseName', expenseName);
+        formData.append('price', price);
+        formData.append('details', details);
+        formData.append('expenseDate', formatDate(new Date()));
+        formData.append('categoryName', selectedCategory);
+        // selectedMember ID로 이메일 찾아서 저장
+        const payerEmail = members.find(member => member.id === selectedMember)?.email;
+        if (payerEmail) {
+            formData.append('payerEmail', payerEmail);
+        } else {
+            console.log('결제자를 찾을 수 없습니다.');
+        }
+
+        // excludedMembers ID 목록을 이메일 목록으로 변환하여 저장
+        const excludedEmails = excludedMembers
+            .map(excludedId => members.find(member => member.id === excludedId)?.email)
+            .filter(email => email);  // 이메일이 존재하는 경우만 필터링
+        formData.append('excludedMember', excludedEmails.join(',')); // 제외할 멤버들 이메일 목록
+
+            
+
+        // 이미지를 업로드
+        imageUris.forEach((uri, index) => {
+            const imageFile = {
+                uri,
+                name: `image_${index}.jpg`,
+                type: 'image/jpeg',
+            };
+            formData.append('images', imageFile);
         });
+
+        try {
+            const token = await AsyncStorage.getItem('jwtToken');
+            const tripId = await AsyncStorage.getItem('tripId');
+            if (!token) {
+              console.log('토큰이 없습니다.');
+              return;
+            }
+            const response = await axios.post(
+                `https://letsgorightnow.shop/api/expense/${tripId}`, 
+                formData,
+                {
+                    headers: {
+                        'Authorization': `${token}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+            if (response.data.isSuccess) {
+                alert('지출 기록이 생성되었습니다.');
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'TravelOngoing' }],
+                });
+            } else {
+                alert('지출 기록 작성 실패');
+            }
+        } catch (error) {
+            console.error('Error saving expense:', error);
+            console.log(formData)
+            alert('에러가 발생했습니다. 다시 시도해 주세요.');
+        }
     };
 
     const handleReplaceTravel = () => {
@@ -130,16 +274,22 @@ const excludeProfilePress = (member) => {
     setExcludedMember(member.id); // 선택된 멤버의 name 저장
 };
 
+
+
     const renderContent = () => (
         <View style={styles.contentWrapper}>
             <View style={styles.inputWrapper}>
-                <TextInput style={styles.travelNameInput} placeholder="지출 제목을 입력하세요" />
+                <TextInput style={styles.travelNameInput} placeholder="지출 제목을 입력하세요" 
+                    value={expenseName} onChangeText={setExpenseName}
+                />
                 <View style={styles.dateInputWrapper}>
-                    <TextInput style={styles.dateInputwon} placeholder="지출 금액을 입력하세요" />
+                    <TextInput style={styles.dateInputwon} placeholder="지출 금액을 입력하세요" 
+                    value={price} onChangeText={setPrice}
+                    />
                     <Text style={styles.dateText}>원</Text>
                 </View>
             </View>
-            <TextInput style={styles.memoInput} placeholder="메모를 입력하세요" multiline />
+            <TextInput style={styles.memoInput} placeholder="메모를 입력하세요" multiline value={details} onChangeText={setDetails}/>
             {/* 선택된 이미지 미리보기 */}
             <View style={styles.imgSlide} >
             {imageUris.length > 0 && (
@@ -153,7 +303,7 @@ const excludeProfilePress = (member) => {
             {/* 카테고리 선택*/}
             <Text style={styles.categoryText}>카테고리를 선택하세요</Text>
             <View style={styles.optionsContainer}>
-                <OptionList options={options} Buttonwidth={64}/>
+                <OptionList options={options} Buttonwidth={64} selectedId={selectedCategory}   setSelectedId={setSelectedCategory} />
             </View>
             {/*결제인 */}
             <Text style={styles.categoryText}>누가 결제했나요?</Text>
@@ -162,13 +312,14 @@ const excludeProfilePress = (member) => {
                         <Profile
                             key={index}
                             name={member.name}
-                            leader={member.leader}
+                            leader={member.email == ownerEmail}
                             sameName={member.sameName}
                             image={member.image}
                             color={member.color}
                             selected={selectedMember === member.id}
                             normal={false}
                             onPress={() => handleProfilePress(member)}
+                            email ={member.email}
                         />
                     
                 ))}
@@ -181,13 +332,14 @@ const excludeProfilePress = (member) => {
                         <Profile
                             key={index}
                             name={member.name}
-                            leader={member.leader}
+                            leader={member.email == ownerEmail}
                             sameName={member.sameName}
                             image={member.image}
                             color={member.color}
                             selected={excludedMember === member.id}
                             normal={false}
                             onPress={() => excludeProfilePress(member)}
+                            email ={member.email}
                         />
                     
                 ))}

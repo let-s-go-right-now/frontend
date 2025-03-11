@@ -51,19 +51,22 @@ const Profile = ({
     color,
     selected,
     onPress,
-    normal = false  // 기본값을 true로 설정
+    normal = false,  // 기본값을 true로 설정
+    email
 }) => {
+    const imageSource = image ? { uri: image } : null;  // image가 있으면 URL로 변환
+
     return (
-        <ProfileWrapper selected={selected} onPress={onPress} normal={normal}>
+        <ProfileWrapper selected={selected} onPress={onPress} normal={normal} email={email}>
             <ProfileImage 
-                source={image} 
+                source={imageSource} 
                 selected={selected}
                 normal={normal}  // ProfileImage에 normal 전달
             />
             <Info selected={selected}>
                 {sameName && <ColorBadge color={color}></ColorBadge>}
                 <Name>{name}</Name>
-                {leader && <Image source={LeaderBadge}/>}
+                {leader && <Image source={LeaderBadge}/> }
             </Info>
         </ProfileWrapper>
     )

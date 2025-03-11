@@ -12,6 +12,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TravelOngoing = ({navigation}) => {
+  const [selectedId, setSelectedId] = useState(1); 
   const ongoingid = 1;  //현재 진행중인 여행의 id
   const [images] = useState([
     { id: 1, image: image1 },
@@ -96,7 +97,7 @@ const TravelOngoing = ({navigation}) => {
 
   //지출기록하기
   const handleWriteExpense = () => {
-    navigation.navigate('WriteExpense',{id:ongoingid});
+    navigation.navigate('WriteExpense');
 };
 //지출리포트로 이동하기
 const MoveExpenseReport = () => {
@@ -112,7 +113,7 @@ const MoveExpenseReport = () => {
   };
   
 
-  const [selectedId, setSelectedId] = useState(1); 
+
   const [travelData, setTravelData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -137,6 +138,7 @@ const MoveExpenseReport = () => {
         console.log('서버 응답:', result);
         if (result.isSuccess) {
           setTravelData(result.result);
+          setSelectedId(result.result[0].id);
         } else {
           console.error('데이터 가져오기 실패:', result.message);
         }
@@ -155,6 +157,79 @@ const MoveExpenseReport = () => {
       unsubscribe();
     };
   }, [navigation]); 
+
+  //특정 여행 id로 보내기
+  const [travelDetailData, setTravelDetailData] = useState([]);  
+  const [date,setDate] = useState(0);
+  const [memberImages,setMemberImages] = useState(); 
+  
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = String(d.getFullYear()).slice(2); // 연도의 마지막 두 자리 추출
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+};
+const calculateDays = (startDate, endDate) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const timeDifference = end - start;
+  const days = timeDifference / (1000 * 3600 * 24);
+  return days;
+};
+
+
+  useEffect(() => {
+    //selectedId가 변경될때마다 asyncstorage에
+    // selectedId가 변경될 때마다 호출되는 fetchTravelData 함수
+    const fetchTravelData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('jwtToken');
+        if (!token) {
+          console.log('토큰이 없습니다.');
+          return;
+        }
+
+        // selectedId 값이 변경될 때마다 AsyncStorage에 'tripId'로 저장
+        await AsyncStorage.setItem('tripId', selectedId.toString());
+
+
+        // API 호출 URL을 selectedId에 맞춰 동적으로 설정
+        const response = await fetch(`https://letsgorightnow.shop/api/trip/${selectedId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result = await response.json();
+        console.log('서버 응답:', result);
+        if (result.isSuccess) {
+          setTravelDetailData(result.result);
+          console.log(travelDetailData);
+          setDate(calculateDays(travelDetailData.startDate, travelDetailData.endDate));
+          console.log(date);
+          setMemberImages(travelDetailData.members.map((member, index) => ({
+            id: index,
+            source: { uri: member.profileImageLink },
+          })));
+        } else {
+          console.error('데이터 가져오기 실패:', result.message);
+        }
+      } catch (error) {
+        console.error('에러 발생:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // selectedId가 변경될 때마다 데이터 가져오기
+    fetchTravelData();
+
+  }, [selectedId]); // selectedId가 변경될 때마다 실행
+
 
 
   return (
@@ -180,18 +255,18 @@ const MoveExpenseReport = () => {
             {/* 여행 상세 정보 */}
             <View style={styles.travelDetails}>
               <View style={styles.travelInfo}>
-                <Text style={styles.travelTitle}>강릉뿌시기 <Text style={styles.travelLong}>2박 3일</Text></Text>
-                <Text style={styles.travelDate}>24.12.20</Text>
+                <View style={styles.travelTitleWrp}><Text style={styles.travelTitle}>{travelDetailData.name}</Text><Text style={styles.travelLong}>{date}박 {date+1}일</Text></View>
+                <Text style={styles.travelDate}>{formatDate(travelDetailData.startDate)}</Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.travelMemo}>강릉에서 겨울바다 보고 오기!</Text>
+                <Text style={styles.travelMemo}>{travelDetailData.introduce}</Text>
                 <TouchableOpacity onPress={() => {}} style={styles.finishButton}>
                   <Text style={styles.finishButtonText}>여행 끝내기</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.row}>
                 <View style={styles.profileImageContainer}>
-                  <ProfileImgDump />
+                  <ProfileImgDump images={memberImages}/>
                 </View>
                 <TouchableOpacity onPress={handleManageTravel} style={styles.manageButton}>
                   <Text style={styles.manageButtonText}>관리하기</Text>
@@ -205,7 +280,7 @@ const MoveExpenseReport = () => {
               <View style={styles.expenditureHeader}>
                 <View style={styles.expenditureInfo}>
                   <Text style={styles.expenditureLabel}>현재 지출</Text>
-                  <Text style={styles.expenditureAmount}>| 22만원</Text>
+                  <Text style={styles.expenditureAmount}>| {travelDetailData.totalExpense}만원</Text>
                 </View>
                 <OpenToggle
                   options={sortOptions}
@@ -225,7 +300,6 @@ const MoveExpenseReport = () => {
           </>
         }
         data={expenditures}
-        keyExtractor={(item) => item.date}
       />
     {/*바텀시트*/}
     {isOpen ? (
@@ -277,6 +351,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 10,
   },
+  travelTitleWrp:{
+    flexDirection: 'row',
+  },
   travelTitle: {
     fontFamily: theme.fonts.extrabold,
     color: "#1D1D1F",
@@ -285,6 +362,8 @@ const styles = StyleSheet.create({
   travelLong: {
     fontFamily: "SUIT-SemiBold",
     fontSize: 17,
+    marginLeft:20,
+    marginTop:2,
   },
   travelDate: {
     fontFamily: "SUIT-SemiBold",

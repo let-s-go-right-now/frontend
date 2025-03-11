@@ -27,7 +27,7 @@ const ExpenditureList = ({ data,navigation,completed }) => {
           </View>
           </TouchableOpacity>
       )}
-      keyExtractor={(item) => item.id ? item.id.toString() : String(item)}
+      keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()} 
     />
   );
 };
