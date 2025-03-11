@@ -86,6 +86,8 @@ const AiDetail = ({ route }) => {
     const tripData = route.params.state;
     const departure = route.params.departure;
     const userData = route.params.userData;
+    const travelInfo = route.params.travelInfo;
+    const data2 = route.params.data2;
 
     const data = route.params.data;
     const [selectedDay, setSelectedDay] = useState(null);
@@ -102,15 +104,15 @@ const AiDetail = ({ route }) => {
     console.log('전달받은 tripData', tripData);
     console.log('전달받은 departure', departure);
     console.log('전달받은 userData',userData);
+    console.log('전달받은 travelInfo',travelInfo);
 
     const handleScrap = async () => {  
         try {
-            // const combinedData = Object.assign({}, userData, tripData);
             const combinedData = {
-                ...userData,
+                ...data2,
                 ...tripData
             };
-            console.log(Object.assign({}, userData, tripData));
+            delete combinedData.tripImage;
             console.log('스크랩 요청 보낼 데이터',combinedData);
             const response = await axiosInstance.post('api/scrap', {
                 combinedData

@@ -85,6 +85,7 @@ const AiRecommend = ({ navigation, route }) => {
     const [tripData, setTripData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [userData, setUserData] = useState();
+    const [data2, setData2] = useState();
 
     const getRecommend = async () => {
         setLoading(true);
@@ -113,6 +114,14 @@ const AiRecommend = ({ navigation, route }) => {
                 transportMode: travelInfo.transportInfo,
                 departure: travelInfo.StartPlace
             };
+            
+            setData2({
+                startDate: formatDate(start2),
+                endDate: formatDate(end2),
+                budget: parseInt(travelInfo.budget),
+                transportMode: travelInfo.transportInfo,
+                departure: travelInfo.StartPlace
+            })
 
             setUserData(data);
 
@@ -149,7 +158,9 @@ const AiRecommend = ({ navigation, route }) => {
                             navigation.navigate("AiDetail", { 
                                 state: tripData, 
                                 departure: travelInfo.StartPlace, 
-                                userData: userData 
+                                userData: userData,
+                                travelInfo: travelInfo,
+                                data2: data2,
                             });
                             }
                         }}

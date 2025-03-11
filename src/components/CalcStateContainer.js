@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { Image, Text, View } from 'react-native';
 import PropTypes from 'prop-types';
+import profile from '../assets/icons/user/profile.png';
 
 const Container = styled.View`
     width: 100%;
@@ -70,11 +71,13 @@ const Wrapper = styled.View`
 `
 
 const CalcStateContainer = ({ name, image, receive, receiver, receiverNum, send, sender, senderNum }) => {
+    console.log('image?????????',image);
     return (
         <Container>
             <Top>
                 <RowWrapper>
-                    <Profile source={image} />
+                    {image!==undefined ? <Profile source={{uri: image}} />
+                    :  <Profile source={profile} />}
                     <Name>{name}</Name>                    
                 </RowWrapper>
                 <Total>

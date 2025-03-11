@@ -242,7 +242,9 @@ const Calculation = ({ navigation, route }) => {
     const [selectedAccount, setSelectAccount] = useState('국민 123-45A-678901');
     const [clickedAccount, setClickedAccount] = useState(false);
     // 받아오는 데이터들
-    const [expenditures, setExpenditures] = useState([]);
+    const [expenditures, setExpenditures] = useState([]); // 사용자가 포함된 지출 내역
+    const [calcStatus, setCalcStatus] = useState([]); // 정산 현황 데이터
+    const [calcRes, setCalcRes] = useState([]); // 정산 결과 데이터
 
     const openBottomSheet = () => {
         setIsOpen(!isOpen);
@@ -287,6 +289,7 @@ const Calculation = ({ navigation, route }) => {
         try {
             const response = await axiosInstance.get(`api/settlement/${id}/status`);
             console.log('정산 현황 가져오기', response.data.result);
+            setCalcStatus(response.data.result);
         } catch (error) {
             console.log('정산 현황 가져오기 에러', error);
         }
@@ -485,7 +488,7 @@ const Calculation = ({ navigation, route }) => {
                         </ResWrapper>
                         <Bold>정산 현황</Bold>
                         <CalcStateWrapper>
-                            {CalcStateList.map((data) => {
+                            {calcStatus.map((data) => {
                                 let receive = 0;
                                 let receiver = '';
                                 let receiverNum = 0;
@@ -494,7 +497,7 @@ const Calculation = ({ navigation, route }) => {
                                 let senderNum = 0;
 
                                 data.settlementStatuses.forEach((item) => {
-                                    if (item.status === "RECEIVED") {
+                                    if (item && item.status === "RECEIVED") {
                                         receive = item.amount;
                                         receiver = item.relatedMemberName[0];
                                         receiverNum = item.relatedMemberName.length;
@@ -508,8 +511,8 @@ const Calculation = ({ navigation, route }) => {
                                 return (
                                     <CalcStateContainer
                                         key={data.id}
-                                        name={data.name}
-                                        image={data.image}
+                                        name={data.tripMemberProfile.name}
+                                        image={data.profileImageUrl}
                                         receive={receive}
                                         receiver={receiver}
                                         receiverNum={receiverNum}
