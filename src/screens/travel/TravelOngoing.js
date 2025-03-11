@@ -12,7 +12,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TravelOngoing = ({navigation}) => {
-  const [selectedId, setSelectedId] = useState(1); 
+  const [selectedId, setSelectedId] = useState(null); 
   const ongoingid = 1;  //현재 진행중인 여행의 id
   const [images, setImages] = useState([]); 
   
@@ -152,6 +152,10 @@ const calculateDays = (startDate, endDate) => {
     //selectedId가 변경될때마다 asyncstorage에
     // selectedId가 변경될 때마다 호출되는 fetchTravelData 함수
     const fetchTravelData = async () => {
+      if (selectedId === null) {
+        console.log("selectedId가 null이므로 여행 데이터를 조회하지 않습니다.");
+        return;
+      }
       try {
         const token = await AsyncStorage.getItem('jwtToken');
         if (!token) {

@@ -3,6 +3,7 @@ import { FlatList, View, StyleSheet } from 'react-native';
 import { GeneralOptionButton } from '..';
 
 const OptionList = ({ options, selectedId, setSelectedId, Buttonwidth, containerWidth }) => {
+  console.log(options);
   return (
     <View style={[styles.optionsScrollContainer, { width: containerWidth }]}>
       <FlatList
