@@ -242,7 +242,10 @@ const Calculation = ({ navigation, route }) => {
     const [selectedAccount, setSelectAccount] = useState('국민 123-45A-678901');
     const [clickedAccount, setClickedAccount] = useState(false);
     // 받아오는 데이터들
-    const [expenditures, setExpenditures] = useState([]);
+    const [expenditures, setExpenditures] = useState([]); // 사용자가 포함된 지출 내역
+    const [calcStatus, setCalcStatus] = useState([]); // 정산 현황 데이터
+    const [calcRes, setCalcRes] = useState([]); // 정산 결과 데이터
+    const [members, setMembers] = useState([]);
 
     const openBottomSheet = () => {
         setIsOpen(!isOpen);
@@ -276,7 +279,8 @@ const Calculation = ({ navigation, route }) => {
     const handleCalcResult = async () => {
         try {
             const response = await axiosInstance.get(`api/settlement/${id}/result`);
-            console.log('여행 정산 결과 가져오기 성공', response.data.result);
+            console.log('여행 정산 결과 가져오기 성공??????', response.data.result);
+            setCalcRes(response.data.result);
         } catch (error) {
             console.log('여행 정산 결과 가져오기 에러', error);
         }
@@ -286,9 +290,10 @@ const Calculation = ({ navigation, route }) => {
     const handleCalcStatus = async () => { 
         try {
             const response = await axiosInstance.get(`api/settlement/${id}/status`);
-            console.log('정산 현황 가져오기', response.data.result);
+            console.log('정산 현황 가져오기', response);
+            setCalcStatus(response.data.result);
         } catch (error) {
-            console.log('정산 현황 가져오기 에러', error);
+            console.log('정산 현황 가져오기 에러', error.response);
         }
     }
 
@@ -338,60 +343,6 @@ const Calculation = ({ navigation, route }) => {
         },
     ]
 
-    const CalcStateList = [ // 정산 현황
-        {
-            id: 1,
-            name: '박시우',
-            image: require('../assets/icons/user/박시우.png'),
-            settlementStatuses: [
-                {
-                    status: 'RECEIVED',
-                    amount: 28000,
-                    relatedMemberName: [
-                        '임서현',
-                        '이우경',
-                    ]
-                },
-            ],
-        },
-        {
-            id: 2,
-            name: '이우경',
-            image: require('../assets/icons/user/이우경.png'),
-            settlementStatuses: [
-                {
-                    status: 'RECEIVED',
-                    amount: 8000,
-                    relatedMemberName: [
-                        '임서현',
-                    ]
-                },
-                {
-                    status: 'SEND',
-                    amount: 18000,
-                    relatedMemberName: [
-                        '박시우',
-                    ]
-                },
-            ],
-        },
-        {
-            id: 3,
-            name: '임서현',
-            image: require('../assets/icons/user/임서현.png'),
-            settlementStatuses: [
-                {
-                    status: 'SEND',
-                    amount: 32000,
-                    relatedMemberName: [
-                        '박시우',
-                        '이우경',
-                    ]
-                },
-            ],
-        },
-    ]
-
     const getMyAmount = async () => {
         try {
             const response = await axiosInstance.get(`api/expense/${id}/member-expenses`);
@@ -412,11 +363,38 @@ const Calculation = ({ navigation, route }) => {
         }
     }
 
+    const getMember = async () => {
+        try {
+            const response = await axiosInstance.get(`api/trip/${id}/trip-member`);
+            console.log('여행 멤버 불러오기 성공', response.data.result);
+            const members = response.data.result.tripMembers.map((member, index) => ({
+                id: index,
+                name: member.name,
+                leader: index===0,
+                image: member.profileImageUrl && { uri: member.profileImageUrl }
+            }));
+            console.log(members);
+            setMembers(members);
+        } catch (error) {
+            console.log('여행 멤버 불러오기 실패', error);
+        }
+    }
+
+    const handlePrepayment = async () => {
+        try {
+            const response = await axiosInstance(`api/settlement/${id}/prepayment`);
+            console.log('handlePrepayment response',response);
+        } catch (error) {
+            console.log('handlePrepayment error',error);
+        }
+    }
+
     useEffect(() => {
         getMyAmount();
         handleCalcResult();
         handleCalcStatus();
         handleMyExpenditure();
+        getMember();
     }, [])
 
     return (
@@ -485,7 +463,7 @@ const Calculation = ({ navigation, route }) => {
                         </ResWrapper>
                         <Bold>정산 현황</Bold>
                         <CalcStateWrapper>
-                            {CalcStateList.map((data) => {
+                            {calcStatus.map((data) => {
                                 let receive = 0;
                                 let receiver = '';
                                 let receiverNum = 0;
@@ -494,7 +472,7 @@ const Calculation = ({ navigation, route }) => {
                                 let senderNum = 0;
 
                                 data.settlementStatuses.forEach((item) => {
-                                    if (item.status === "RECEIVED") {
+                                    if (item && item.status === "RECEIVED") {
                                         receive = item.amount;
                                         receiver = item.relatedMemberName[0];
                                         receiverNum = item.relatedMemberName.length;
@@ -506,17 +484,19 @@ const Calculation = ({ navigation, route }) => {
                                 })
                                 
                                 return (
-                                    <CalcStateContainer
-                                        key={data.id}
-                                        name={data.name}
-                                        image={data.image}
-                                        receive={receive}
-                                        receiver={receiver}
-                                        receiverNum={receiverNum}
-                                        send={send}
-                                        sender={sender}
-                                        senderNum={senderNum}
-                                    />
+                                    data.settlementStatuses.length>0 && (
+                                        <CalcStateContainer
+                                            key={data.id}
+                                            name={data.tripMemberProfile.name}
+                                            image={data.profileImageUrl}
+                                            receive={receive}
+                                            receiver={receiver}
+                                            receiverNum={receiverNum}
+                                            send={send}
+                                            sender={sender}
+                                            senderNum={senderNum}
+                                        />
+                                    )
                                 )
                             })}                            
                         </CalcStateWrapper>
@@ -545,7 +525,7 @@ const Calculation = ({ navigation, route }) => {
                     <BottomWrapper contentContainerStyle={{ flexGrow: 1 }}>
                         <BottomBold>사전에 보낸 금액을 알려주세요</BottomBold>
                         <BottomDesc>누구에게 얼마를 보냈었나요?</BottomDesc>
-                        <ProfileSlide />
+                        <ProfileSlide  members={members}/>
                         <MoneyInput
                             height={50}
                             width={320}
