@@ -20,8 +20,8 @@ const InviteScreen = ({ route, navigation }) => {
 
         // 초대 토큰은 body에 포함하고, JWT 토큰은 헤더에 포함
         const response = await axios.post(
-          'https://letsgorightnow.shop/api/trip/join',
-          { token: InviteToken }, // 초대 토큰은 body에 포함
+          `https://letsgorightnow.shop/api/trip/join?token=${InviteToken}`,
+          {}, // 초대 토큰은 body에 포함
           {
             headers: {
               Authorization: `${token}`, // jwtToken을 Authorization 헤더에 포함
