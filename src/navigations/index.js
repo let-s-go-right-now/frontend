@@ -21,14 +21,10 @@ const Navigation = () => {
       const { url } = event;
       const parsed = queryString.parseUrl(url);
       const token = parsed.query.token;  
-      if (token& isLogin) {
+      if (token) {
         await AsyncStorage.setItem('InviteToken', token); // AsyncStorage에 token 저장
         setInviteToken(token); // 상태에 token 저장
-        navigation.navigate('InviteScreen', { InviteToken: token }); // Stack 내의 InviteScreen으로 이동
-      }else if( token& isLogin){
-        await AsyncStorage.setItem('InviteToken', token); // AsyncStorage에 token 저장
-        setInviteToken(token); // 상태에 token 저장
-        navigation.navigate('', { InviteToken: token }); // Stack 내의 InviteScreen으로 이동
+        navigation.navigate('InviteScreen', { InviteToken: token }, {isLogin:isLogin}); // Stack 내의 InviteScreen으로 이동
       }
     };
 

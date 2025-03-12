@@ -8,14 +8,6 @@ const Stack = createStackNavigator();
 
 const LoginStack = ({ setIsLogin,InviteToken }) => {
     console.log('LoginStack에서 받은 setIsLogin:', setIsLogin);
-    const navigation = useNavigation();
-
-    useEffect(() => {
-      if (InviteToken) {
-        // token이 있으면, 예를 들어 초대 페이지로 네비게이션
-        navigation.navigate('Invite', { InviteToken });
-      }
-    }, [InviteToken, navigation]);
 
     useTabBarVisibility(false);
     return (
@@ -29,7 +21,6 @@ const LoginStack = ({ setIsLogin,InviteToken }) => {
                 {props => <Login {...props} setIsLogin={setIsLogin}/>}
             </Stack.Screen>
             <Stack.Screen name='Home' component={Home} options={{headerShown: false}} InviteToken={InviteToken}/>
-            <Stack.Screen name='Invite' component={InviteScreen} options={{headerShown: false}}/>
         </Stack.Navigator>
     )
 }

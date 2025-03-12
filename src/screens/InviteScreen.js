@@ -1,10 +1,14 @@
-import React, { useEffect } from 'react';
-import { View, Text, Button } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { BlackButton } from '../components';
+import { theme } from '../theme';
 
 const InviteScreen = ({ route, navigation }) => {
-  const { InviteToken } = route.params; // 네비게이션을 통해 전달된 초대 토큰
+  const { InviteToken,isLogin } = route.params; // 네비게이션을 통해 전달된 초대 토큰
+  const [isInvite, setIsInvite] =useState(false);
+  const [InviteFail, setInviteFail]  =useState(false);
 
   useEffect(() => {
     const fetchTokenAndJoinTrip = async () => {
@@ -28,10 +32,10 @@ const InviteScreen = ({ route, navigation }) => {
             },
           }
         );
-
         console.log('초대 처리 성공:', response.data);
+        setIsInvite(true);
       } catch (error) {
-        console.error('초대 처리 실패:', error);
+        setInviteFail(false);
       }
     };
 
@@ -40,18 +44,60 @@ const InviteScreen = ({ route, navigation }) => {
 
   // Home 화면으로 네비게이션하는 함수
   const navigateToHome = () => {
-    navigation.navigate('BottomTab'); // 'Home' 화면으로 네비게이션
+    if(!isLogin){
+      navigation.navigate('LoginStack');
+    }
+    else{
+      navigation.navigate('BottomTab'); // 'Home' 화면으로 네비게이션
+    }
   };
 
   return (
-    <View>
-      <Text>초대 화면</Text>
-      <Text>Token: {InviteToken}</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>초대 화면</Text>
+      <Text style={styles.tokenText}>                {InviteToken && isInvite
+          ? '초대링크의 여행에 초대되었어요'
+          : InviteFail
+          ? '이미 초대된 멤버입니다.'
+          : InviteToken && !isInvite
+          ? '로그인 후 다시 시도해주세요'
+          : '오류'
+        }</Text>
       
       {/* Home으로 돌아가는 버튼 */}
-      <Button title="Home으로 돌아가기" onPress={navigateToHome} />
+      <BlackButton onPress={navigateToHome} text=        {InviteToken && isInvite
+          ? '홈으로 이동'
+          : InviteFail
+          ? '이미 초대된 멤버입니다.'
+          : InviteToken && !isInvite
+          ? '로그인하러가기'
+          : '홈으로 이동'
+        }
+       width={350} />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: 'SUIT-ExtraBold',
+    color: '#1D1D1F',
+    marginBottom: 10,
+  },
+  tokenText: {
+    fontSize: 16,
+    fontFamily: theme.fonts.extrabold,
+    color: '#323232',
+    marginBottom: 20,
+  },
+});
 
 export default InviteScreen;
