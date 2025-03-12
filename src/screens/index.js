@@ -23,5 +23,6 @@ import WCompletedExpense from './travel/WCompletedExpense';
 import ImgZoomIn from './ImgZoomIn';
 import ImgZoomInTab from './ImgZoomTab';
 import WCreateExpense from './travel/WCreateExpense';
+import InviteScreen from './InviteScreen';
 
-export {WCreateExpense,ImgZoomIn,ImgZoomInTab,WCompletedExpense,WEditExpense,TravelManage, WriteExpense,CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report, Calculation, Finish, AiRecommend, AiDetail};
+export {InviteScreen,WCreateExpense,ImgZoomIn,ImgZoomInTab,WCompletedExpense,WEditExpense,TravelManage, WriteExpense,CompletedProfile, TravelOngoing,TravelCompleted,CompletedDetail,Mypage2, TravelInvite,TravelCreate ,Main, Signup1, Signup2, Login, Home, Mypage, Report, Calculation, Finish, AiRecommend, AiDetail};
