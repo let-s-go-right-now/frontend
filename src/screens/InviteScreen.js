@@ -44,13 +44,15 @@ const InviteScreen = ({ route, navigation }) => {
 
   // Home 화면으로 네비게이션하는 함수
   const navigateToHome = () => {
-    if(!isLogin){
-      navigation.navigate('LoginStack');
-    }
-    else{
-      navigation.navigate('BottomTab'); // 'Home' 화면으로 네비게이션
-    }
-  };
+    if(InviteToken && isInvite){
+          navigation.navigate('BottomTab'); // 'Home' 화면으로 네비게이션
+        }
+        else if(InviteFail){
+          navigation.navigate('BottomTab'); // 'Home' 화면으로 네비게이션
+        }    else{
+          navigation.navigate('LoginStack');
+    
+      }};
 
   return (
     <View style={styles.container}>

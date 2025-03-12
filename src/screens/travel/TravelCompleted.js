@@ -83,7 +83,7 @@ const TravelCompleted = ({ navigation }) => {
 
   return (
     <>
-            {travelData ? (
+            {travelData.length === 0 ? (
           <View style={styles.loadingContainer}>
             <PlusButton width={350} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusloadingButton} />
             <Image source={loadImg} style={styles.loadingImage} />
