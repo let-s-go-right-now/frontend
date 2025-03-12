@@ -71,7 +71,7 @@ const Wrapper = styled.View`
 `
 
 const CalcStateContainer = ({ name, image, receive, receiver, receiverNum, send, sender, senderNum }) => {
-    console.log('image?????????',image);
+    console.log('image',image);
     return (
         <Container>
             <Top>
