@@ -25,11 +25,13 @@ const AiRecommend = ({ navigation, route }) => {
                 transportMode: travelInfo.transportMode,
                 departure: travelInfo.departure,
             })
-            console.log('ai 여행 코스 생성 성공:', response.data);
+            console.log('ai 여행 코스 생성 성공:', response);
+            console.log('제목', response.data[0].title);
+            console.log('이미지 링크', response.data[0].tripImage);
             setTripData(response.data[0]);
-            console.log('tripData!!!',tripData);
+            console.log('tripData!!!',response.data[0]);
         } catch (error) {
-            console.log('ai 여행 코스 생성 실패:', error,response);
+            console.log('ai 여행 코스 생성 실패:', error.response);
         } finally {
             setLoading(false);
         }

@@ -5,7 +5,7 @@ import { AiConditionWhite, DateOptionButton, AiTitle, AiTransport, AiDesc, AiHas
 import LocationGray  from '../assets/icons/ai/location_gray.png';
 import { axiosInstance } from '../utils';
 import HeartEmpty from '../assets/icons/ai/heart_gray.png';
-import HeartBlack from '../assets/icons/ai/heart_black.png';
+import HeartFull from '../assets/icons/ai/heart_full.png';
 
 const Loading = styled.View`
     width: 100%;
@@ -135,17 +135,13 @@ const AiDetail = ({ route, navigation }) => {
             headerRight: () => (
             <TouchableOpacity onPress={handleScrap}>
                 <Image
-                    source={isScraped ? HeartBlack : HeartEmpty}
+                    source={isScraped ? HeartFull : HeartEmpty}
                     style={{ width: 26, height: 26, marginRight: 18 }}
                 />
             </TouchableOpacity>
             ),
         });
-    }, [navigation]);
-
-    useEffect(() => {
-        handleScrap();
-    },[]);
+    }, [navigation, isScraped]);
 
     useEffect(() => {
         setTimeout(() => {

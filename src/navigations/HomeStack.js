@@ -4,6 +4,7 @@ import { Image, TouchableOpacity } from 'react-native';
 import BackDark from '../assets/icons/ai/back_dark.png';
 import BackBright from '../assets/icons/ai/back_bright.png';
 import HeartEmpty from '../assets/icons/ai/heart_empty.png';
+import HeartFull from '../assets/icons/ai/heart_full.png';
 import { Home, TravelCreate,TravelInvite, Mypage } from '../screens';
 import BottomTab from './BottomTab';
 import HomeTravelStack from './HomeTravelStack';
