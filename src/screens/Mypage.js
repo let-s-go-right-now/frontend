@@ -30,6 +30,7 @@ const Profile = styled.View`
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	justify-content: center;
 `
 
 const ProfileImg = styled(Image)`
@@ -44,6 +45,7 @@ const Name = styled.Text`
 	font-family: 'SUIT-Bold';
 	font-size: 20px;
 	color: #1D1D1F;
+	line-height: 44px;
 `
 
 const Header = styled.Text`
@@ -116,99 +118,23 @@ const Bottom = styled.View`
 const Mypage = ({ navigation, route }) => {
 	const [imageUri, setImageUri] = useState(null);
 	const [name, setName] = useState('');
+	const [scrapedPost, setScrapedPost] = useState([]);
 
 	const width = Dimensions.get('window').width;
 
-	const PostList= [
-		{
-			id: 1,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '하루만에 끝내는 대구 근대골목 투어',
-		},
-		{
-			id: 2,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '북한강 따라 즐기는 자연, 지금 당장 가평에서!',
-		},
-		{
-			id: 3,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '8시간 만에 완성하는 레트로 감성 군산 여행',
-		},
-		{
-			id: 4,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '포항에서 맛보고 즐기는 문화 여행',
-		},
-		{
-			id: 5,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '속초 가면 무조건 가봐야 할 찐 맛집 추천',
-		},
-		{
-			id: 6,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '강릉 감성 폭발! 바다 보면서 커피 한 잔 어때?',
-		},
-		{
-			id: 7,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '순천만의 자연과 한옥의 정취를 느끼는 여행',
-		},
-		{
-			id: 8,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '강릉 감성 폭발! 바다 보면서 커피 한 잔 어때?',
-		},
-		{
-			id: 9,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '순천만의 자연과 한옥의 정취를 느끼는 여행',
-		},
-		{
-			id: 10,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '강릉 감성 폭발! 바다 보면서 커피 한 잔 어때?',
-		},
-		{
-			id: 11,
-			money: 35,
-			start: '12.12',
-			end: '12.14',
-			transport: '대중교통',
-			title: '순천만의 자연과 한옥의 정취를 느끼는 여행',
-		},
-	]
+	const getScrap = async () => {
+		try {
+			const response = await axiosInstance.get('api/mypage/scraps');
+			console.log('스크랩 목록 조회', response.data);
+			setScrapedPost(response.data.result);
+		} catch(error) {
+			console.log('스크랩 목록 조회 tlfvo', error.response);
+		}
+	}
+
+	useEffect(() => {
+		getScrap();
+	}, [])
 
 	const getInfo = async () => {
 		try {
@@ -251,24 +177,30 @@ const Mypage = ({ navigation, route }) => {
 				</Top>
 				<Header>좋아요 한 목록</Header>
 				<PostWrapper>
-					{PostList.map((post) => (
+					{scrapedPost.map((post) => {
+						const formatDate = (date) => {
+							const [year, month, day] = date.split('-');
+							return `${month}.${day}`;
+						}
+
+					return (
 						<Post key={post.id}>
 							<Info>
 								<InfoImg source={Money}/>
-								<InfoText>{post.money}만원/인</InfoText>
+								<InfoText>{post.budget/10000}만원/인</InfoText>
 								<InfoLine>|</InfoLine>
 								<InfoImg source={Calender}/>
-								<InfoText>{post.start}-{post.end}</InfoText>
+								<InfoText>{`${formatDate(post.startDate)}`}-{`${formatDate(post.endDate)}`}</InfoText>
 								<InfoLine>|</InfoLine>
 								<InfoImg source={Transport}/>
-								<InfoText>{post.transport}</InfoText>
+								<InfoText>{post.transportMode}</InfoText>
 							</Info>
 							<Bottom>
 								<Title>{post.title}</Title>
 								<Image source={HeartFull} style={{width: 22, height: 22}}/>
 							</Bottom>
 						</Post>
-					))}					
+					)})}					
 				</PostWrapper>
 				<LinearGradient
 					colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 1)']}
