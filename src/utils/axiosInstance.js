@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const axiosInstance = axios.create({
-    baseURL: 'https://letsgorightnow.store/',
+    baseURL: import.meta.env.BASE_URL,
 });
 
 axiosInstance.interceptors.request.use(
