@@ -46,15 +46,15 @@ const Name = styled.Text`
 const Profile = ({
     name,
     leader,
-    sameName,
+    // sameName,
     image,
-    color,
+    // color,
     selected,
     onPress,
     normal = false,  // 기본값을 true로 설정
     email
 }) => {
-    const imageSource = image ? { uri: image } : null;  // image가 있으면 URL로 변환
+    const imageSource = image ? {image } : null;  // image가 있으면 URL로 변환
 
     return (
         <ProfileWrapper selected={selected} onPress={onPress} normal={normal} email={email}>
@@ -64,7 +64,7 @@ const Profile = ({
                 normal={normal}  // ProfileImage에 normal 전달
             />
             <Info selected={selected}>
-                {sameName && <ColorBadge color={color}></ColorBadge>}
+                {/* {sameName && <ColorBadge color={color}></ColorBadge>} */}
                 <Name>{name}</Name>
                 {leader && <Image source={LeaderBadge}/> }
             </Info>

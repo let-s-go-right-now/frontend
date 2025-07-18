@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, FlatList, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { Text, View, FlatList, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { AiConditionWhite, DateOptionButton, AiTitle, AiTransport, AiDesc, AiHashtags, AiPlace } from '../components';
 import LocationGray  from '../assets/icons/ai/location_gray.png';
 import { axiosInstance } from '../utils';
+import HeartEmpty from '../assets/icons/ai/heart_gray.png';
+import HeartBlack from '../assets/icons/ai/heart_black.png';
 
 const Loading = styled.View`
     width: 100%;
@@ -82,15 +84,14 @@ const Warning = styled.Text`
     margin: 26px 0 10px 0;
 `
 
-const AiDetail = ({ route }) => {
-    const tripData = route.params.state;
-    const departure = route.params.departure;
-    const userData = route.params.userData;
+const AiDetail = ({ route, navigation }) => {
+    const tripData = route.params.tripData;
+    const travelInfo = route.params.travelInfo;
 
-    const data = route.params.data;
     const [selectedDay, setSelectedDay] = useState(null);
     const [selectedItinerary, setSelectedItinerary] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isScraped, setIsScraped] = useState(false);
 
     const handleDay = (day) => {
         setSelectedDay(day);
@@ -100,26 +101,47 @@ const AiDetail = ({ route }) => {
     };
     
     console.log('전달받은 tripData', tripData);
-    console.log('전달받은 departure', departure);
-    console.log('전달받은 userData',userData);
+    console.log('전달받은 travelInfo', travelInfo);
 
     const handleScrap = async () => {  
         try {
-            // const combinedData = Object.assign({}, userData, tripData);
             const combinedData = {
-                ...userData,
+                ...travelInfo,
                 ...tripData
             };
-            console.log(Object.assign({}, userData, tripData));
-            console.log('스크랩 요청 보낼 데이터',combinedData);
+            delete combinedData.tripImage;
+            delete combinedData.cost;
+            delete combinedData.description;
+            console.log('스크랩 요청 보낼 데이터', combinedData);
             const response = await axiosInstance.post('api/scrap', {
-                combinedData
+                startDate: combinedData.startDate,
+                endDate: combinedData.endDate,
+                budget: combinedData.budget,
+                transportMode: combinedData.transportMode,
+                departure: combinedData.departure,
+                title: combinedData.title,
+                transportation: combinedData.transportation,
+                itinerary: combinedData.itinerary,
             });
             console.log('스크랩 성공', response);
+            setIsScraped(true);
         } catch (error) {
             console.log('스크랩 실패', error.response);
         }
     }
+
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+            <TouchableOpacity onPress={handleScrap}>
+                <Image
+                    source={isScraped ? HeartBlack : HeartEmpty}
+                    style={{ width: 26, height: 26, marginRight: 18 }}
+                />
+            </TouchableOpacity>
+            ),
+        });
+    }, [navigation]);
 
     useEffect(() => {
         handleScrap();
@@ -155,7 +177,7 @@ const AiDetail = ({ route }) => {
                             startDate={tripData.itinerary[0].date}
                             endDate={tripData.itinerary[tripData.itinerary.length - 1].date}
                             money={tripData.cost}
-                            location={departure}
+                            location={travelInfo.departure}
                             transport={tripData.transportation}
                             style={{
                                 marginBottom: 24

@@ -34,16 +34,29 @@ const Home = ({navigation,InviteToken}) => {
   const [selectedTransport, setSelectedTransport] = useState('');
 
   const [travelInfo, setTravelInfo] = useState({
-    itinerary: '',
-    budget: '',
-    StartPlace: '',
-    transportInfo: '',
+    startDate: '',
+    endDate: '',
+    budget: 0,
+    transportMode: '',
+    departure: '',
   });
 
+  const formatToLocalDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
   const handleChange = (field, value) => {
+    if (field === 'budget') {
+      value = Number(value); // Convert to number
+    } 
     setTravelInfo(prevState => ({ ...prevState, [field]: value }));
-    const { budget, itinerary, StartPlace, transportInfo } = travelInfo;
-    if (budget && itinerary && StartPlace && transportInfo) {
+    const { budget, startDate, endDate, departure, transportMode } = travelInfo;
+    if (budget && startDate && endDate && departure && transportMode) {
       setReady(true);
     } else {
       setReady(false);
@@ -60,44 +73,26 @@ const Home = ({navigation,InviteToken}) => {
     const fetchTravelData = async () => {
       try {
         const token = await AsyncStorage.getItem('jwtToken');
-        if (!token) {
-          console.log('토큰이 없습니다.');
-          return;
-        }
-
-        const response = await fetch('https://letsgorightnow.shop/api/trip/ongoing', {
-          method: 'GET',
-          headers: {
-            'Authorization': `${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const result = await response.json();
-        console.log('서버 응답:', result);  // 여기서 서버 응답을 확인
         if (result.isSuccess) {
-          setTravelData(result.result);
+          setTravelData(Array.isArray(result.result) ? result.result : []);
         } else {
-          console.error('데이터 가져오기 실패:', result.message);
+          console.error("데이터 불러오기 실패");
+          setTravelData([]);
         }
       } catch (error) {
-        console.error('에러 발생:', error);
-      } finally {
-        setLoading(false);
+        console.error("요청 중 오류 발생:", error);
+        setTravelData([]);  // 네트워크 오류 시에도 안전하게 빈 배열로 초기화
       }
     };
-
+  
     fetchTravelData();
-
-    // 페이지 이동 시마다 fetchTravelData 호출
+  
     const unsubscribe = navigation.addListener('focus', fetchTravelData);
-
-    // 컴포넌트가 unmount될 때 listener 제거
+  
     return () => {
       unsubscribe();
     };
-  }, [navigation]); 
-
+  }, [navigation]);
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -112,16 +107,17 @@ const Home = ({navigation,InviteToken}) => {
   // 상위 컴포넌트에서 날짜 선택 완료 버튼 클릭 시 호출되는 함수
   const handleButtonPress = (startDate, endDate) => {
     // 날짜가 유효한지 체크하고, 유효하지 않으면 빈 문자열 설정
-    const formattedStartDate = startDate ? formatDate(startDate) : '';
-    const formattedEndDate = endDate ? formatDate(endDate) : '';
+    const formattedStart = startDate ? formatToLocalDate(startDate) : '';
+    const formattedEnd = endDate ? formatToLocalDate(endDate) : '';
   
     // 선택된 날짜를 상태에 반영
-    setSelectedDates({ startDate: formattedStartDate, endDate: formattedEndDate });
-  
+    setSelectedDates({ startDate: formattedStart, endDate: formattedEnd });
+
     // travelInfo.itinerary에 날짜가 있으면 날짜 범위로, 없으면 빈 문자열 설정
     setTravelInfo(prevState => ({
       ...prevState,
-      itinerary: formattedStartDate && formattedEndDate ? `${formattedStartDate}-${formattedEndDate}` : ''
+      startDate: formattedStart,
+      endDate: formattedEnd,
     }));
   
     // BottomSheet 상태 변경
@@ -133,19 +129,20 @@ const Home = ({navigation,InviteToken}) => {
     if (selectedTransport === value) {
       // 이미 선택된 값이면 취소
       setSelectedTransport(''); // 선택 취소
-      handleChange('transportInfo', '');
+      handleChange('transportMode', '');
     } else {
       // 새로 선택
       setSelectedTransport(value);
-      handleChange('transportInfo', value);
+      handleChange('transportMode', value);
     }
   };
 
   useEffect(() => {
-    console.log('travelInfo',travelInfo);
-    const isReady = Object.values(travelInfo).every(value => value !== null && value !== ''); 
+    console.log('travelInfo', travelInfo);
+    const isReady = Object.values(travelInfo).every(value => value !== null && value !== '');
     setReady(isReady);
   }, [travelInfo]);
+  
 
 
   //여행일 계산
@@ -190,8 +187,11 @@ const Home = ({navigation,InviteToken}) => {
         <AiInputButton
           label="일정이 어떻게 되나요?"
           placeholder="여행 기간 선택"
-          text={travelInfo.itinerary||"여행 기간 선택"} 
-          onChangeText={(value) => handleChange('itinerary', value)}
+          text={
+            travelInfo.startDate && travelInfo.endDate
+              ? `${travelInfo.startDate} - ${travelInfo.endDate}`
+              : "여행 기간 선택"
+          }
           icon={calenderIcon}
           onPress={() => setIsOpen(!isOpen)}  // 버튼 클릭 시 BottomSheet 열기
         />
@@ -199,8 +199,8 @@ const Home = ({navigation,InviteToken}) => {
         <AiInput
           label="어디에서 출발하세요?"
           placeholder="출발 지역 선택"
-          value={travelInfo.StartPlace}
-          onChangeText={(value) => handleChange('StartPlace', value)}
+          value={travelInfo.departure}
+          onChangeText={(value) => handleChange('departure', value)}
           icon ={mapIcon}
         />
           </View>
@@ -251,36 +251,34 @@ const Home = ({navigation,InviteToken}) => {
           // 데이터가 없을 때
           <Image source={LoadingTravel} style={styles.loadingImage} />
         ) : (
-          // 데이터가 있을 때
-          <FlatList
-            data={travelData}
-            horizontal
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => {
-              const days = calculateDays(item.startDate, item.endDate); // 'startDate'와 'endDate'를 전달하여 'days' 계산
-              const profileImageLink = item.members.length > 0 ? item.members[0].profileImageLink : null;
-              // members 배열의 길이를 extraCount로 설정
-              const extraCount = item.members.length-1;
-                    // 첫 번째 멤버 이름을 participant로 설정
-              const participant = item.members.length > 0 ? item.members[0].name : '';
-              const totalExpense =item.totalExpense;
-              return (
-                <TravelCard
-                  title={item.name}
-                  days={days} // 계산된 'days'를 전달
-                  cost={totalExpense}
-                  image={{ uri: item.expenseImageUrls[0] }}
-                  profileImage={profileImageLink ? { uri: profileImageLink } : null}  // 조건부로 프로필 이미지 설정
-                  participant={participant}
-                  extraCount={extraCount}
-                  startDate={formatDate(item.endDate)}  // 끝나는 날
-                />
-              );
-            }}
-            showsHorizontalScrollIndicator={false}
-          />
-
-        )}
+            <FlatList
+              data={travelData || []}
+              horizontal
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => {
+                const days = calculateDays(item.startDate, item.endDate); // 'startDate'와 'endDate'를 전달하여 'days' 계산
+                const profileImageLink = item.members.length > 0 ? item.members[0].profileImageLink : null;
+                // members 배열의 길이를 extraCount로 설정
+                const extraCount = item.members.length-1;
+                      // 첫 번째 멤버 이름을 participant로 설정
+                const participant = item.members.length > 0 ? item.members[0].name : '';
+                const totalExpense =item.totalExpense;
+                return (
+                  <TravelCard
+                    title={item.name}
+                    days={days} // 계산된 'days'를 전달
+                    cost={totalExpense}
+                    image={{ uri: item.expenseImageUrls[0] }}
+                    profileImage={profileImageLink ? { uri: profileImageLink } : null}  // 조건부로 프로필 이미지 설정
+                    participant={participant}
+                    extraCount={extraCount}
+                    startDate={formatDate(item.endDate)}  // 끝나는 날
+                  />
+                );
+              }}
+              showsHorizontalScrollIndicator={false}
+            />
+          )}
       </View>
 
     </ScrollView>

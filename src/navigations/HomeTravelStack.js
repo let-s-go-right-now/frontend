@@ -36,7 +36,7 @@ const HomeTravelStack = () => {
                     headerStyle: {
                         backgroundColor: 'white',  // 흰색으로 배경 설정
                     },
-                 }}
+                }}
             />
             <Stack.Screen
                 name="TravelInvite"  
@@ -50,7 +50,7 @@ const HomeTravelStack = () => {
                     headerStyle: {
                         backgroundColor: 'white',  // 흰색으로 배경 설정
                     },
-                 }}
+                }}
             />
             <Stack.Screen
                 name="WCreateExpense"
@@ -83,20 +83,6 @@ const HomeTravelStack = () => {
                     },
                 }}
             />
-            {/* <Stack.Screen
-                name="AiDetail"
-                component={AiDetail}
-                options={{ title: 'AI 여행 계획', mode: 'dark',
-                    headerTitleStyle: {
-                        fontSize: 15,  // 폰트 크기 15
-                        color: '#1D1D1F',  // 폰트 색상
-                        fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
-                    },
-                    headerStyle: {
-                        backgroundColor: 'white',  // 흰색으로 배경 설정
-                    },
-                }}
-            /> */}
             <Stack.Screen
                 name="AiDetail"
                 component={AiDetail}
