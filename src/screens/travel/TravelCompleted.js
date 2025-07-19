@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { ImgSlide } from '../../components';
+import { ImgSlide, PlusButton } from '../../components';
 import { FlatList, Text, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import loadImg from "../../assets/loadingOngoing.png";
 
 const TravelCompleted = ({ navigation }) => {
   const [travelData, setTravelData] = useState([]);
@@ -74,8 +75,20 @@ const TravelCompleted = ({ navigation }) => {
       });
     }
   };
+    //새여행 떠나기 함수
+    const handleCreateTravel = () => {
+      navigation.navigate('TravelCreate');
+  };
+  
 
   return (
+    <>
+            {travelData.length === 0 ? (
+          <View style={styles.loadingContainer}>
+            <PlusButton width={350} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusloadingButton} />
+            <Image source={loadImg} style={styles.loadingImage} />
+          </View>
+        ) : (
     <FlatList
       style={styles.flatcards}
       data={travelData}
@@ -124,12 +137,20 @@ const TravelCompleted = ({ navigation }) => {
           </TouchableOpacity>
         );
       }}
-    />
+    />    )}
+    </>
   );
 };
 
 
 const styles = StyleSheet.create({
+  loadingContainer:{
+    marginTop:20,
+    height:370,
+    justifyContent: "space-between",
+    alignItems: 'center', 
+    
+  },
   container: {
     flex: 1,
     backgroundColor: '#F9F9F9',

@@ -24,7 +24,7 @@ const Navigation = () => {
       if (token) {
         await AsyncStorage.setItem('InviteToken', token); // AsyncStorage에 token 저장
         setInviteToken(token); // 상태에 token 저장
-        navigation.navigate('InviteScreen', { InviteToken: token }); // Stack 내의 InviteScreen으로 이동
+        navigation.navigate('InviteScreen', { InviteToken: token }, {isLogin:isLogin}); // Stack 내의 InviteScreen으로 이동
       }
     };
 

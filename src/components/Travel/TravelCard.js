@@ -5,9 +5,11 @@ import defaultImage from '../../assets/profileImgs/default.png';
 const TravelCard = ({ title, days, cost, image, profileImage, participant, extraCount, startDate }) => {
   // 유효한 URI인지 확인하는 함수
   const isValidUri = (uri) => uri && typeof uri === 'string' && uri.trim() !== '';
+    // 이미지 URI가 유효한지에 따라 높이를 설정
+    const cardHeight = isValidUri(image?.uri) ? 230 : 100;
 
   return (
-    <View style={[styles.cardContainer, { height: isValidUri(image) ? 230 : 100 }]}>
+    <View style={[styles.cardContainer,, { height: cardHeight }]}>
       <View style={styles.rowspace}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.days}>{days}박 {days + 1}일</Text>

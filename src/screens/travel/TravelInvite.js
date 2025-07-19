@@ -59,7 +59,7 @@ const TravelInvite = ({ navigation }) => {
 
     // 
     const handleOngoingTravel = () => {
-      navigation.navigate('Home');
+      navigation.pop(2);
     };
 
   return (

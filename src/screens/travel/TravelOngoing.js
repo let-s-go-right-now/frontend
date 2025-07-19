@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect,  } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
+import { Image,View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
 import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList, OptionList } from "../../components";
 import { theme } from '../../theme';
 import image1 from "../../assets/slides/image1.png";
@@ -8,11 +8,12 @@ import image3 from "../../assets/slides/image3.png";
 import image4 from "../../assets/slides/image4.png";
 import image5 from "../../assets/slides/image5.png";
 import image6 from "../../assets/slides/image6.png";
+import loadImg from "../../assets/loadingOngoing.png";
 import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TravelOngoing = ({navigation}) => {
-  const [selectedId, setSelectedId] = useState(1); 
+  const [selectedId, setSelectedId] = useState(null); 
   const ongoingid = 1;  //현재 진행중인 여행의 id
   const [images, setImages] = useState([]); 
   
@@ -106,7 +107,8 @@ const MoveExpenseReport = () => {
         console.log('서버 응답:', result);
         if (result.isSuccess) {
           setTravelData(result.result);
-          setSelectedId(result.result[0].id);
+          if(result.result.length > 0){
+            setSelectedId(result.result[0].id);}
         } else {
           console.error('데이터 가져오기 실패:', result.message);
         }
@@ -152,6 +154,10 @@ const calculateDays = (startDate, endDate) => {
     //selectedId가 변경될때마다 asyncstorage에
     // selectedId가 변경될 때마다 호출되는 fetchTravelData 함수
     const fetchTravelData = async () => {
+      if (selectedId === null) {
+        console.log("selectedId가 null이므로 여행 데이터를 조회하지 않습니다.");
+        return;
+      }
       try {
         const token = await AsyncStorage.getItem('jwtToken');
         if (!token) {
@@ -216,6 +222,12 @@ const calculateDays = (startDate, endDate) => {
 
   return (
     <>
+        {travelData.length === 0  ? (
+      <View style={styles.loadingContainer}>
+        <PlusButton width={350} height={38} text="새 여행 떠나기" onPress={handleCreateTravel} style={styles.plusloadingButton} />
+        <Image source={loadImg} style={styles.loadingImage} />
+      </View>
+    ) : (
       <FlatList
         style={styles.container}
         ListHeaderComponent={
@@ -283,6 +295,7 @@ const calculateDays = (startDate, endDate) => {
         }
         data={expenditures}
       />
+    )}
     {/*바텀시트*/}
     {isOpen ? (
         <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
@@ -298,6 +311,13 @@ const calculateDays = (startDate, endDate) => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer:{
+    marginTop:20,
+    height:370,
+    justifyContent: "space-between",
+    alignItems: 'center', 
+    
+  },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
