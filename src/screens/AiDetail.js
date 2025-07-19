@@ -87,11 +87,11 @@ const Warning = styled.Text`
 const AiDetail = ({ route, navigation }) => {
     const tripData = route.params.tripData;
     const travelInfo = route.params.travelInfo;
+    const isScraped = route.params.isScraped;
 
     const [selectedDay, setSelectedDay] = useState(null);
     const [selectedItinerary, setSelectedItinerary] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isScraped, setIsScraped] = useState(false);
 
     const handleDay = (day) => {
         setSelectedDay(day);
@@ -108,7 +108,7 @@ const AiDetail = ({ route, navigation }) => {
             const combinedData = {
                 ...travelInfo,
                 ...tripData
-            };
+            }
             delete combinedData.tripImage;
             delete combinedData.cost;
             delete combinedData.description;
@@ -172,7 +172,7 @@ const AiDetail = ({ route, navigation }) => {
                         <AiConditionWhite 
                             startDate={tripData.itinerary[0].date}
                             endDate={tripData.itinerary[tripData.itinerary.length - 1].date}
-                            money={tripData.cost}
+                            money={tripData.cost ? tripData.cost : tripData.budget}
                             location={travelInfo.departure}
                             transport={tripData.transportation}
                             style={{
@@ -195,11 +195,10 @@ const AiDetail = ({ route, navigation }) => {
                                         isSelected={selectedDay === item.day}
                                         onPress={() => handleDay(item.day)}
                                         day={item.day}
-                                    />                                        
+                                    />
                                     )
-
                                 }}
-                            />                            
+                            />
                         </View>
                     </BlackContainer>
                 </BlackWrapper>

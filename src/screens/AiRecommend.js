@@ -4,15 +4,19 @@ import styled from 'styled-components/native';
 import { BlackButton, AiConditionBlack } from '../components';
 import AiDetail from './AiDetail';
 import heartWhite from '../assets/icons/ai/heart_white.png';
+import heartBlack from '../assets/icons/ai/heart_black.png';
 import moneyBlack from '../assets/icons/ai/money_black.png';
 import transportBlack from '../assets/icons/ai/transport_black.png';
 import { axiosInstance } from '../utils';
 
 const AiRecommend = ({ navigation, route }) => {
     const { travelInfo } = route.params.state;
+    const [startYear, startMonth, startDay] = travelInfo.startDate.split('-');
+    const [endYear, endMonth, endDay] = travelInfo.endDate.split('-');
     console.log('전달받은 travelInfo',travelInfo);
     const [tripData, setTripData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isScraped, setIsScraped] = useState(false);
 
     const getRecommend = async () => {
         setLoading(true);
@@ -37,6 +41,33 @@ const AiRecommend = ({ navigation, route }) => {
         }
     }
 
+    const handleScrap = async () => {  
+        try {
+            const combinedData = {
+                ...travelInfo,
+                ...tripData
+            }
+            delete combinedData.tripImage;
+            delete combinedData.cost;
+            delete combinedData.description;
+            console.log('스크랩 요청 보낼 데이터', combinedData);
+            const response = await axiosInstance.post('api/scrap', {
+                startDate: combinedData.startDate,
+                endDate: combinedData.endDate,
+                budget: combinedData.budget,
+                transportMode: combinedData.transportMode,
+                departure: combinedData.departure,
+                title: combinedData.title,
+                transportation: combinedData.transportation,
+                itinerary: combinedData.itinerary,
+            });
+            console.log('스크랩 성공', response);
+            setIsScraped(true);
+        } catch (error) {
+            console.log('스크랩 실패', error.response);
+        }
+    }
+
     useEffect(() => {
         getRecommend();
     }, [])
@@ -45,7 +76,7 @@ const AiRecommend = ({ navigation, route }) => {
         <View style={{flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center'}}>
             <AiWrapper>
                 <AiConditionBlack 
-                    date={`${travelInfo.startDate}-${travelInfo.endDate}`}
+                    date={`${startMonth}.${startDay} - ${endMonth}.${endDay}`}
                     money={travelInfo.budget}
                     location={travelInfo.departure}
                     transport={travelInfo.transportMode}
@@ -60,6 +91,7 @@ const AiRecommend = ({ navigation, route }) => {
                             navigation.navigate("AiDetail", { 
                                 travelInfo: travelInfo,
                                 tripData: tripData,
+                                isScraped: isScraped,
                             });
                             }
                         }}
@@ -67,7 +99,11 @@ const AiRecommend = ({ navigation, route }) => {
                         <Img source={{ uri: tripData.tripImage}} />
                         <Top>
                             <Title>{tripData.title}</Title>
-                            <Heart source={heartWhite}/>
+                            <TouchableOpacity onPress={handleScrap}>
+                                <Heart
+                                    source={isScraped ? heartBlack : heartWhite}
+                                />
+                            </TouchableOpacity>
                         </Top>
                         <RowWrapper>
                             <RowWrapper>
