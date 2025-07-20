@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, forwardRef } from 'react';
 import styled from 'styled-components/native';;
-import { BlackButton } from '../components';
-import { GrayContainer } from '../components';
+import { BlackButton, GrayContainer, StyledInput } from '../components';
 import { TextInput, Keyboard, Dimensions, Alert, Text } from 'react-native';
 import CloseDarkgray from '../assets/icons/user/close_darkgray';
 import CloseGray from '../assets/icons/user/close_gray';
@@ -88,12 +87,6 @@ const InputWrapper = styled.View`
     background-color: #FBFBFB;
 `
 
-const StyledInput = styled(TextInput)`
-    font-size: 14px;
-    font-family: 'SUIT-Medium';
-    max-width: 289px;
-`
-
 const Signup1 = ({ navigation }) => {
     const [ready, setReady] = useState(false);
     const [name, setName] = useState('');
@@ -107,9 +100,7 @@ const Signup1 = ({ navigation }) => {
     const emailRef = useRef(null);
     const passwordRef = useRef(null);
 
-    const handleName = name => {
-        setName(name);
-    }
+    const handleName = text => setName(text.replace(/\s/g, ''));
 
     const deleteName = () => {
         setName('');
@@ -123,17 +114,18 @@ const Signup1 = ({ navigation }) => {
         setPassword('');
     }
 
-    const handleEmail = (email) => {
-        setEmail(email);
+    const handleEmail = text => {
+        text = text.replace(/\s/g, ''); // 공백 제거
+        setEmail(text);
         const emailCondition = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        setEmailError(emailCondition.test(email) ? '' : '유효한 이메일 주소를 입력하세요.');
-    }
-
-    const handlePassword = (password) => {
-        setPassword(password);
+        setEmailError(emailCondition.test(text) ? '' : '유효한 이메일 주소를 입력하세요.');
+    };
+    const handlePassword = text => {
+        text = text.replace(/\s/g, ''); // 공백 제거
+        setPassword(text);
         const passwordCondition =  /^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-        setPasswordError(passwordCondition.test(password) ? '' : '8자 이상, 대문자와 특수문자를 포함하세요');
-    }
+        setPasswordError(passwordCondition.test(text) ? '' : '8자 이상, 대문자와 특수문자를 포함하세요');
+    };
 
     const handleNext = () => {
         if (!setEmail || !setPassword) {
@@ -151,7 +143,7 @@ const Signup1 = ({ navigation }) => {
         } else {
             setReady(false);
         }
-    }, [email, password, emailError, passwordError])
+    }, [name,email, password, emailError, passwordError])
 
     return (
         <SignupWrapper style={{ height: height }}>
@@ -175,9 +167,9 @@ const Signup1 = ({ navigation }) => {
                         returnKeyType="next"
                         onChangeText={handleName}
                         value={name}
-                        onSubmitEditing={() => emailRef.current.focus()}
+                        onSubmitEditing={() => emailRef.current && emailRef.current.focus()}
                     />
-                    {name !== '' && <CloseGray onPress={deleteName}/>}
+                    { name !== '' && <CloseGray onPress={deleteName}/> }
                 </InputWrapper>
             </Container>
             <Container style={{marginTop: 28, marginBottom: 28}}>
@@ -194,12 +186,11 @@ const Signup1 = ({ navigation }) => {
                         autoCorrect={false}
                         returnKeyType="next"
                         onChangeText={handleEmail}
-                        label="이메일"
                         value={email}
                         ref={emailRef}
-                        onSubmitEditing={() => passwordRef.current.focus()}
+                        onSubmitEditing={() => passwordRef.current && passwordRef.current.focus()}
                     />
-                    {email !== '' && <CloseGray onPress={deleteEmail}/>}
+                    { email !== '' && <CloseGray onPress={deleteEmail}/> }
                 </InputWrapper>
             </Container>
             <Container>
@@ -219,7 +210,7 @@ const Signup1 = ({ navigation }) => {
                         value={password}
                         ref={passwordRef}
                     />
-                    {password !== '' && <CloseGray onPress={deletePassword}/>}
+                    { password !== '' && <CloseGray onPress={deletePassword}/> }
                 </InputWrapper>
             </Container>
             {ready ? (

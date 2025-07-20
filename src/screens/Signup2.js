@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import styled from 'styled-components/native';
 import { TextInput, Dimensions, Image, Alert, PermissionsAndroid } from 'react-native';
-import { BlackButton, GrayContainer } from '../components';
+import { BlackButton, GrayContainer, StyledInput } from '../components';
 import CloseDarkgray from '../assets/icons/user/close_darkgray.svg';
 import DefaultImg from '../assets/icons/user/profile.png';
 import Edit from '../assets/icons/user/edit.png';
@@ -90,11 +90,6 @@ const Desc = styled.Text`
     font-size: 13px;
 `
 
-const StyledInput = styled(TextInput)`
-    font-size: 15px;
-    font-family: 'SUIT-Medium';
-    padding: 18px;
-`
 
 const Signup2 = ({ navigation }) => {
     const route = useRoute();
@@ -155,19 +150,8 @@ const Signup2 = ({ navigation }) => {
         })
     }
 
-    const handleBank = bank => {
-        setBank(bank);
-    }
-
-    const handleAccountNumber = accountNumber => {
-        setAccountNumber(accountNumber);
-    }
 
     const handleSubmit = async () => {
-        if (!image) {
-            Alert.alert('프로필 이미지를 업로드하세요');
-            return;
-        }
 
         if (!bank) {
             Alert.alert('은행을 입력하세요');
@@ -185,15 +169,18 @@ const Signup2 = ({ navigation }) => {
         formData.append('password', password);
         formData.append('accountNumber', `${bank} ${accountNumber}`);
 
-        formData.append('image', {
-            uri: image.uri,
-            type: image.type || 'image/jpeg',
-            name: image.fileName || 'profile.jpg'
-        });
+        // 이미지를 선택한 경우에만 formData에 추가
+        if (image) {
+            formData.append('image', {
+                uri: image.uri,
+                type: image.type || 'image/jpeg',
+                name: image.fileName || 'profile.jpg'
+            });
+        }
 
         try {
             console.log('회원가입 정보:', formData);
-            const response = await axiosInstance.post('api/member/join', formData, {
+            const response = await axiosInstance.post('/api/member/join', formData, {
                 headers: {'Content-Type': 'multipart/form-data'},
             })
             console.log('회원가입 성공:', response);
@@ -210,7 +197,7 @@ const Signup2 = ({ navigation }) => {
     }
     
     useEffect(() => {
-        if (bank!=='' && accountNumber!=='' && image!=='') {
+        if (bank!=='' && accountNumber!=='') {
             setReady(true);
         } else {
             setReady(false);
@@ -245,8 +232,8 @@ const Signup2 = ({ navigation }) => {
                         autoCorrect={false}
                         returnKeyType="next"
                         value={bank}
-                        onChangeText={handleBank}
-                        onSubmitEditing={() => accountNumberRef.current.focus()}
+                        onChangeText={text => setBank(text.replace(/\s/g, ''))}
+                        onSubmitEditing={() => accountNumberRef.current && accountNumberRef.current.focus()}
                         style={{marginTop: 20}}
                     />
                     <StyledInput
@@ -256,7 +243,7 @@ const Signup2 = ({ navigation }) => {
                         returnKeyType="next"
                         value={accountNumber}
                         ref={accountNumberRef}
-                        onChangeText={handleAccountNumber}
+                        onChangeText={text => setAccountNumber(text.replace(/\s/g, ''))}
                         style={{marginTop: 12}}
                     />
                 </Main>
