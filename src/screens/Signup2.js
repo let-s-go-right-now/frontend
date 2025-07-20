@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import styled from 'styled-components/native';
 import { TextInput, Dimensions, Image, Alert, PermissionsAndroid } from 'react-native';
 import { BlackButton, GrayContainer } from '../components';
@@ -90,11 +90,14 @@ const Desc = styled.Text`
     font-size: 13px;
 `
 
-const StyledInput = styled(TextInput)`
+const BaseInput = styled(TextInput)`
     font-size: 15px;
     font-family: 'SUIT-Medium';
     padding: 18px;
-`
+`;
+const StyledInput = forwardRef((props, ref) => (
+    <BaseInput ref={ref} {...props} />
+));
 
 const Signup2 = ({ navigation }) => {
     const route = useRoute();
@@ -155,13 +158,6 @@ const Signup2 = ({ navigation }) => {
         })
     }
 
-    const handleBank = bank => {
-        setBank(bank);
-    }
-
-    const handleAccountNumber = accountNumber => {
-        setAccountNumber(accountNumber);
-    }
 
     const handleSubmit = async () => {
 
@@ -244,8 +240,8 @@ const Signup2 = ({ navigation }) => {
                         autoCorrect={false}
                         returnKeyType="next"
                         value={bank}
-                        onChangeText={handleBank}
-                        onSubmitEditing={() => accountNumberRef.current.focus()}
+                        onChangeText={text => setBank(text.replace(/\s/g, ''))}
+                        onSubmitEditing={() => accountNumberRef.current && accountNumberRef.current.focus()}
                         style={{marginTop: 20}}
                     />
                     <StyledInput
@@ -255,7 +251,7 @@ const Signup2 = ({ navigation }) => {
                         returnKeyType="next"
                         value={accountNumber}
                         ref={accountNumberRef}
-                        onChangeText={handleAccountNumber}
+                        onChangeText={text => setAccountNumber(text.replace(/\s/g, ''))}
                         style={{marginTop: 12}}
                     />
                 </Main>
