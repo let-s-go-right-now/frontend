@@ -164,10 +164,6 @@ const Signup2 = ({ navigation }) => {
     }
 
     const handleSubmit = async () => {
-        if (!image) {
-            Alert.alert('프로필 이미지를 업로드하세요');
-            return;
-        }
 
         if (!bank) {
             Alert.alert('은행을 입력하세요');
@@ -185,15 +181,18 @@ const Signup2 = ({ navigation }) => {
         formData.append('password', password);
         formData.append('accountNumber', `${bank} ${accountNumber}`);
 
-        formData.append('image', {
-            uri: image.uri,
-            type: image.type || 'image/jpeg',
-            name: image.fileName || 'profile.jpg'
-        });
+        // 이미지를 선택한 경우에만 formData에 추가
+        if (image) {
+            formData.append('image', {
+                uri: image.uri,
+                type: image.type || 'image/jpeg',
+                name: image.fileName || 'profile.jpg'
+            });
+        }
 
         try {
             console.log('회원가입 정보:', formData);
-            const response = await axiosInstance.post('api/member/join', formData, {
+            const response = await axiosInstance.post('/api/member/join', formData, {
                 headers: {'Content-Type': 'multipart/form-data'},
             })
             console.log('회원가입 성공:', response);
@@ -210,7 +209,7 @@ const Signup2 = ({ navigation }) => {
     }
     
     useEffect(() => {
-        if (bank!=='' && accountNumber!=='' && image!=='') {
+        if (bank!=='' && accountNumber!=='') {
             setReady(true);
         } else {
             setReady(false);

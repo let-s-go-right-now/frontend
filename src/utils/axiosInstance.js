@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
     async (config) => {
-        if (!config.url.includes('api/member/join') && !config.url.includes('api/member/login')) {
+        if (!config.url.includes('/api/member/join') && !config.url.includes('/api/member/login')) {
             const token = await AsyncStorage.getItem('jwtToken');
             console.log("Token: ", token);
             if (token) {

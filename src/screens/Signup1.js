@@ -151,7 +151,7 @@ const Signup1 = ({ navigation }) => {
         } else {
             setReady(false);
         }
-    }, [email, password, emailError, passwordError])
+    }, [name,email, password, emailError, passwordError])
 
     return (
         <SignupWrapper style={{ height: height }}>
