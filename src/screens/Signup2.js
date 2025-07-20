@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import styled from 'styled-components/native';
 import { TextInput, Dimensions, Image, Alert, PermissionsAndroid } from 'react-native';
-import { BlackButton, GrayContainer } from '../components';
+import { BlackButton, GrayContainer, StyledInput } from '../components';
 import CloseDarkgray from '../assets/icons/user/close_darkgray.svg';
 import DefaultImg from '../assets/icons/user/profile.png';
 import Edit from '../assets/icons/user/edit.png';
@@ -90,14 +90,6 @@ const Desc = styled.Text`
     font-size: 13px;
 `
 
-const BaseInput = styled(TextInput)`
-    font-size: 15px;
-    font-family: 'SUIT-Medium';
-    padding: 18px;
-`;
-const StyledInput = forwardRef((props, ref) => (
-    <BaseInput ref={ref} {...props} />
-));
 
 const Signup2 = ({ navigation }) => {
     const route = useRoute();

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState, forwardRef } from 'react';
 import styled from 'styled-components/native';;
-import { BlackButton } from '../components';
-import { GrayContainer } from '../components';
+import { BlackButton, GrayContainer, StyledInput } from '../components';
 import { TextInput, Keyboard, Dimensions, Alert, Text } from 'react-native';
 import CloseDarkgray from '../assets/icons/user/close_darkgray';
 import CloseGray from '../assets/icons/user/close_gray';
@@ -87,14 +86,6 @@ const InputWrapper = styled.View`
     padding: 0 12px;
     background-color: #FBFBFB;
 `
-
-const BaseInput = styled(TextInput)`
-    font-size: 14px;
-    font-family: 'SUIT-Medium';
-    max-width: 289px;
-`;
-
-const StyledInput = forwardRef((props, ref) => <BaseInput ref={ref} {...props} />);
 
 const Signup1 = ({ navigation }) => {
     const [ready, setReady] = useState(false);
