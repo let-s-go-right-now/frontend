@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import { BlackButton, AiConditionBlack } from '../components';
 import AiDetail from './AiDetail';
 import heartWhite from '../assets/icons/ai/heart_white.png';
-import heartBlack from '../assets/icons/ai/heart_black.png';
+import heartBlack from '../assets/icons/ai/heart_full.png';
 import moneyBlack from '../assets/icons/ai/money_black.png';
 import transportBlack from '../assets/icons/ai/transport_black.png';
 import { axiosInstance } from '../utils';

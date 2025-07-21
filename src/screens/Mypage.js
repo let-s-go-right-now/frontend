@@ -129,13 +129,13 @@ const Mypage = ({ navigation, route }) => {
 			console.log('스크랩 목록 조회', response.data);
 			setScrapedPost(response.data.result);
 		} catch(error) {
-			console.log('스크랩 목록 조회 tlfvo', error.response);
+			console.log('스크랩 목록 조회 실패', error.response);
 		}
 	}
 
-	const getScrapDetail = async (id) => {
+	const getScrapDetail = async (scrapId) => {
 		try {
-			const response = await axiosInstance.get(`api/mypage/scrap/${id}`);
+			const response = await axiosInstance.get(`api/mypage/scrap/${scrapId}`);
 			const scripDetail = response.data.result;
 			console.log('스크랩 디테일 가져오기 성공', scripDetail);
 			const tripData = {
@@ -158,15 +158,12 @@ const Mypage = ({ navigation, route }) => {
 				tripData: tripData,
 				travelInfo: travelInfo,
 				isScraped: true,
+				scrapId: scrapId,
 			})
 		} catch(error) {
 			console.log('스크랩 디테일 가져오기 실패', error.response);
 		}
 	}
-
-	useEffect(() => {
-		getScrap();
-	}, [])
 
 	const getInfo = async () => {
 		try {
@@ -182,9 +179,11 @@ const Mypage = ({ navigation, route }) => {
 	useEffect(() => {
 		const unsubscribe = navigation.addListener('focus', () => {
 			getInfo();
+			getScrap();
 		});
 
 		getInfo();
+		getScrap();
 
 		return unsubscribe;
 	}, [navigation]);
