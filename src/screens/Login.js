@@ -113,7 +113,7 @@ const Login = ({ navigation, setIsLogin }) => {
             console.log('Login navigation:', navigation);
             console.log('setIsLogin:', setIsLogin);
 
-            const response = await axiosInstance.post('api/member/login', {
+            const response = await axiosInstance.post('/api/member/login', {
                 email: email,
                 password: password,
             })
@@ -148,7 +148,7 @@ const Login = ({ navigation, setIsLogin }) => {
 
     const getName = async () => {
         try {
-            const response = await axiosInstance.get('api/member/info');
+            const response = await axiosInstance.get('/api/member/info');
             console.log('getName 성공:', response);
             await AsyncStorage.setItem('name', response.data.result.name);
             console.log('이름 저장 성공', response.data.result.name);

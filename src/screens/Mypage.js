@@ -125,7 +125,7 @@ const Mypage = ({ navigation, route }) => {
 
 	const getScrap = async () => {
 		try {
-			const response = await axiosInstance.get('api/mypage/scraps');
+			const response = await axiosInstance.get('/api/mypage/scraps');
 			console.log('스크랩 목록 조회', response.data);
 			setScrapedPost(response.data.result);
 		} catch(error) {
@@ -135,7 +135,7 @@ const Mypage = ({ navigation, route }) => {
 
 	const getScrapDetail = async (scrapId) => {
 		try {
-			const response = await axiosInstance.get(`api/mypage/scrap/${scrapId}`);
+			const response = await axiosInstance.get(`/api/mypage/scrap/${scrapId}`);
 			const scripDetail = response.data.result;
 			console.log('스크랩 디테일 가져오기 성공', scripDetail);
 			const tripData = {
@@ -167,7 +167,7 @@ const Mypage = ({ navigation, route }) => {
 
 	const getInfo = async () => {
 		try {
-			const response = await axiosInstance.get('api/member/info');
+			const response = await axiosInstance.get('/api/member/info');
 			console.log('getInfo 성공:', response);
 			setName(response.data.result.name);
 			setImageUri(response.data.result.profileImageLink);

@@ -193,7 +193,7 @@ const Signup2 = ({ navigation }) => {
 
         try {
             console.log('회원가입 정보:', formData);
-            const response = await axiosInstance.post('api/member/join', formData, {
+            const response = await axiosInstance.post('/api/member/join', formData, {
                 headers: {'Content-Type': 'multipart/form-data'},
             })
             console.log('회원가입 성공:', response);

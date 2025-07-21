@@ -114,7 +114,7 @@ const AiDetail = ({ route, navigation }) => {
             delete combinedData.cost;
             delete combinedData.description;
             console.log('스크랩 요청 보낼 데이터', combinedData);
-            const response = await axiosInstance.post('api/scrap', {
+            const response = await axiosInstance.post('/api/scrap', {
                 startDate: combinedData.startDate,
                 endDate: combinedData.endDate,
                 budget: combinedData.budget,
@@ -133,7 +133,7 @@ const AiDetail = ({ route, navigation }) => {
 
     const deleteScrap = async (scrapId) => {
         try {
-            const response = await axiosInstance.delete(`api/scrap/${scrapId}`);
+            const response = await axiosInstance.delete(`/api/scrap/${scrapId}`);
             setIsScraped(false);
             console.log('스크랩 삭제', response);
         } catch(error) {

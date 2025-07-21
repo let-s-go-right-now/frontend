@@ -51,7 +51,7 @@ const AiRecommend = ({ navigation, route }) => {
             delete combinedData.cost;
             delete combinedData.description;
             console.log('스크랩 요청 보낼 데이터', combinedData);
-            const response = await axiosInstance.post('api/scrap', {
+            const response = await axiosInstance.post('/api/scrap', {
                 startDate: combinedData.startDate,
                 endDate: combinedData.endDate,
                 budget: combinedData.budget,
