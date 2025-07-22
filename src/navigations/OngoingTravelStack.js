@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import {Calculation, Finish, ImgZoomIn, ImgZoomInTab, Report, TravelCreate,TravelInvite,TravelManage,TravelOngoing, WEditExpense, WriteExpense } from '../screens';
+import {Calculation, Finish, ImgZoomIn, ImgZoomInTab, Report, TravelCreate,TravelInvite,TravelManage,TravelOngoing, WEditExpense, WriteExpense,WCreateExpense } from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -68,6 +68,18 @@ const OngoingTravelStack = () => {
                 name="WEditExpense"
                 component={WEditExpense}
                 options={{ title: '여행 지출 수정하기', headerTitleStyle: {
+                    fontSize: 15,  // 폰트 크기 15
+                    color: '#1D1D1F',  // 폰트 색상
+                    fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
+                },
+                headerStyle: {
+                    backgroundColor: 'white',  // 흰색으로 배경 설정
+                }, }}
+            />
+            <Stack.Screen
+                name="WCreateExpense"
+                component={WCreateExpense}
+                options={{ title: '여행 지출 생성하기', headerTitleStyle: {
                     fontSize: 15,  // 폰트 크기 15
                     color: '#1D1D1F',  // 폰트 색상
                     fontFamily: 'SUIT-SemiBold',  // 폰트 패밀리
