@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components/native';
-import { BlackButton, GrayContainer } from '../components';
+import { BlackButton, GrayContainer, CustomAlertModal } from '../components';
 import { TextInput } from 'react-native';
 import CloseDarkgray from '../assets/icons/user/close_darkgray.svg';
 import CloseGray from '../assets/icons/user/close_gray.svg';
@@ -81,24 +81,19 @@ const Login = ({ navigation, setIsLogin }) => {
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
-
     const passwordRef = useRef(null);
+    const [isLoginSuccess, setIsLoginSuccess] = useState(false);
 
-    const handleEmail = email => {
-        setEmail(email);
-    }
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [alertMsg, setAlertMsg] = useState('');
+    const showAlert = (msg, loginSuccess = false) => {
+        setAlertMsg(msg);
+        setAlertVisible(true);
+        setIsLoginSuccess(loginSuccess);
+    };
+    
+    const hideAlert = () => setAlertVisible(false);
 
-    const handlePassword = password => {
-        setPassword(password);
-    }
-
-    const deleteEmail = () => {
-        setEmail('');
-    }
-
-    const deletePassword = () => {
-        setPassword('');
-    }
 
     const storeToken = async (token) => {
         try {
@@ -113,7 +108,7 @@ const Login = ({ navigation, setIsLogin }) => {
             console.log('Login navigation:', navigation);
             console.log('setIsLogin:', setIsLogin);
 
-            const response = await axiosInstance.post('api/member/login', {
+            const response = await axiosInstance.post('/api/member/login', {
                 email: email,
                 password: password,
             })
@@ -124,10 +119,7 @@ const Login = ({ navigation, setIsLogin }) => {
                 console.log('jwtToken:', token);
                 getName();
                 setIsLogin(true);
-                console.log(setIsLogin);      
-                setTimeout(() => {
-                    navigation.navigate('Home');
-                }, 500);
+                showAlert('로그인 성공!', true);
             }
         } catch (error) {
             console.log('로그인 에러:', error);
@@ -141,14 +133,14 @@ const Login = ({ navigation, setIsLogin }) => {
                 setEmailError(false);
             }
             else {
-                Alert.alert('이메일과 비밀번호를 다시 확인한 후 시도해주세요.')
+                 showAlert('이메일과 비밀번호를 다시 확인한 후 시도해주세요.');
             }
         }
     }
 
     const getName = async () => {
         try {
-            const response = await axiosInstance.get('api/member/info');
+            const response = await axiosInstance.get('/api/member/info');
             console.log('getName 성공:', response);
             await AsyncStorage.setItem('name', response.data.result.name);
             console.log('이름 저장 성공', response.data.result.name);
@@ -182,11 +174,11 @@ const Login = ({ navigation, setIsLogin }) => {
                         autoCapitalize="none"
                         autoCorrect={false}
                         returnKeyType="next"
-                        onChangeText={handleEmail}
+                        onChangeText={setEmail} 
                         onSubmitEditing={() => passwordRef.current.focus()}
                         value={email}
                     />
-                    {email !== '' && <CloseGray onPress={deleteEmail} />}
+                    {email !== '' && <CloseGray onPress={() => setEmail('')} />} 
                 </InputWrapper>
             </Container>
             <Container style={{marginTop: 28, marginBottom: 60}}>
@@ -200,11 +192,11 @@ const Login = ({ navigation, setIsLogin }) => {
                         autoCapitalize="none"
                         autoCorrect={false}
                         returnKeyType="done"
-                        onChangeText={handlePassword}
+                        onChangeText={setPassword} 
                         ref={passwordRef}
                         value={password}
                     />
-                    {password !== '' && <CloseGray onPress={deletePassword} />}
+                    {password !== '' && <CloseGray onPress={() => setPassword('')} />}
                 </InputWrapper>
             </Container>
             {ready ? (
@@ -220,6 +212,16 @@ const Login = ({ navigation, setIsLogin }) => {
                     width={343}
                 />              
             )}
+            <CustomAlertModal
+                visible={alertVisible}
+                onClose={() => {
+                    hideAlert();
+                    if (isLoginSuccess) {
+                        navigation.navigate('Home');
+                    }
+                }}
+                message={alertMsg}
+            />
         </LoginWrapper>
     )
 }
