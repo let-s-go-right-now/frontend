@@ -10,7 +10,7 @@ import TransportIcon from '../assets/icons/main/TransportIcon.png';
 import handleIcon from '../assets/icons/main/handleIcon.png';
 import nextButton from '../assets/icons/main/nextButton.png';
 import LoadingTravel from '../assets/loadingTravel.png';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../utils/axiosInstance';
 
 const Home = ({navigation,InviteToken}) => {
     useEffect(() => {
@@ -72,27 +72,29 @@ const Home = ({navigation,InviteToken}) => {
   useEffect(() => {
     const fetchTravelData = async () => {
       try {
-        const token = await AsyncStorage.getItem('jwtToken');
+        const response = await axiosInstance.get('/api/trip/ongoing');
+        const result = response.data;
         if (result.isSuccess) {
           setTravelData(Array.isArray(result.result) ? result.result : []);
         } else {
-          console.error("데이터 불러오기 실패");
           setTravelData([]);
         }
       } catch (error) {
-        console.error("요청 중 오류 발생:", error);
-        setTravelData([]);  // 네트워크 오류 시에도 안전하게 빈 배열로 초기화
+        console.error('API Error:', error?.message);
+        setTravelData([]);
+      }
+       finally {
+        setLoading(false);
       }
     };
-  
     fetchTravelData();
-  
     const unsubscribe = navigation.addListener('focus', fetchTravelData);
-  
     return () => {
       unsubscribe();
     };
   }, [navigation]);
+  
+  
 
   const formatDate = (date) => {
     if (!date) return '';

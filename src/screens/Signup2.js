@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect, forwardRef } from 'react';
+import React, { useRef, useState, useEffect} from 'react';
 import styled from 'styled-components/native';
-import { TextInput, Dimensions, Image, Alert, PermissionsAndroid } from 'react-native';
-import { BlackButton, GrayContainer, StyledInput } from '../components';
+import { Dimensions, Image, Alert, PermissionsAndroid } from 'react-native';
+import { BlackButton, GrayContainer, StyledInput, CustomAlertModal } from '../components';
 import CloseDarkgray from '../assets/icons/user/close_darkgray.svg';
 import DefaultImg from '../assets/icons/user/profile.png';
 import Edit from '../assets/icons/user/edit.png';
@@ -97,10 +97,21 @@ const Signup2 = ({ navigation }) => {
     const [ready, setReady] = useState(false);
     const [bank, setBank] = useState('');
     const [accountNumber, setAccountNumber] = useState('');
+    const [alertMsg, setAlertMsg] = useState('');
     const [image, setImage] = useState(null);
 
-    const height = Dimensions.get('window').height;
+    //custom alert modal --start
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [isSignupSuccess, setIsSignupSuccess] = useState(false);
+    const showAlert = (msg, isSuccess = false) => {
+        setAlertMsg(msg);
+        setAlertVisible(true);
+        setIsSignupSuccess(isSuccess);
+    };
+    const hideAlert = () => setAlertVisible(false);
+    //custom alert modal --end
 
+    const height = Dimensions.get('window').height;
     const accountNumberRef = useRef(null);
 
     const handlePermission = async () => {
@@ -185,13 +196,14 @@ const Signup2 = ({ navigation }) => {
             })
             console.log('회원가입 성공:', response);
             navigation.navigate('Main');
+            showAlert('회원가입이 완료되었습니다!', true); 
         } catch(error) {
             if (error.response.status===403) {
                 console.log('회원가입 에러:', error);
                 console.log('error.response',error.response);
-                Alert.alert(error.response.data.message);
+                showAlert(error.response.data.message);
             } else {
-                Alert.alert('문제가 발생했습니다. 다시 시도해주세요.')
+                showAlert('문제가 발생했습니다. 다시 시도해주세요.');
             }
         }
     }
@@ -262,6 +274,14 @@ const Signup2 = ({ navigation }) => {
                         style={{ position: 'absolute', bottom: 52 }}
                     />
                 )}
+                <CustomAlertModal
+                    visible={alertVisible}
+                    onClose={() => {
+                    hideAlert();
+                    if (isSignupSuccess) navigation.navigate('Main');
+                    }}
+                    message={alertMsg}
+                />
             </SignupWrapper>
         </KeyboardAwareScrollView>
     )

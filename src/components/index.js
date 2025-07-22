@@ -40,5 +40,6 @@ import GrayContainer from "./GrayContainer";
 import AiInputButton from "./AiInputButton";
 import AiHashtags from "./AiHashtags";
 import StyledInput from "./Users/StyledInput";
+import CustomAlertModal from "./utils/CustomAlertModal";
 
-export {ImgSlideUpload,OptionList,WhiteButton,ExpenditureList,TravelComponent,MyCalendar,OpenToggle,ProfileImgDump,GeneralOptionButton,BorderWhiteButton,TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide, PieChartComponent, MiniPieChart, BarChartComponent, ExpenditureList2, MoneyInput, CopyAccount, CalcStateContainer, AiConditionBlack, AiConditionWhite, DateOptionButton, AiTitle, AiPlace, AiDesc, AiTransport, GrayContainer, AiInputButton, AiHashtags, StyledInput};
+export {ImgSlideUpload,OptionList,WhiteButton,ExpenditureList,TravelComponent,MyCalendar,OpenToggle,ProfileImgDump,GeneralOptionButton,BorderWhiteButton,TravelCard,AiButton,AiInput,ImgSlide, BlackButton, PlusButton, CustomBottomSheet, TwoButton, GrayButton, MiniGrayButton, BigTwoButton, OptionButton, CategoryOptionButton, OptionButton2, TransportOptionButton, Profile, ProfileSlide, PieChartComponent, MiniPieChart, BarChartComponent, ExpenditureList2, MoneyInput, CopyAccount, CalcStateContainer, AiConditionBlack, AiConditionWhite, DateOptionButton, AiTitle, AiPlace, AiDesc, AiTransport, GrayContainer, AiInputButton, AiHashtags, StyledInput,CustomAlertModal};
