@@ -278,7 +278,7 @@ const Calculation = ({ navigation, route }) => {
     // 정산 결과
     const handleCalcResult = async () => {
         try {
-            const response = await axiosInstance.get(`api/settlement/${id}/result`);
+            const response = await axiosInstance.get(`/api/settlement/${id}/result`);
             console.log('여행 정산 결과 가져오기 성공??????', response.data.result);
             setCalcRes(response.data.result);
         } catch (error) {
@@ -289,7 +289,7 @@ const Calculation = ({ navigation, route }) => {
     // 정산 현황
     const handleCalcStatus = async () => { 
         try {
-            const response = await axiosInstance.get(`api/settlement/${id}/status`);
+            const response = await axiosInstance.get(`/api/settlement/${id}/status`);
             console.log('정산 현황 가져오기', response);
             setCalcStatus(response.data.result);
         } catch (error) {
@@ -345,7 +345,7 @@ const Calculation = ({ navigation, route }) => {
 
     const getMyAmount = async () => {
         try {
-            const response = await axiosInstance.get(`api/expense/${id}/member-expenses`);
+            const response = await axiosInstance.get(`/api/expense/${id}/member-expenses`);
             // 나의 총 지출액
             const name = await AsyncStorage.getItem('name');
             setName(name);
@@ -365,7 +365,7 @@ const Calculation = ({ navigation, route }) => {
 
     const getMember = async () => {
         try {
-            const response = await axiosInstance.get(`api/trip/${id}/trip-member`);
+            const response = await axiosInstance.get(`/api/trip/${id}/trip-member`);
             console.log('여행 멤버 불러오기 성공', response.data.result);
             const members = response.data.result.tripMembers.map((member, index) => ({
                 id: index,

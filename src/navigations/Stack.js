@@ -39,7 +39,7 @@ const StackNavigator = ({ ScreenList }) => {
 
                 return {
                     headerStyle: {
-                        height: 36,
+                        height: 66,
                         borderBottomWidth: 0,
                         backgroundColor: darkMode ? '#1D1D1F' : '#FFFFFF',
                         shadowOpacity: 0,

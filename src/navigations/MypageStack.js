@@ -3,6 +3,7 @@ import StackNavigator from "./Stack";
 import { Mypage } from "../screens";
 import { Mypage2 } from "../screens";
 import LoginStack from "./LoginStack";
+import { AiDetail } from './../screens';
 const MypageList = [
     {
         id: 1,
@@ -21,6 +22,12 @@ const MypageList = [
         name: "LoginStack",
         component: LoginStack,
         options: {headerShown: false, mode: 'light'},
+    },
+    {
+        id: 4,
+        name: "AiDetail",
+        component: AiDetail,
+        options: {title: 'AI 여행 계획', mode: 'dark'},
     },
 ]
 

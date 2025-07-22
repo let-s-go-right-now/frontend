@@ -8,6 +8,7 @@ import HeartFull from '../assets/icons/user/heart_full.png';
 import Money from '../assets/icons/user/money.png';
 import Calender from '../assets/icons/user/calender.png';
 import Transport from '../assets/icons/user/transport.png';
+import AiDetail from './AiDetail';
 import { axiosInstance } from '../utils';
 
 const MypageWrapper = styled.View`
@@ -124,24 +125,52 @@ const Mypage = ({ navigation, route }) => {
 
 	const getScrap = async () => {
 		try {
-			const response = await axiosInstance.get('api/mypage/scraps');
+			const response = await axiosInstance.get('/api/mypage/scraps');
 			console.log('스크랩 목록 조회', response.data);
 			setScrapedPost(response.data.result);
 		} catch(error) {
-			console.log('스크랩 목록 조회 tlfvo', error.response);
+			console.log('스크랩 목록 조회 실패', error.response);
 		}
 	}
 
-	useEffect(() => {
-		getScrap();
-	}, [])
+	const getScrapDetail = async (scrapId) => {
+		try {
+			const response = await axiosInstance.get(`/api/mypage/scrap/${scrapId}`);
+			const scripDetail = response.data.result;
+			console.log('스크랩 디테일 가져오기 성공', scripDetail);
+			const tripData = {
+				budget: scripDetail.budget,
+				departure: scripDetail.departure,
+				endDate: scripDetail.endDate,
+				itinerary: JSON.parse(scripDetail.itinerary),
+				startDate: scripDetail.startDate,
+				title: scripDetail.title,
+				transportation: scripDetail.transportation,
+			}
+			const travelInfo = {
+				startDate: scripDetail.startDate,
+				endDate: scripDetail.endDate,
+				transportMode:scripDetail.transportation,
+				departure: scripDetail.departure,
+				budget: scripDetail.budget,
+			}
+			navigation.navigate('AiDetail', {
+				tripData: tripData,
+				travelInfo: travelInfo,
+				isScraped: true,
+				scrapId: scrapId,
+			})
+		} catch(error) {
+			console.log('스크랩 디테일 가져오기 실패', error.response);
+		}
+	}
 
 	const getInfo = async () => {
 		try {
-			const response = await axiosInstance.get('api/member/info');
+			const response = await axiosInstance.get('/api/member/info');
 			console.log('getInfo 성공:', response);
 			setName(response.data.result.name);
-			setImageUri(response.data.result.profileImageLink)
+			setImageUri(response.data.result.profileImageLink);
 		} catch(error) {
 			console.log('getInfo 실패:', error.response);
 		}
@@ -150,9 +179,11 @@ const Mypage = ({ navigation, route }) => {
 	useEffect(() => {
 		const unsubscribe = navigation.addListener('focus', () => {
 			getInfo();
+			getScrap();
 		});
 
 		getInfo();
+		getScrap();
 
 		return unsubscribe;
 	}, [navigation]);
@@ -184,7 +215,10 @@ const Mypage = ({ navigation, route }) => {
 						}
 
 					return (
-						<Post key={post.id}>
+						<Post 
+							key={post.id}
+							onPress={() => getScrapDetail(post.id)}
+						>
 							<Info>
 								<InfoImg source={Money}/>
 								<InfoText>{post.budget/10000}만원/인</InfoText>
@@ -200,7 +234,7 @@ const Mypage = ({ navigation, route }) => {
 								<Image source={HeartFull} style={{width: 22, height: 22}}/>
 							</Bottom>
 						</Post>
-					)})}					
+					)})}
 				</PostWrapper>
 				<LinearGradient
 					colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 1)']}

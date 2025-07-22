@@ -5,7 +5,7 @@ import { AiConditionWhite, DateOptionButton, AiTitle, AiTransport, AiDesc, AiHas
 import LocationGray  from '../assets/icons/ai/location_gray.png';
 import { axiosInstance } from '../utils';
 import HeartEmpty from '../assets/icons/ai/heart_gray.png';
-import HeartFull from '../assets/icons/ai/heart_full.png';
+import HeartFull from '../assets/icons/user/heart_full.png';
 
 const Loading = styled.View`
     width: 100%;
@@ -87,11 +87,12 @@ const Warning = styled.Text`
 const AiDetail = ({ route, navigation }) => {
     const tripData = route.params.tripData;
     const travelInfo = route.params.travelInfo;
+    const scrapId = route.params.scrapId ? route.params.scrapId : null;
 
     const [selectedDay, setSelectedDay] = useState(null);
     const [selectedItinerary, setSelectedItinerary] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isScraped, setIsScraped] = useState(false);
+    const [isScraped, setIsScraped] = useState(route.params.isScraped);
 
     const handleDay = (day) => {
         setSelectedDay(day);
@@ -103,17 +104,17 @@ const AiDetail = ({ route, navigation }) => {
     console.log('전달받은 tripData', tripData);
     console.log('전달받은 travelInfo', travelInfo);
 
-    const handleScrap = async () => {  
+    const handleScrap = async () => {
         try {
             const combinedData = {
                 ...travelInfo,
-                ...tripData
-            };
+                ...tripData,
+            }
             delete combinedData.tripImage;
             delete combinedData.cost;
             delete combinedData.description;
             console.log('스크랩 요청 보낼 데이터', combinedData);
-            const response = await axiosInstance.post('api/scrap', {
+            const response = await axiosInstance.post('/api/scrap', {
                 startDate: combinedData.startDate,
                 endDate: combinedData.endDate,
                 budget: combinedData.budget,
@@ -130,10 +131,27 @@ const AiDetail = ({ route, navigation }) => {
         }
     }
 
+    const deleteScrap = async (scrapId) => {
+        try {
+            const response = await axiosInstance.delete(`/api/scrap/${scrapId}`);
+            setIsScraped(false);
+            console.log('스크랩 삭제', response);
+        } catch(error) {
+            console.log('스크랩 삭제 에러', error);
+        }
+    }
+
     React.useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-            <TouchableOpacity onPress={handleScrap}>
+            <TouchableOpacity onPress={() => {
+                if (isScraped) {
+                    deleteScrap(scrapId);
+                    setIsScraped(false); // 상태 갱신도 필요
+                } else {
+                    handleScrap();       // 이 괄호! 함수 실행
+                }
+            }}>
                 <Image
                     source={isScraped ? HeartFull : HeartEmpty}
                     style={{ width: 26, height: 26, marginRight: 18 }}
@@ -172,7 +190,7 @@ const AiDetail = ({ route, navigation }) => {
                         <AiConditionWhite 
                             startDate={tripData.itinerary[0].date}
                             endDate={tripData.itinerary[tripData.itinerary.length - 1].date}
-                            money={tripData.cost}
+                            money={tripData.cost ? tripData.cost : tripData.budget}
                             location={travelInfo.departure}
                             transport={tripData.transportation}
                             style={{
@@ -195,11 +213,10 @@ const AiDetail = ({ route, navigation }) => {
                                         isSelected={selectedDay === item.day}
                                         onPress={() => handleDay(item.day)}
                                         day={item.day}
-                                    />                                        
+                                    />
                                     )
-
                                 }}
-                            />                            
+                            />
                         </View>
                     </BlackContainer>
                 </BlackWrapper>
