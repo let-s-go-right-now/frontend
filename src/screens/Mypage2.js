@@ -248,7 +248,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
                     name: image.fileName || 'profile.jpg'
                 });
                 try {
-                    const response = await axiosInstance.put('api/member/profile-image', formData, {
+                    const response = await axiosInstance.put('/api/member/profile-image', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         }
@@ -265,7 +265,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
     
     const getInfo = async () => {
         try {
-            const response = await axiosInstance.get('api/member/info');
+            const response = await axiosInstance.get('/api/member/info');
             console.log('getInfo 성공:', response);
             setName(response.data.result.name);
             setImageUri(response.data.result.profileImageLink);
@@ -284,7 +284,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
         formData.append('name', name);
         console.log('이름 변경 formData: ', formData);
         try {
-            const response = await axiosInstance.put('api/member/name', formData, {
+            const response = await axiosInstance.put('/api/member/name', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 }
@@ -301,7 +301,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
         formData.append('accountNumber', `${bank} ${accountNumber}`);
         console.log('formData:', formData);
         try {
-            const response = await axiosInstance.put('api/member/account-number', formData, {
+            const response = await axiosInstance.put('/api/member/account-number', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 }
@@ -315,7 +315,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
 
     const deleteImage = async () => {
         try {
-            const response = await axiosInstance.delete('api/member/profile-image');
+            const response = await axiosInstance.delete('/api/member/profile-image');
             console.log('사진 삭제 성공: ', response);
             setIsOpen(false);
             getInfo();
@@ -327,7 +327,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
 
     const handleLogout = async () => {
         try {
-            const response = await axiosInstance.post('api/member/logout');
+            const response = await axiosInstance.post('/api/member/logout');
             console.log('로그아웃 성공: ', response);
             setIsLogin(false);
             if (setIsLogin) {
@@ -344,7 +344,7 @@ const Mypage2 = ({ navigation, setIsLogin }) => {
     const handleDeleteId = async () => {
         try {
             console.log(AsyncStorage.getItem('jwtToken'));
-            const response = await axiosInstance.post('api/member/leave');
+            const response = await axiosInstance.post('/api/member/leave');
             console.log('회원탈퇴 성공:', response);
             setIsOpen(false);
             navigation.reset({routes: [{name: 'LoginStack'}]})

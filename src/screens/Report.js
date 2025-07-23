@@ -50,7 +50,7 @@ const Report = ({ navigation,route }) => {
 
     const handleInfo = async () => {
         try {
-            const response = await axiosInstance.get(`api/expense/${id}/member-expenses`);
+            const response = await axiosInstance.get(`/api/expense/${id}/member-expenses`);
 
             console.log('회원별 총 지출액', response.data.result);
             setTotalAmount(response.data.result.totalAmount);
@@ -100,7 +100,7 @@ const Report = ({ navigation,route }) => {
 
     const handleDailyExpense = async () => {
         try {
-            const response = await axiosInstance.get(`api/expense/${id}/daily-expense`);
+            const response = await axiosInstance.get(`/api/expense/${id}/daily-expense`);
             console.log('handleDailyExpense 성공', response.data.result);
             setBarData(response.data.result);
             console.log('바차트에 보낼 데이터',barData);
@@ -132,7 +132,7 @@ const Report = ({ navigation,route }) => {
     const handleMember = async () => {
         const category = getCategoryId(selectedCategoryId);
         try {
-            const response = await axiosInstance.get(`api/expense/${id}/member-category-report?category=${category}`);
+            const response = await axiosInstance.get(`/api/expense/${id}/member-category-report?category=${category}`);
             console.log('handleMember 성공', response);
             setMemberData(response.data.result);
             console.log('response.data.result',response.data.result);
