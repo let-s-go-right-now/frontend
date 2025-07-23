@@ -30,20 +30,29 @@ import axiosInstance from '../../utils/axiosInstance';
         return updatedMembers;
       }
           // 여행 참여자 목록을 가져오는 함수
-    const fetchTripMembersAPI = async () => {
-    const token = await AsyncStorage.getItem('jwtToken');
-    if (!token) throw new Error('토큰이 없습니다.');
-    
-    const tripId = await AsyncStorage.getItem('tripId');
-    if (!tripId) throw new Error('tripId가 없습니다.');
-    
-    const response = await axiosInstance.get(`/api/trip/${tripId}/trip-member`);
-    if (!response.data.isSuccess) throw new Error(response.data.message || '불러오기 실패');
-    return response.data.result;
-    };
+          const fetchTripMembersAPI = async () => {
+            try {
+              const token = await AsyncStorage.getItem('jwtToken');
+              if (!token) throw new Error('토큰이 없습니다.');
+          
+              const tripId = await AsyncStorage.getItem('tripId');
+              if (!tripId) throw new Error('tripId가 없습니다.');
+          
+              const requestUrl = `/api/trip/${tripId}/trip-member`;
+          
+              const response = await axiosInstance.get(requestUrl);
+          
+              if (!response.data.isSuccess) throw new Error(response.data.message || '불러오기 실패');
+              return response.data.result;
+            } catch (error) {
+              throw error; // 에러는 다시 던져 react-query에서 잡도록
+            }
+          };
+          
           
 
 const WCreateExpense = ({ route, navigation }) => {
+    console.log('[WCreateExpense] 컴포넌트 렌더링됨');
     useTabBarVisibility(false);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDates, setSelectedDates] = useState(null);
@@ -52,10 +61,24 @@ const WCreateExpense = ({ route, navigation }) => {
     const snapPoints = ['70%'];
   
     // react-query 훅으로 서버 데이터 패칭 (기존 useFocusEffect + fetchTripMembers 부분 대체)
-    const { data, error, isLoading } = useQuery(['tripMembers'], fetchTripMembersAPI, {
-        refetchOnWindowFocus: true,
-        retry: 1,
-      });
+    const fetchTripMembersWrapper = async () => {
+        console.log('[fetchTripMembersWrapper] 호출됨');
+        const result = await fetchTripMembersAPI();
+        console.log('[fetchTripMembersWrapper] 호출 완료');
+        return result;
+      };
+      
+      const { data, error, isLoading } = useQuery(
+        ['tripMembers'],
+        fetchTripMembersWrapper,
+        {
+          refetchOnWindowFocus: true,
+          retry: 1,
+          enabled: true, 
+          onError: (error) => console.log('[useQuery] fetch error:', error),
+          onSuccess: (data) => console.log('[useQuery] fetch success:', data),
+        }
+      );
       
   
     // API 데이터가 로딩 완료되면 members 배열 생성 및 색 지정

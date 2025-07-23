@@ -1,114 +1,83 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, FlatList } from 'react-native';
-import { CustomBottomSheet, ImgSlide, ImgSlideUpload, MyCalendar, OptionList, PlusButton, Profile, TwoButton } from '../../components';
+import React, { useState, useRef, useEffect } from 'react';
+import { FlatList, TextInput, Text, View, StyleSheet } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../../utils/axiosInstance';
+import { Dimensions } from 'react-native';
+import { CustomBottomSheet, ImgSlideUpload, MyCalendar, OptionList, PlusButton, Profile, TwoButton } from '../../components';
 import { useTabBarVisibility } from '../../utils';
 import { theme } from '../../theme';
-import { launchImageLibrary } from 'react-native-image-picker'; // 이미지 선택 기능 추가
-import profileImage1 from "../../assets/profileImgs/profileImg01.png";
-import profileImage2 from "../../assets/profileImgs/profileImg02.png";
-import profileImage3 from "../../assets/profileImgs/profileImg03.png";
-import DeleteButtonForReal from '../../assets/icons/travel/DeleteButton-forReal.png';
-import DeleteButton from '../../assets/icons/travel/DeleteButton.png';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import { launchImageLibrary } from 'react-native-image-picker';
+
+
+// 색상 배열 & 할당 함수는 그대로 사용
+const colors = [
+  '#FF5733', '#33FF57', '#3357FF', '#F8FF33', '#FF33F6',
+  '#33FFF2', '#F433FF', '#FF8333', '#F3FF33', '#33F6FF'
+];
+
+function assignColors(members) {
+  const nameCount = {};
+  return members.map(member => {
+    if (member.sameName) {
+      if (nameCount[member.name]) {
+        nameCount[member.name]++;
+      } else {
+        nameCount[member.name] = 0;
+      }
+      member.color = colors[nameCount[member.name] % colors.length];
+    }
+    return member;
+  });
+}
+
+// API 호출 함수
+const fetchTripMembersAPI = async () => {
+  const tripId = await AsyncStorage.getItem('tripId');
+  if (!tripId) throw new Error('tripId 가 없습니다');
+
+  const response = await axiosInstance.get(`/api/trip/${tripId}/trip-member`);
+  if (!response.data.isSuccess) throw new Error('여행 참여자 목록 불러오기 실패');
+
+  return response.data.result;
+};
 
 const WriteExpense = ({ navigation }) => {
-    useTabBarVisibility(false);
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedDates, setSelectedDates] = useState(null);
-    const [imageUris, setImageUris] = useState([]); // 여러 이미지를 관리하기 위한 상태
-    const bottomSheetRef = useRef(null);
-    const snapPoints = ['70%'];
+  useTabBarVisibility(false);
 
-    const [members, setMembers] = useState([]); // 여행 참여자 목록 상태
-    const [selectedMember, setSelectedMember] = useState(1);
-    const [excludedMember, setExcludedMember] = useState(1);
-    const [ownerEmail,setOwnerEmail] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedDates, setSelectedDates] = useState(null);
+  const [imageUris, setImageUris] = useState([]);
+  const bottomSheetRef = useRef(null);
+  const snapPoints = ['70%'];
+
+  // React Query 데이터 패칭
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['tripMembers'],
+    queryFn: fetchTripMembersAPI,
+    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const [members, setMembers] = useState([]);
+  const [ownerEmail, setOwnerEmail] = useState('');
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [excludedMember, setExcludedMember] = useState(null);
+
+  // 데이터 변경 시 처리
+  useEffect(() => {
+    if (data) {
+      setOwnerEmail(data.owner.email);
+      let updatedMembers = data.tripMembers.map(m => ({
+        ...m,
+        sameName: false,
+      }));
+      updatedMembers = assignColors(updatedMembers);
+      setMembers(updatedMembers);
+    }
+  }, [data]);
+  
     
-    // 여행 참여자 목록을 가져오는 함수
-    const fetchTripMembers = async () => {
-        try {
-            const token = await AsyncStorage.getItem('jwtToken');
-            if (!token) {
-                console.log('토큰이 없습니다.');
-                return;
-            }
-
-            const tripId = await AsyncStorage.getItem('tripId');
-            if(!tripId){
-                console.log('tripID가 없습니다');
-            }
-            console.log("여행번호"+tripId)
-
-            const response = await axios.get(
-                `https://letsgorightnow.shop/api/trip/${tripId}/trip-member`,
-                {
-                    headers: {
-                        'Authorization': `${token}`,
-                    },
-                }
-            );
-
-            if (response.data.isSuccess) {
-                setOwnerEmail(response.data.result.owner.email); 
-                // response에서 멤버 목록을 가져와서 원하는 형태로 변환
-                const updatedMembers = response.data.result.tripMembers.map((member) => ({
-                    email: member.email, // email을 id로 사용
-                    name: member.name,
-                    image: member.profileImageUrl || 'default_image_url', // profileImageUrl이 없으면 기본 이미지 URL 사용
-                }));
-                setMembers(updatedMembers); // 상태에 멤버 목록 업데이트
-            } else {
-                console.log('여행 참여자 목록을 가져오는 데 실패했습니다.');
-            }
-        } catch (error) {
-            console.error('Error fetching trip members:', error);
-            // 상태 코드 확인을 위해 오류 응답의 상태 코드도 출력
-            
-                console.log('Error Status 멤버:', error.status); // 오류 상태 코드 출력
-            
-            
-        }
-    };
-
-    //이름 같은 멤버 색 부여
-    const colors = [
-        '#FF5733', '#33FF57', '#3357FF', '#F8FF33', '#FF33F6',
-        '#33FFF2', '#F433FF', '#FF8333', '#F3FF33', '#33F6FF'
-    ];
-    
-    // 멤버 목록에서 이름이 같은 멤버에게 색상 부여하기
-    const assignColors = (members) => {
-        const nameCount = {}; // 각 이름의 등장 횟수 저장
-        const updatedMembers = members.map((member, index) => {
-            if (member.sameName) {
-                // 이름이 같은 멤버가 있을 때 색상 순서대로 부여
-                if (nameCount[member.name]) {
-                    nameCount[member.name]++;
-                } else {
-                    nameCount[member.name] = 0;
-                }
-                // 색상은 순서대로 10개만 사용
-                member.color = colors[nameCount[member.name] % colors.length];
-            }
-            return member;
-        });
-    
-        return updatedMembers;
-    };
-    
-    // 화면이 포커스될 때마다 fetchTripMembers 호출
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchTripMembers(); // 화면이 다시 포커스될 때마다 참여자 목록을 가져옵니다.
-            if (members.length > 0) {
-                const updatedMembers = assignColors(members);
-                setMembers(updatedMembers);  // 색상 부여된 멤버 목록을 상태에 업데이트
-                console.log("멤버sms"+members);
-            }
-        }, [])
-    );
     const options = [
         { 
             id: 'TRANSPORTATION', 
@@ -196,39 +165,39 @@ const WriteExpense = ({ navigation }) => {
             };
             formData.append('images', imageFile);
         });
-
-        try {
-            const token = await AsyncStorage.getItem('jwtToken');
-            const tripId = await AsyncStorage.getItem('tripId');
-            if (!token) {
-              console.log('토큰이 없습니다.');
-              return;
-            }
-            const response = await axios.post(
-                `https://letsgorightnow.shop/api/expense/${tripId}`, 
+            // 이미지 업로드 포함 폼데이터 전송 부분 수정 예시
+            try {
+                const tripId = await AsyncStorage.getItem('tripId');
+                if (!tripId) {
+                console.log('tripId가 없습니다.');
+                return;
+                }
+            
+                const response = await axiosInstance.post(
+                `/api/expense/${tripId}`, 
                 formData,
                 {
                     headers: {
-                        'Authorization': `${token}`,
-                        'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'multipart/form-data', // multipart/form-data 꼭 명시
                     },
                 }
-            );
-            if (response.data.isSuccess) {
-                console.log('지출 기록이 생성되었습니다.'+tripId);
+                );
+            
+                if (response.data.isSuccess) {
+                console.log('지출 기록이 생성되었습니다.' + tripId);
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'TravelOngoing' }],
                 });
-            } else {
+                } else {
                 console.log('지출 기록 작성 실패');
+                }
+            } catch (error) {
+                console.error('Error saving expense:', error);
+                alert('에러가 발생했습니다. 다시 시도해 주세요.');
             }
-        } catch (error) {
-            console.error('Error saving expense:', error);
-            console.log(formData)
-            alert('에러가 발생했습니다. 다시 시도해 주세요.');
-        }
-    };
+}
+  
 
     const handleReplaceTravel = () => {
         navigation.reset({
@@ -265,15 +234,16 @@ const WriteExpense = ({ navigation }) => {
     const handleDeleteImage = (uri) => {
         setImageUris((prevUris) => prevUris.filter((item) => item !== uri)); // 해당 이미지 삭제
     };
-// 멤버 선택 핸들러
-const handleProfilePress = (member) => {
-    setSelectedMember(member.id); // 선택된 멤버의 name 저장
-};
-//제외 멤버 핸들러
-const excludeProfilePress = (member) => {
-    setExcludedMember(member.id); // 선택된 멤버의 name 저장
-};
-
+    const handleProfilePress = (member) => {
+        setSelectedMember(prev => (prev === member.id ? null : member.id));
+      };
+      
+      const excludeProfilePress = (member) => {
+        setExcludedMember(prev => (prev === member.id ? null : member.id));
+      };
+      
+      const windowWidth = Dimensions.get('window').width;
+      const containerWidth = windowWidth - 40;
 
 
     const renderContent = () => (
@@ -303,7 +273,10 @@ const excludeProfilePress = (member) => {
             {/* 카테고리 선택*/}
             <Text style={styles.categoryText}>카테고리를 선택하세요</Text>
             <View style={styles.optionsContainer}>
-                <OptionList options={options} Buttonwidth={64} selectedId={selectedCategory}   setSelectedId={setSelectedCategory} />
+                <OptionList options={options} Buttonwidth={64} 
+                containerWidth={containerWidth} 
+                selectedId={selectedCategory} setSelectedId={setSelectedCategory} 
+                />
             </View>
             {/*결제인 */}
             <Text style={styles.categoryText}>누가 결제했나요?</Text>
@@ -327,7 +300,7 @@ const excludeProfilePress = (member) => {
             {/*지출 제외멤버 */}
             <Text style={styles.categoryText}>지출에서 제외할 멤버가 있나요?</Text>
             <Text style={styles.leaderSubText}>해당 금액 정산 시 제외됩니다</Text>
-            <View style={styles.profileContainer}>
+            <View style={styles.profileContainer2}>
                 {members.map((member, index) => (
                         <Profile
                             key={index}
@@ -358,10 +331,16 @@ const excludeProfilePress = (member) => {
     return (
         <>
             <FlatList
-                data={[{ key: 'form' }]} 
+                data={[{ key: 'form' }]}
                 renderItem={renderContent}
-                keyExtractor={(item) => item.key}
+                keyExtractor={item => item.key}
                 contentContainerStyle={styles.container}
+                removeClippedSubviews={false} // 임시로 클리핑 제거해보기
+                initialNumToRender={1} // 최소 렌더링 아이템수
+                maxToRenderPerBatch={1}
+                windowSize={3}
+                scrollEventThrottle={16}
+                onScrollToIndexFailed={() => {}}
             />
 
             {isOpen && (
@@ -491,11 +470,21 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 10,
+        marginLeft:10,
         marginBottom:40,
+    },    
+    profileContainer2:{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+        marginLeft:10,
+        marginBottom:40,
+        marginTop:15,
     },    
     leaderSubText:{
         fontFamily: 'SUIT-SemiBold', 
-        marginTop:10,
+        marginTop:-5,
+        marginLeft:1,
         fontSize: 12,
         color: '#AAAAAA',
     },  
