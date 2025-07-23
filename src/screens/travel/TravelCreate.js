@@ -4,7 +4,7 @@ import { CustomBottomSheet, MyCalendar, TwoButton } from '../../components';
 import {useTabBarVisibility} from '../../utils';
 import { theme } from '../../theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import axiosInstance from '../../utils/axiosInstance';
 
 const TravelCreate = ({navigation}) => {
     const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
@@ -52,16 +52,7 @@ useTabBarVisibility(false);
         console.log('요청 본문:', requestBody); // 요청 본문 출력
     
         try {
-            const response = await axios.post(
-                'https://letsgorightnow.shop/api/trip', // API 엔드포인트
-                requestBody, // 요청 본문
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `${token}`, // JWT 토큰을 Authorization 헤더에 포함
-                    },
-                }
-            );
+            const response = await axiosInstance.post('/api/trip', requestBody);
     
             console.log('서버 응답:', response); // 응답 출력
     
