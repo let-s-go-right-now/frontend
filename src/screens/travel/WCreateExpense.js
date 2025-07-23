@@ -6,7 +6,7 @@ import { theme } from '../../theme';
 import { launchImageLibrary } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../utils/axiosInstance';
     //이름 같은 멤버 색 부여
     const colors = [
@@ -29,63 +29,54 @@ import axiosInstance from '../../utils/axiosInstance';
         });
         return updatedMembers;
       }
+          // 여행 참여자 목록을 가져오는 함수
+    const fetchTripMembersAPI = async () => {
+    const token = await AsyncStorage.getItem('jwtToken');
+    if (!token) throw new Error('토큰이 없습니다.');
+    
+    const tripId = await AsyncStorage.getItem('tripId');
+    if (!tripId) throw new Error('tripId가 없습니다.');
+    
+    const response = await axiosInstance.get(`/api/trip/${tripId}/trip-member`);
+    if (!response.data.isSuccess) throw new Error(response.data.message || '불러오기 실패');
+    return response.data.result;
+    };
+          
 
 const WCreateExpense = ({ route, navigation }) => {
     useTabBarVisibility(false);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDates, setSelectedDates] = useState(null);
-    const [imageUris, setImageUris] = useState([]); // 여러 이미지를 관리하기 위한 상태
+    const [imageUris, setImageUris] = useState([]);
     const bottomSheetRef = useRef(null);
     const snapPoints = ['70%'];
+  
+    // react-query 훅으로 서버 데이터 패칭 (기존 useFocusEffect + fetchTripMembers 부분 대체)
+    const { data, error, isLoading } = useQuery(['tripMembers'], fetchTripMembersAPI, {
+        refetchOnWindowFocus: true,
+        retry: 1,
+      });
+      
+  
+    // API 데이터가 로딩 완료되면 members 배열 생성 및 색 지정
+    const members = data
+    ? assignColors(
+        data.tripMembers.map((member, idx) => ({
+          id: idx,
+          email: member.email,
+          name: member.name,
+          image: member.profileImageUrl || 'default_image_url',
+          sameName: false,
+        })),
+      )
+    : [];
+  
+  const ownerEmail = data?.owner?.email || '';
 
-    const [members, setMembers] = useState([]); // 여행 참여자 목록 상태
-    const [selectedMember, setSelectedMember] = useState(1);
-    const [excludedMember, setExcludedMember] = useState(1);
-    const [ownerEmail,setOwnerEmail] = useState('');
+  // 상태 및 함수 초기화 (기존 코드 유지)
+  const [selectedMember, setSelectedMember] = useState(1);
+  const [excludedMember, setExcludedMember] = useState(1);
     
-    // 여행 참여자 목록을 가져오는 함수
-    const fetchTripMembers =useCallback(async () => {
-        try {
-            const token = await AsyncStorage.getItem('jwtToken');
-            if (!token) {
-                console.log('토큰이 없습니다.');
-                return;
-                
-            }
-
-            const tripId = await AsyncStorage.getItem('tripId');
-            if(!tripId){
-                console.log('tripID가 없습니다');
-            }
-            console.log("여행번호"+tripId)
-
-            const response = await axiosInstance.get(`/api/trip/${tripId}/trip-member`);
-
-            if (response.data.isSuccess) {
-                setOwnerEmail(response.data.result.owner.email); 
-                // response에서 멤버 목록을 가져와서 원하는 형태로 변환
-                const updatedMembers = response.data.result.tripMembers.map((member, idx) => ({
-                    id: idx,
-                    email: member.email,
-                    name: member.name,
-                    image: member.profileImageUrl || 'default_image_url',
-                }));
-                const coloredMembers = assignColors(updatedMembers);
-                setMembers(coloredMembers);
-            }
-        } catch (error) {
-            console.error('Error fetching trip members:', error);
-        }
-    },  []);
-
-    
-    
-    // 화면이 포커스될 때마다 fetchTripMembers 호출
-    useFocusEffect(
-        useCallback(() => {
-          fetchTripMembers();
-        }, [fetchTripMembers])
-      );
     const options = [
         { 
             id: 'TRANSPORTATION', 

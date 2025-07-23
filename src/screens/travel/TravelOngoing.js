@@ -56,7 +56,7 @@ const TravelOngoing = ({navigation}) => {
 
   //새여행 떠나기 함수
   const handleCreateTravel = () => {
-    navigation.navigate('TravelCreate');
+    navigation.navigate('TravelCreate', { tripId: selectedId });
 };
 
   //여행 관리하기
@@ -102,6 +102,7 @@ const MoveExpenseReport = () => {
         console.log('서버 응답:', result);
         if (result.isSuccess) {
           setTravelData(result.result);
+          await AsyncStorage.setItem('tripId', result.result[0].id.toString());
           if(result.result.length > 0){
             setSelectedId(result.result[0].id);}
         } else {
@@ -126,7 +127,7 @@ const MoveExpenseReport = () => {
   //특정 여행 id로 보내기
   const [travelDetailData, setTravelDetailData] = useState([]);  
   const [date,setDate] = useState(0);
-  const [memberImages,setMemberImages] = useState(); 
+  const [memberImages,setMemberImages] = useState([]); 
   
   const formatDate = (date) => {
     if (!date) return '';
