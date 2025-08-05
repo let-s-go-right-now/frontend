@@ -68,17 +68,16 @@ const WCreateExpense = ({ route, navigation }) => {
         return result;
       };
       
-      const { data, error, isLoading } = useQuery(
-        ['tripMembers'],
-        fetchTripMembersWrapper,
-        {
-          refetchOnWindowFocus: true,
-          retry: 1,
-          enabled: true, 
-          onError: (error) => console.log('[useQuery] fetch error:', error),
-          onSuccess: (data) => console.log('[useQuery] fetch success:', data),
-        }
-      );
+      const { data, error, isLoading } = useQuery({
+        queryKey: ['tripMembers'],
+        queryFn: fetchTripMembersWrapper,
+        refetchOnWindowFocus: true,
+        retry: 1,
+        enabled: true, 
+        onError: (error) => console.log('[useQuery] fetch error:', error),
+        onSuccess: (data) => console.log('[useQuery] fetch success:', data),
+      });
+      
       
   
     // API 데이터가 로딩 완료되면 members 배열 생성 및 색 지정

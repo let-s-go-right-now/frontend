@@ -157,12 +157,13 @@ useEffect(() => {
       return;
     }
     try {
+      const response = await axiosInstance.get(`/api/trip/${selectedId}`);
+      const result = response.data;
+
       if (result.isSuccess && result.result.length > 0) {
         await AsyncStorage.setItem('tripId', result.result[0].id.toString());
         setSelectedId(result.result[0].id);
       } 
-      const response = await axiosInstance.get(`/api/trip/${selectedId}`);
-      const result = response.data;
 
       if (result.isSuccess) {
         const expenses = result.result.expenses.map(expense => ({
@@ -191,9 +192,9 @@ useEffect(() => {
       setLoading(false);
     }
   };
-
   fetchTravelData();
 }, [selectedId]);
+
 
 
 
