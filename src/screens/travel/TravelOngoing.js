@@ -99,7 +99,6 @@ const MoveExpenseReport = () => {
 
         const response = await axiosInstance.get('/api/trip/ongoing');
         const result = response.data;
-        console.log('서버 응답:', result);
         if (result.isSuccess) {
           setTravelData(result.result);
           if (result.isSuccess && result.result.length > 0) {
@@ -167,6 +166,7 @@ useEffect(() => {
 
       if (result.isSuccess) {
         const expenses = result.result.expenses.map(expense => ({
+          id: expense.id,
           title: expense.expenseName,
           category: expense.category === 'TRANSPORTATION' ? '교통' : expense.category,
           cost: `${expense.price.toLocaleString()}원`,

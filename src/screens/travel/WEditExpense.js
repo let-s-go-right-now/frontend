@@ -14,6 +14,7 @@ import axiosInstance from '../../utils/axiosInstance';
 const WEditExpense = ({ route, navigation }) => {
   useTabBarVisibility(false);
   const { expenditureId } = route.params;
+  console.log('expenditureId:', expenditureId);
   const bottomSheetRef = useRef(null);
   const snapPoints = ['70%'];
 
@@ -31,19 +32,28 @@ const WEditExpense = ({ route, navigation }) => {
   const mapCategoryToOptionId = (category) => {
     switch (category) {
       case 'TRANSPORTATION': return 1;
-      case 'FOOD': return 2;
-      case 'AMUSEMENT': return 3;
+      case 'MEALS': return 2;
+      case 'SIGHTSEEING': return 3;
       case 'SHOPPING': return 4;
-      case 'RENT': return 5;
+      case 'ACCOMMODATION': return 5;
       case 'ETC': return 6;
       default: return 6;
     }
   };
+  
 
   // React Query로 지출 상세 정보 조회 함수
   const fetchExpenseDetail = async () => {
-    const res = await axiosInstance.get(`/api/expense/${expenditureId}`);
-    return res.data;
+    console.log('API 요청 중: /api/expense/', expenditureId);
+    try {
+      
+      const res = await axiosInstance.get(`/api/expense/${expenditureId}`);
+      console.log('API 응답 데이터:', res.data);
+      return res.data;
+    } catch (error) {
+      console.error('API 요청 실패:', error);
+      throw error;
+    }
   };
 
   const { data, error, isLoading, isError } = useQuery({
@@ -70,29 +80,47 @@ const WEditExpense = ({ route, navigation }) => {
   // 서버 데이터가 불러와지면 local 상태 초기화 (한번만 실행)
   React.useEffect(() => {
     if (data && data.isSuccess && data.result) {
-      setTitle(data.result.name || '');
-      setMoney(data.result.price ? String(data.result.price) : '');
-      setMemo(data.result.details || '');
-      setSelectedOption(mapCategoryToOptionId(data.result.category));
-      if (data.result.expenseImages && Array.isArray(data.result.expenseImages)) {
-        setImageUris(data.result.expenseImages.map(url => ({ uri: url })));
-      } else {
-        setImageUris([]);
-      }
-      if (data.result.includedMember && Array.isArray(data.result.includedMember)) {
-        const apiMembers = data.result.includedMember.map((m, idx) => ({
-          id: idx + 1,
-          name: m.name,
-          leader: false,
-          sameName: false,
-          image: m.profileImageUrl ? { uri: m.profileImageUrl } : null, 
-          color: '#999',
-        }));
-        setMembers(apiMembers);
-        setSelectedMember(1);
-      }      
+      const res = data.result;
+  
+      // 상태 초기화
+      setTitle(res.name || '');
+      setMoney(res.price ? String(res.price) : '');
+      setMemo(res.details || '');
+      setSelectedOption(mapCategoryToOptionId(res.category));
+  
+      setImageUris(
+        res.expenseImages && Array.isArray(res.expenseImages)
+          ? res.expenseImages.map(url => ({ uri: url }))
+          : []
+      );
+  
+      // 포함 멤버(api includedMember)로 members 상태 세팅
+      const includedMembers = res.includedMember || [];
+      const payerEmail = res.payer?.email;
+  
+      // members 배열 생성, 각 멤버에 결제자 여부 표시(leader = true)
+      const apiMembers = includedMembers.map((m, idx) => ({
+        id: idx + 1,
+        name: m.name,
+        leader: m.email === payerEmail,
+        sameName: false,
+        image: m.profileImageUrl ? { uri: m.profileImageUrl } : null,
+        color: '#999',
+        email: m.email,
+      }));
+  
+      setMembers(apiMembers);
+  
+      // 결제자를 selectedMember로 설정 (id 기준)
+      const payerMember = apiMembers.find(m => m.email === payerEmail);
+      setSelectedMember(payerMember ? payerMember.id : 1);
+  
+      // 제외된 멤버는 includedMember 중 결제자 제외한 멤버 목록
+      const excluded = apiMembers.filter(m => m.email !== payerEmail).map(m => m.id);
+      setExcludedMember(excluded[0] || 1);
     }
   }, [data]);
+  
 
   // 이미지 선택
   const handleImagePick = () => {
@@ -115,8 +143,21 @@ const WEditExpense = ({ route, navigation }) => {
     setImageUris((prev) => prev.filter(img => img.uri !== uri));
   };
 
-  const handleProfilePress = (member) => setSelectedMember(member.id);
-  const excludeProfilePress = (member) => setExcludedMember(member.id);
+  const handleProfilePress = (member) => {
+    if (selectedMember === member.id) {
+      setSelectedMember(null); // 이미 선택된 멤버를 다시 누르면 선택 취소
+    } else {
+      setSelectedMember(member.id);
+    }
+  };
+  const excludeProfilePress = (member) => {
+    if (excludedMember === member.id) {
+      setExcludedMember(null); // 다시 누르면 선택 취소
+    } else {
+      setExcludedMember(member.id);
+    }
+  };
+  
 
   const [isOpen, setIsOpen] = useState(false);
   const openBottomSheet = () => {
