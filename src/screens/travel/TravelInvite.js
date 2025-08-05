@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
-import { BlackButton } from '../../components'; // BlackButton 컴포넌트 경로에 맞게 수정하세요
+import { View, Text, StyleSheet, ScrollView, Image, Alert } from 'react-native';
+import { BlackButton } from '../../components'; 
 import styled from 'styled-components/native';
 import { theme } from '../../theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../../utils/axiosInstance';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 
 const ButtonContainer = styled.View`
@@ -42,25 +45,48 @@ const IconContainer = styled.View`
   bottom: 10px;
 `;
 
-
 const TravelInvite = ({ navigation }) => {
-  const [topComponentWidth, setTopComponentWidth] = useState(0); // 상단 컴포넌트의 너비 상태
-  
-  // 상단 컴포넌트의 크기를 측정
+  const [topComponentWidth, setTopComponentWidth] = useState(0);
+
   const onLayout = (event) => {
     const { width } = event.nativeEvent.layout;
-    setTopComponentWidth(width); // 상단 컴포넌트의 너비 상태 업데이트
+    setTopComponentWidth(width);
   };
 
-  // 지출기록하기
   const handleWriteExpense = () => {
-    navigation.navigate('WCreateExpense',{id:1});
+    navigation.navigate('WCreateExpense', { id: 1 });
   };
 
-    // 
-    const handleOngoingTravel = () => {
-      navigation.pop(2);
-    };
+  const handleOngoingTravel = () => {
+    navigation.pop(2);
+  };
+
+  // 멤버초대하기 버튼 클릭 핸들러
+  const handleMemberInvite = async () => {
+    try {
+      const tripId = await AsyncStorage.getItem('tripId');
+      if (!tripId) {
+        Alert.alert('오류', '여행 ID가 없습니다.');
+        return;
+      }
+  
+      const response = await axiosInstance.post(`/api/trip/${tripId}/invite`);
+      const { isSuccess, result } = response.data;
+  
+      if (isSuccess && result?.invitelink) {
+        await Clipboard.setString(result.invitelink);  // await 추가
+  
+        Alert.alert('성공', '초대 링크가 복사되었습니다!');
+      } else {
+        Alert.alert('실패', '초대 링크 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('멤버초대하기 실패:', error);
+      Alert.alert('오류', '멤버 초대 중 오류가 발생했습니다.');
+    }
+  };
+  
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -71,21 +97,31 @@ const TravelInvite = ({ navigation }) => {
         </Text>
       </View>
       <View style={styles.twobuttonwrapper}>
-      <ButtonContainer width={353}>
-      <Button width={166.5} bgColor={'#000000' || '#1D1D1F'} height={148} onPress={()=>{}}>
-        <Title color="#FFFFFF">멤버초대하기</Title>
-        <IconContainer><Image source={require('../../assets/icons/bigTwo-left.png')} style={{ width: 58, height: 53.5 }} /></IconContainer>
-      </Button>
-      <Button width={166.5} bgColor={"#ffffff" || '#FFFFFF'} height={148} onPress={handleWriteExpense}>
-        <Title color="#1D1D1F">지출기록하기</Title>
-        <IconContainer><Image source={require('../../assets/icons/bigTwo-right.png')} style={{ width: 50, height: 57 }} /></IconContainer>
-      </Button>
-    </ButtonContainer>
+        <ButtonContainer width={353}>
+          <Button width={166.5} bgColor="#000000" height={148} onPress={handleMemberInvite}>
+            <Title color="#FFFFFF">멤버초대하기</Title>
+            <IconContainer>
+              <Image
+                source={require('../../assets/icons/bigTwo-left.png')}
+                style={{ width: 58, height: 53.5 }}
+              />
+            </IconContainer>
+          </Button>
+          <Button width={166.5} bgColor="#ffffff" height={148} onPress={handleWriteExpense}>
+            <Title color="#1D1D1F">지출기록하기</Title>
+            <IconContainer>
+              <Image
+                source={require('../../assets/icons/bigTwo-right.png')}
+                style={{ width: 50, height: 57 }}
+              />
+            </IconContainer>
+          </Button>
+        </ButtonContainer>
       </View>
       <BlackButton
         text="여행보러가기"
         width={343}
-        onPress={handleOngoingTravel}  // 버튼 클릭 시 실행할 함수
+        onPress={handleOngoingTravel}
         style={styles.button}
       />
     </ScrollView>

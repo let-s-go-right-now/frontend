@@ -102,7 +102,11 @@ const MoveExpenseReport = () => {
         console.log('서버 응답:', result);
         if (result.isSuccess) {
           setTravelData(result.result);
-          await AsyncStorage.setItem('tripId', result.result[0].id.toString());
+          if (result.isSuccess && result.result.length > 0) {
+            await AsyncStorage.setItem('tripId', result.result[0].id.toString());
+            setSelectedId(result.result[0].id);
+          }
+          
           if(result.result.length > 0){
             setSelectedId(result.result[0].id);}
         } else {
@@ -153,10 +157,13 @@ useEffect(() => {
       return;
     }
     try {
-      await AsyncStorage.setItem('tripId', selectedId.toString());
-
       const response = await axiosInstance.get(`/api/trip/${selectedId}`);
       const result = response.data;
+
+      if (result.isSuccess && result.result.length > 0) {
+        await AsyncStorage.setItem('tripId', result.result[0].id.toString());
+        setSelectedId(result.result[0].id);
+      } 
 
       if (result.isSuccess) {
         const expenses = result.result.expenses.map(expense => ({
@@ -185,11 +192,44 @@ useEffect(() => {
       setLoading(false);
     }
   };
-
   fetchTravelData();
 }, [selectedId]);
 
 
+//여행종료 함수 start
+const handleEndTravel = async () => {
+  try {
+    const token = await AsyncStorage.getItem('jwtToken');
+    if (!token) {
+      Alert.alert('오류', '로그인 정보가 없습니다.');
+      return;
+    }
+    if (!selectedId) {
+      Alert.alert('오류', '종료할 여행이 선택되지 않았습니다.');
+      return;
+    }
+    const response = await axiosInstance.put(
+      `/api/trip/${selectedId}/end`,
+      null,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const result = response.data;
+    if (result.isSuccess) {
+      Alert.alert('성공', '여행이 종료되었습니다.');
+    } else {
+      Alert.alert('실패', result.message || '여행 종료에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('여행 종료 실패:', error);
+    Alert.alert('오류', '여행 종료 중 오류가 발생했습니다.');
+  }
+};
+
+//여행종료 함수 end
 
 
   return (
@@ -226,7 +266,7 @@ useEffect(() => {
               </View>
               <View style={styles.row}>
                 <Text style={styles.travelMemo}>{travelDetailData.introduce}</Text>
-                <TouchableOpacity onPress={() => {}} style={styles.finishButton}>
+                <TouchableOpacity onPress={handleEndTravel} style={styles.finishButton}>
                   <Text style={styles.finishButtonText}>여행 끝내기</Text>
                 </TouchableOpacity>
               </View>
