@@ -102,7 +102,11 @@ const MoveExpenseReport = () => {
         console.log('서버 응답:', result);
         if (result.isSuccess) {
           setTravelData(result.result);
-          await AsyncStorage.setItem('tripId', result.result[0].id.toString());
+          if (result.isSuccess && result.result.length > 0) {
+            await AsyncStorage.setItem('tripId', result.result[0].id.toString());
+            setSelectedId(result.result[0].id);
+          }
+          
           if(result.result.length > 0){
             setSelectedId(result.result[0].id);}
         } else {
@@ -153,8 +157,10 @@ useEffect(() => {
       return;
     }
     try {
-      await AsyncStorage.setItem('tripId', selectedId.toString());
-
+      if (result.isSuccess && result.result.length > 0) {
+        await AsyncStorage.setItem('tripId', result.result[0].id.toString());
+        setSelectedId(result.result[0].id);
+      } 
       const response = await axiosInstance.get(`/api/trip/${selectedId}`);
       const result = response.data;
 
