@@ -74,8 +74,8 @@ const WEditExpense = ({ route, navigation }) => {
     { id: 2, name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red" },
     { id: 3, name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green" },
   ]);
-  const [selectedMember, setSelectedMember] = useState(1);
-  const [excludedMember, setExcludedMember] = useState(1);
+  const [selectedMember, setSelectedMember] = useState([]);
+  const [excludedMember, setExcludedMember] = useState([]); 
 
   // 서버 데이터가 불러와지면 local 상태 초기화 (한번만 실행)
   React.useEffect(() => {
@@ -113,11 +113,11 @@ const WEditExpense = ({ route, navigation }) => {
   
       // 결제자를 selectedMember로 설정 (id 기준)
       const payerMember = apiMembers.find(m => m.email === payerEmail);
-      setSelectedMember(payerMember ? payerMember.id : 1);
+      setSelectedMember(payerMember ? [payerMember.id] : []);
   
       // 제외된 멤버는 includedMember 중 결제자 제외한 멤버 목록
       const excluded = apiMembers.filter(m => m.email !== payerEmail).map(m => m.id);
-      setExcludedMember(excluded[0] || 1);
+      setExcludedMember(excluded.length ? excluded : []); 
     }
   }, [data]);
   
@@ -144,17 +144,17 @@ const WEditExpense = ({ route, navigation }) => {
   };
 
   const handleProfilePress = (member) => {
-    if (selectedMember === member.id) {
-      setSelectedMember(null); // 이미 선택된 멤버를 다시 누르면 선택 취소
+    if (selectedMember.includes(member.id)) {
+      setSelectedMember(prev => prev.filter(id => id !== member.id)); // 선택 해제
     } else {
-      setSelectedMember(member.id);
+      setSelectedMember(prev => [...prev, member.id]); // 선택 추가
     }
   };
   const excludeProfilePress = (member) => {
-    if (excludedMember === member.id) {
-      setExcludedMember(null); // 다시 누르면 선택 취소
+    if (excludedMember.includes(member.id)) {
+      setExcludedMember(prev => prev.filter(id => id !== member.id));
     } else {
-      setExcludedMember(member.id);
+      setExcludedMember(prev => [...prev, member.id]);
     }
   };
   
@@ -174,10 +174,64 @@ const WEditExpense = ({ route, navigation }) => {
   const deleteExitExpense = () => setIsOpen(false);
 
   // 저장 함수 (추후 API 연결)
-  const fetchExpense = () => {
-    Alert.alert('알림', '변경사항이 저장되었습니다.');
-    navigation.goBack();
+  const fetchExpense = async () => {
+    try {
+      const categoryMap = {
+        1: 'TRANSPORTATION',
+        2: 'MEALS',
+        3: 'SIGHTSEEING',
+        4: 'SHOPPING',
+        5: 'ACCOMMODATION',
+        6: 'ETC',
+      };
+      const categoryName = categoryMap[selectedOption] || 'ETC';
+  
+      const payerEmail = members.find(m => m.id === selectedMember)?.email;
+      if (!payerEmail) {
+        Alert.alert('오류', '결제자를 선택하세요');
+        return;
+      }
+  
+        // excludedMember 예시: [1, 3] 등 id 배열
+      const excludedEmails = excludedMember
+      ? excludedMember.map(id => members.find(m => m.id === id)?.email).filter(Boolean)
+      : [];
+
+      const formData = new FormData();
+      formData.append('expenseName', title);
+      formData.append('price', Number(money));
+      formData.append('details', memo);
+      formData.append('expenseDate', new Date().toISOString()); // 실제값으로 교체 필요
+      formData.append('categoryName', categoryName);
+      formData.append('payerEmail', payerEmail);
+      
+      excludedEmails.forEach(email => formData.append('excludedMember', email));
+  
+      imageUris.slice(0, 3).forEach((img, idx) => {
+        formData.append('images', {
+          uri: img.uri,
+          name: `image${idx + 1}.jpg`, // 필요시 실제 파일명 사용
+          type: 'image/jpeg', // 필요 시 이미지 타입 변경
+        });
+      });
+  
+      const response = await axiosInstance.put(`/api/expense/${expenditureId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+  
+      if (response.data.isSuccess) {
+        Alert.alert('성공', '지출 내역이 수정되었습니다.');
+        navigation.goBack();
+      } else {
+        Alert.alert('실패', response.data.message || '수정 실패');
+      }
+    } catch (error) {
+      console.error('지출 수정 에러:', error);
+      if (error.response) console.log('서버응답:', error.response.data);
+      Alert.alert('에러', '지출 수정 중 오류가 발생했습니다.');
+    }
   };
+  
 
   const selectedOptionData = options.find(o => o.id === selectedOption);
 
@@ -237,7 +291,7 @@ const WEditExpense = ({ route, navigation }) => {
 
       <Text style={styles.categoryText}>카테고리를 선택하세요</Text>
       <View style={styles.optionsContainer}>
-        <OptionList options={options} selectedId={selectedOption} onSelect={setSelectedOption} Buttonwidth={64} />
+        <OptionList options={options}  setSelectedId={setSelectedOption} selectedId={selectedOption} onSelect={setSelectedOption} Buttonwidth={64} />
       </View>
 
       <Text style={styles.categoryText}>누가 결제했나요?</Text>
