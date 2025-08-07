@@ -81,44 +81,50 @@ const WEditExpense = ({ route, navigation }) => {
   React.useEffect(() => {
     if (data && data.isSuccess && data.result) {
       const res = data.result;
-  
-      // 상태 초기화
       setTitle(res.name || '');
       setMoney(res.price ? String(res.price) : '');
       setMemo(res.details || '');
       setSelectedOption(mapCategoryToOptionId(res.category));
-  
       setImageUris(
         res.expenseImages && Array.isArray(res.expenseImages)
           ? res.expenseImages.map(url => ({ uri: url }))
           : []
       );
-  
-      // 포함 멤버(api includedMember)로 members 상태 세팅
+
+      // members setting
       const includedMembers = res.includedMember || [];
-      const payerEmail = res.payer?.email;
-  
-      // members 배열 생성, 각 멤버에 결제자 여부 표시(leader = true)
+      const payerEmails = Array.isArray(res.payer) 
+        ? res.payer.map(p => p.email)
+        : res.payer?.email
+          ? [res.payer.email]
+          : [];
       const apiMembers = includedMembers.map((m, idx) => ({
         id: idx + 1,
         name: m.name,
-        leader: m.email === payerEmail,
+        leader: payerEmails.includes(m.email),    // 여러 결제자 대응
         sameName: false,
         image: m.profileImageUrl ? { uri: m.profileImageUrl } : null,
         color: '#999',
         email: m.email,
       }));
-  
       setMembers(apiMembers);
-  
-      // 결제자를 selectedMember로 설정 (id 기준)
-      const payerMember = apiMembers.find(m => m.email === payerEmail);
-      setSelectedMember(payerMember ? [payerMember.id] : []);
-  
-      // 제외된 멤버는 includedMember 중 결제자 제외한 멤버 목록
-      const excluded = apiMembers.filter(m => m.email !== payerEmail).map(m => m.id);
-      setExcludedMember(excluded.length ? excluded : []); 
-    }
+
+      // === 수정 부분 시작 ===
+      // 다중 결제자(배열)로 상태 세팅
+      setSelectedMember(
+        apiMembers
+          .filter(m => payerEmails.includes(m.email))
+          .map(m => m.id)
+      );
+
+      // 제외된 멤버도 배열(email 배열 또는 id 배열로 세팅)
+      const excludedEmails = res.excludedMember || []; // 서버에서 email 배열로 내려줌
+      setExcludedMember(
+        apiMembers
+          .filter(m => excludedEmails.includes(m.email))
+          .map(m => m.id)
+      );
+        }
   }, [data]);
   
 
@@ -144,18 +150,18 @@ const WEditExpense = ({ route, navigation }) => {
   };
 
   const handleProfilePress = (member) => {
-    if (selectedMember.includes(member.id)) {
-      setSelectedMember(prev => prev.filter(id => id !== member.id)); // 선택 해제
-    } else {
-      setSelectedMember(prev => [...prev, member.id]); // 선택 추가
-    }
+    setSelectedMember(prev =>
+      prev.includes(member.id)
+        ? prev.filter(id => id !== member.id)
+        : [...prev, member.id]
+    );
   };
   const excludeProfilePress = (member) => {
-    if (excludedMember.includes(member.id)) {
-      setExcludedMember(prev => prev.filter(id => id !== member.id));
-    } else {
-      setExcludedMember(prev => [...prev, member.id]);
-    }
+    setExcludedMember(prev =>
+      prev.includes(member.id)
+        ? prev.filter(id => id !== member.id)
+        : [...prev, member.id]
+    );
   };
   
 
@@ -173,65 +179,64 @@ const WEditExpense = ({ route, navigation }) => {
   };
   const deleteExitExpense = () => setIsOpen(false);
 
-  // 저장 함수 (추후 API 연결)
-  const fetchExpense = async () => {
-    try {
-      const categoryMap = {
-        1: 'TRANSPORTATION',
-        2: 'MEALS',
-        3: 'SIGHTSEEING',
-        4: 'SHOPPING',
-        5: 'ACCOMMODATION',
-        6: 'ETC',
-      };
-      const categoryName = categoryMap[selectedOption] || 'ETC';
-  
-      const payerEmail = members.find(m => m.id === selectedMember)?.email;
-      if (!payerEmail) {
-        Alert.alert('오류', '결제자를 선택하세요');
-        return;
-      }
-  
-        // excludedMember 예시: [1, 3] 등 id 배열
-      const excludedEmails = excludedMember
-      ? excludedMember.map(id => members.find(m => m.id === id)?.email).filter(Boolean)
-      : [];
+// 저장 함수: 다중 결제자/제외자 적용
+const fetchExpense = async () => {
+  try {
+    const categoryMap = {
+      1: 'TRANSPORTATION',
+      2: 'MEALS',
+      3: 'SIGHTSEEING',
+      4: 'SHOPPING',
+      5: 'ACCOMMODATION',
+      6: 'ETC',
+    };
+    const categoryName = categoryMap[selectedOption] || 'ETC';
 
-      const formData = new FormData();
-      formData.append('expenseName', title);
-      formData.append('price', Number(money));
-      formData.append('details', memo);
-      formData.append('expenseDate', new Date().toISOString()); // 실제값으로 교체 필요
-      formData.append('categoryName', categoryName);
-      formData.append('payerEmail', payerEmail);
-      
-      excludedEmails.forEach(email => formData.append('excludedMember', email));
-  
-      imageUris.slice(0, 3).forEach((img, idx) => {
-        formData.append('images', {
-          uri: img.uri,
-          name: `image${idx + 1}.jpg`, // 필요시 실제 파일명 사용
-          type: 'image/jpeg', // 필요 시 이미지 타입 변경
-        });
-      });
-  
-      const response = await axiosInstance.put(`/api/expense/${expenditureId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-  
-      if (response.data.isSuccess) {
-        Alert.alert('성공', '지출 내역이 수정되었습니다.');
-        navigation.goBack();
-      } else {
-        Alert.alert('실패', response.data.message || '수정 실패');
-      }
-    } catch (error) {
-      console.error('지출 수정 에러:', error);
-      if (error.response) console.log('서버응답:', error.response.data);
-      Alert.alert('에러', '지출 수정 중 오류가 발생했습니다.');
+    // 결제자 다중 선택 -> email 배열
+    const payerEmails = selectedMember
+      .map(id => members.find(m => m.id === id)?.email)
+      .filter(Boolean);
+    if (!payerEmails.length) {
+      Alert.alert('오류', '한 명 이상의 결제자를 선택하세요');
+      return;
     }
-  };
-  
+    // 제외멤버 역시 다중 선택 -> email 배열
+    const excludedEmails = excludedMember
+      .map(id => members.find(m => m.id === id)?.email)
+      .filter(Boolean);
+
+    const formData = new FormData();
+    formData.append('expenseName', title);
+    formData.append('price', Number(money));
+    formData.append('details', memo);
+    formData.append('expenseDate', new Date().toISOString().split('.')[0]);
+    formData.append('categoryName', categoryName);
+    payerEmails.forEach(email => formData.append('payerEmail', email)); // 여러 결제자
+    excludedEmails.forEach(email => formData.append('excludedMember', email)); // 여러 제외자
+    imageUris.slice(0, 3).forEach((img, idx) => {
+      formData.append('images', {
+        uri: img.uri,
+        name: `image${idx + 1}.jpg`,
+        type: 'image/jpeg',
+      });
+    });
+    console.log("expenseDate 보내는 값:",formData); 
+    const response = await axiosInstance.put(`/api/expense/${expenditureId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (response.data.isSuccess) {
+      Alert.alert('성공', '지출 내역이 수정되었습니다.');
+      navigation.goBack();
+    } else {
+      Alert.alert('실패', response.data.message || '수정 실패');
+    }
+  } catch (error) {
+    console.error('지출 수정 에러:', error);
+    if (error.response) console.log('서버응답:', error.response.data);
+    Alert.alert('에러', '지출 수정 중 오류가 발생했습니다.');
+  }
+};
 
   const selectedOptionData = options.find(o => o.id === selectedOption);
 
@@ -298,15 +303,14 @@ const WEditExpense = ({ route, navigation }) => {
       <View style={styles.profileContainer}>
         {members.map((member, i) => (
           <Profile
-            key={i}
-            name={member.name}
-            leader={member.leader}
-            sameName={member.sameName}
-            image={member.image}
-            color={member.color}
-            selected={selectedMember === member.id}
-            normal={false}
-            onPress={() => handleProfilePress(member)}
+          key={i}
+          name={member.name}
+          leader={member.leader}
+          sameName={member.sameName}
+          image={member.image}
+          color={member.color}
+          selected={selectedMember.includes(member.id)}
+          onPress={() => handleProfilePress(member)}
           />
         ))}
       </View>
@@ -322,8 +326,7 @@ const WEditExpense = ({ route, navigation }) => {
             sameName={member.sameName}
             image={member.image}
             color={member.color}
-            selected={excludedMember === member.id}
-            normal={false}
+            selected={excludedMember.includes(member.id)}
             onPress={() => excludeProfilePress(member)}
           />
         ))}
