@@ -44,11 +44,9 @@ const WEditExpense = ({ route, navigation }) => {
 
   // React Query로 지출 상세 정보 조회 함수
   const fetchExpenseDetail = async () => {
-    console.log('API 요청 중: /api/expense/', expenditureId);
     try {
       
       const res = await axiosInstance.get(`/api/expense/${expenditureId}`);
-      console.log('API 응답 데이터:', res.data);
       return res.data;
     } catch (error) {
       console.error('API 요청 실패:', error);
@@ -220,7 +218,6 @@ const fetchExpense = async () => {
         type: 'image/jpeg',
       });
     });
-    console.log("expenseDate 보내는 값:",formData); 
     const response = await axiosInstance.put(`/api/expense/${expenditureId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
