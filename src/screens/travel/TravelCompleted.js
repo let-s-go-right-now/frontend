@@ -58,11 +58,12 @@ const TravelCompleted = ({ navigation }) => {
     if (selectedTravel) {
       navigation.navigate('ImgZoomInTab', {
         imageIndex: index,
-        images: selectedTravel.images,
+        images: selectedTravel.expenseImageUrls || [], 
         pretabVisible: true,
       });
     }
   };
+  
     //새여행 떠나기 함수
     const handleCreateTravel = () => {
       navigation.navigate('TravelCreate');

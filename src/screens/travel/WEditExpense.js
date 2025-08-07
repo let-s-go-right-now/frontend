@@ -170,11 +170,24 @@ const WEditExpense = ({ route, navigation }) => {
   };
   const closeBottomSheet = () => setIsOpen(false);
 
-  const deleteExpense = () => {
-    Alert.alert('알림', '지출 기록을 삭제합니다.');
-    setIsOpen(false);
-    navigation.goBack();
+  const deleteExpense = async () => {
+    try {
+      const response = await axiosInstance.delete(`/api/expense/${expenditureId}`);
+  
+      if (response.data.isSuccess) {
+        // 삭제 성공 시 뒤로가기 처리
+        setIsOpen(false);
+        navigation.goBack();
+      } else {
+        // 실패 메시지 필요하면 커스텀 처리
+        console.log('삭제 실패:', response.data.message);
+      }
+    } catch (error) {
+      console.error('지출 삭제 에러:', error);
+      // 에러 처리 필요 시 여기서 처리
+    }
   };
+  
   const deleteExitExpense = () => setIsOpen(false);
 
 // 저장 함수: 다중 결제자/제외자 적용
@@ -253,6 +266,7 @@ const fetchExpense = async () => {
       </View>
     );
   }
+  
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
