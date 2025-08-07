@@ -1,270 +1,389 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, FlatList } from 'react-native';
+import { Image, TextInput, Text, TouchableOpacity, View, StyleSheet, FlatList, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { BlackButton, CustomBottomSheet, ImgSlide, ImgSlideUpload, MyCalendar, OptionList, PlusButton, Profile, TwoButton } from '../../components';
 import { useTabBarVisibility } from '../../utils';
+import { useQuery } from '@tanstack/react-query';
 import { theme } from '../../theme';
 import { launchImageLibrary } from 'react-native-image-picker'; // 이미지 선택 기능 추가
 import profileImage1 from "../../assets/profileImgs/profileImg01.png";
 import profileImage2 from "../../assets/profileImgs/profileImg02.png";
 import profileImage3 from "../../assets/profileImgs/profileImg03.png";
-import DeleteButtonForReal from '../../assets/icons/travel/DeleteButton-forReal.png';
-import DeleteButton from '../../assets/icons/travel/DeleteButton.png';
+import axiosInstance from '../../utils/axiosInstance';
 
 
 const WEditExpense = ({ route, navigation }) => {
-    useTabBarVisibility(false);
-    const { expenditureId } = route.params; //수정할 id
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedDates, setSelectedDates] = useState(null);
-    const [imageUris, setImageUris] = useState([]); // 여러 이미지를 관리하기 위한 상태
-    const bottomSheetRef = useRef(null);
-    const snapPoints = ['70%'];
-    const [tripData, setTripData] = useState({
-        title: "부산바캉스",
-        startDate: "08. 12",
-        endDate: "08. 15",
-        memo: "해운대에서 걸스나잇",
-        leader: true,
-        members: [
-            { id: 1, name: "홍길동", leader: true, sameName: false, image: profileImage1, color: "blue", onPress: () => {} },
-            { id: 2, name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red", onPress: () => {} },
-            { id: 3, name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green", onPress: () => {} },
-        ],
-        images: [
-        ],
-        selectedOption: 6,  // 기존 selectedOption
-        money: '24000',  // 기존 money
+  useTabBarVisibility(false);
+  const { expenditureId } = route.params;
+  console.log('expenditureId:', expenditureId);
+  const bottomSheetRef = useRef(null);
+  const snapPoints = ['70%'];
+
+  // 옵션리스트
+  const options = [
+    { id: 1, text: "교통", image: require('../../assets/icons/travel/options/TraficIcon.png'), image_clicked: require('../../assets/icons/travel/options/TraficIcon-selected.png') },
+    { id: 2, text: "식사", image: require('../../assets/icons/travel/options/FoodIcon.png'), image_clicked: require('../../assets/icons/travel/options/FoodIcon-selected.png') },
+    { id: 3, text: "관광", image: require('../../assets/icons/travel/options/AmuseIcon.png'), image_clicked: require('../../assets/icons/travel/options/AmuseIcon-selected.png') },
+    { id: 4, text: "쇼핑", image: require('../../assets/icons/travel/options/ShopIcon.png'), image_clicked: require('../../assets/icons/travel/options/ShopIcon-selected.png') },
+    { id: 5, text: "숙소", image: require('../../assets/icons/travel/options/RentIcon.png'), image_clicked: require('../../assets/icons/travel/options/RentIcon-selected.png') },
+    { id: 6, text: "기타", image: require('../../assets/icons/travel/options/etc.png'), image_clicked: require('../../assets/icons/travel/options/etc-selected.png') },
+  ];
+
+  // 카테고리 문자열 -> 옵션 id 매핑 함수
+  const mapCategoryToOptionId = (category) => {
+    switch (category) {
+      case 'TRANSPORTATION': return 1;
+      case 'MEALS': return 2;
+      case 'SIGHTSEEING': return 3;
+      case 'SHOPPING': return 4;
+      case 'ACCOMMODATION': return 5;
+      case 'ETC': return 6;
+      default: return 6;
+    }
+  };
+  
+
+  // React Query로 지출 상세 정보 조회 함수
+  const fetchExpenseDetail = async () => {
+    try {
+      
+      const res = await axiosInstance.get(`/api/expense/${expenditureId}`);
+      return res.data;
+    } catch (error) {
+      console.error('API 요청 실패:', error);
+      throw error;
+    }
+  };
+
+  const { data, error, isLoading, isError } = useQuery({
+    queryKey: ['expenseDetail', expenditureId],
+    queryFn: fetchExpenseDetail,
+    enabled: !!expenditureId,
+  });
+  
+
+  // 로컬 상태 (서버에서 가져온 데이터가 없으면 초기 빈 값)
+  const [title, setTitle] = useState('');
+  const [money, setMoney] = useState('');
+  const [memo, setMemo] = useState('');
+  const [selectedOption, setSelectedOption] = useState(6);
+  const [imageUris, setImageUris] = useState([]);
+  const [members, setMembers] = useState([
+    { id: 1, name: "홍길동", leader: true, sameName: false, image: profileImage1, color: "blue" },
+    { id: 2, name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red" },
+    { id: 3, name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green" },
+  ]);
+  const [selectedMember, setSelectedMember] = useState([]);
+  const [excludedMember, setExcludedMember] = useState([]); 
+
+  // 서버 데이터가 불러와지면 local 상태 초기화 (한번만 실행)
+  React.useEffect(() => {
+    if (data && data.isSuccess && data.result) {
+      const res = data.result;
+      setTitle(res.name || '');
+      setMoney(res.price ? String(res.price) : '');
+      setMemo(res.details || '');
+      setSelectedOption(mapCategoryToOptionId(res.category));
+      setImageUris(
+        res.expenseImages && Array.isArray(res.expenseImages)
+          ? res.expenseImages.map(url => ({ uri: url }))
+          : []
+      );
+
+      // members setting
+      const includedMembers = res.includedMember || [];
+      const payerEmails = Array.isArray(res.payer) 
+        ? res.payer.map(p => p.email)
+        : res.payer?.email
+          ? [res.payer.email]
+          : [];
+      const apiMembers = includedMembers.map((m, idx) => ({
+        id: idx + 1,
+        name: m.name,
+        leader: payerEmails.includes(m.email),    // 여러 결제자 대응
+        sameName: false,
+        image: m.profileImageUrl ? { uri: m.profileImageUrl } : null,
+        color: '#999',
+        email: m.email,
+      }));
+      setMembers(apiMembers);
+
+      // === 수정 부분 시작 ===
+      // 다중 결제자(배열)로 상태 세팅
+      setSelectedMember(
+        apiMembers
+          .filter(m => payerEmails.includes(m.email))
+          .map(m => m.id)
+      );
+
+      // 제외된 멤버도 배열(email 배열 또는 id 배열로 세팅)
+      const excludedEmails = res.excludedMember || []; // 서버에서 email 배열로 내려줌
+      setExcludedMember(
+        apiMembers
+          .filter(m => excludedEmails.includes(m.email))
+          .map(m => m.id)
+      );
+        }
+  }, [data]);
+  
+
+  // 이미지 선택
+  const handleImagePick = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        maxWidth: 600,
+        maxHeight: 600,
+        quality: 0.8,
+      },
+      (response) => {
+        if (response.assets && response.assets.length > 0) {
+          setImageUris((prev) => [...prev, { uri: response.assets[0].uri }]);
+        }
+      }
+    );
+  };
+
+  const handleDeleteImage = (uri) => {
+    setImageUris((prev) => prev.filter(img => img.uri !== uri));
+  };
+
+  const handleProfilePress = (member) => {
+    setSelectedMember(prev =>
+      prev.includes(member.id)
+        ? prev.filter(id => id !== member.id)
+        : [...prev, member.id]
+    );
+  };
+  const excludeProfilePress = (member) => {
+    setExcludedMember(prev =>
+      prev.includes(member.id)
+        ? prev.filter(id => id !== member.id)
+        : [...prev, member.id]
+    );
+  };
+  
+
+  const [isOpen, setIsOpen] = useState(false);
+  const openBottomSheet = () => {
+    setIsOpen(true);
+    bottomSheetRef.current?.expand();
+  };
+  const closeBottomSheet = () => setIsOpen(false);
+
+  const deleteExpense = async () => {
+    try {
+      const response = await axiosInstance.delete(`/api/expense/${expenditureId}`);
+  
+      if (response.data.isSuccess) {
+        // 삭제 성공 시 뒤로가기 처리
+        setIsOpen(false);
+        navigation.goBack();
+      } else {
+        // 실패 메시지 필요하면 커스텀 처리
+        console.log('삭제 실패:', response.data.message);
+      }
+    } catch (error) {
+      console.error('지출 삭제 에러:', error);
+      // 에러 처리 필요 시 여기서 처리
+    }
+  };
+  
+  const deleteExitExpense = () => setIsOpen(false);
+
+// 저장 함수: 다중 결제자/제외자 적용
+const fetchExpense = async () => {
+  try {
+    const categoryMap = {
+      1: 'TRANSPORTATION',
+      2: 'MEALS',
+      3: 'SIGHTSEEING',
+      4: 'SHOPPING',
+      5: 'ACCOMMODATION',
+      6: 'ETC',
+    };
+    const categoryName = categoryMap[selectedOption] || 'ETC';
+
+    // 결제자 다중 선택 -> email 배열
+    const payerEmails = selectedMember
+      .map(id => members.find(m => m.id === id)?.email)
+      .filter(Boolean);
+    if (!payerEmails.length) {
+      Alert.alert('오류', '한 명 이상의 결제자를 선택하세요');
+      return;
+    }
+    // 제외멤버 역시 다중 선택 -> email 배열
+    const excludedEmails = excludedMember
+      .map(id => members.find(m => m.id === id)?.email)
+      .filter(Boolean);
+
+    const formData = new FormData();
+    formData.append('expenseName', title);
+    formData.append('price', Number(money));
+    formData.append('details', memo);
+    formData.append('expenseDate', new Date().toISOString().split('.')[0]);
+    formData.append('categoryName', categoryName);
+    payerEmails.forEach(email => formData.append('payerEmail', email)); // 여러 결제자
+    excludedEmails.forEach(email => formData.append('excludedMember', email)); // 여러 제외자
+    imageUris.slice(0, 3).forEach((img, idx) => {
+      formData.append('images', {
+        uri: img.uri,
+        name: `image${idx + 1}.jpg`,
+        type: 'image/jpeg',
+      });
     });
-    const { title, money, memo, members,selectedOption,leader,startDate,endDate,images } = tripData;
+    const response = await axiosInstance.put(`/api/expense/${expenditureId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
 
-    const [selectedMember, setSelectedMember] = useState(1); //선택된 멤버
-    const [excludedMember, setExcludedMember] = useState(1); // 제외 멤버 관리
-    const options = [
-        { 
-          id: 1, 
-          text: "교통", 
-          image: require('../../assets/icons/travel/options/TraficIcon.png'), 
-          image_clicked: require('../../assets/icons/travel/options/TraficIcon-selected.png'), 
-        },
-        { 
-          id: 2, 
-          text: "식사", 
-          image: require('../../assets/icons/travel/options/FoodIcon.png'), 
-          image_clicked: require('../../assets/icons/travel/options/FoodIcon-selected.png'), 
-        },
-        { 
-          id: 3, 
-          text: "관광", 
-          image: require('../../assets/icons/travel/options/AmuseIcon.png'),
-          image_clicked: require('../../assets/icons/travel/options/AmuseIcon-selected.png'), 
-        },
-        { 
-            id: 4, 
-            text: "쇼핑", 
-            image: require('../../assets/icons/travel/options/ShopIcon.png'),
-            image_clicked: require('../../assets/icons/travel/options/ShopIcon-selected.png'), 
-          },
-          { 
-            id: 5, 
-            text: "숙소", 
-            image: require('../../assets/icons/travel/options/RentIcon.png'),
-            image_clicked: require('../../assets/icons/travel/options/RentIcon-selected.png'), 
-          },
-          { 
-            id: 6, 
-            text: "기타", 
-            image: require('../../assets/icons/travel/options/etc.png'),
-            image_clicked: require('../../assets/icons/travel/options/etc-selected.png'), 
-          },
-      ];
-        // selectedOptionData를 tripData에서 가져오기
-        const selectedOptionData = options.find(option => option.id === selectedOption);
-        // tripData 객체의 값을 업데이트하려면 setTripData 사용
-        const updateTripData = (newData) => {
-            setTripData(prevData => ({
-                ...prevData,
-                ...newData,
-            }));
-        };
-
-
-    const openBottomSheet = () => {
-        setIsOpen(!isOpen);
-        bottomSheetRef.current?.expand();
-    };
-
-    const handleSaveExpense = () => {
-        navigation.replace('TravelOngoing');
-    };
-
-    const handleReplaceTravel = () => {
-        navigation.replace('TravelOngoing');
-    };
-
-    const handleButtonPress = (startDate, endDate) => {
-        setSelectedDates({ startDate, endDate });
-        setIsOpen(!isOpen);
-        bottomSheetRef.current?.expand();
-    };
-
-
-    // 이미지 선택 함수
-    const handleImagePick = () => {
-        launchImageLibrary(
-            {
-                mediaType: 'photo', // 사진만 선택
-                maxWidth: 600,
-                maxHeight: 600,
-                quality: 0.8,
-            },
-            (response) => {
-                if (response.assets && response.assets.length > 0) {
-                    setImageUris((prevUris) => [...prevUris, response.assets[0].uri]); // 기존 배열에 새 이미지 URI 추가
-                }
-            }
-        );
-    };
-
-    // 이미지 삭제 함수
-    const handleDeleteImage = (uri) => {
-        setImageUris((prevUris) => prevUris.filter((item) => item !== uri)); // 해당 이미지 삭제
-    };
-// 멤버 선택 핸들러
-const handleProfilePress = (member) => {
-    setSelectedMember(member.id); // 선택된 멤버의 name 저장
-};
-//제외 멤버 핸들러
-const excludeProfilePress = (member) => {
-    setExcludedMember(member.id); // 선택된 멤버의 name 저장
+    if (response.data.isSuccess) {
+      Alert.alert('성공', '지출 내역이 수정되었습니다.');
+      navigation.goBack();
+    } else {
+      Alert.alert('실패', response.data.message || '수정 실패');
+    }
+  } catch (error) {
+    console.error('지출 수정 에러:', error);
+    if (error.response) console.log('서버응답:', error.response.data);
+    Alert.alert('에러', '지출 수정 중 오류가 발생했습니다.');
+  }
 };
 
-    //지출기록 삭제 함수
-    const deleteExpense = () => {
-        setIsOpen(false);
-    };
-    //지출기록 삭제  나가기 함수
-    const deleteExitExpense = () => {
-        setIsOpen(false);
-    };
-    //지출기록 수정하기 함수
-    const fetchExpense = () => {
-    };
-    
+  const selectedOptionData = options.find(o => o.id === selectedOption);
 
-    const renderContent = () => (
-        <View style={styles.contentWrapper}>
-            <View style={styles.inputWrapper}>
-                <TextInput style={styles.travelNameInput} placeholder="지출 제목을 입력하세요" />
-                <View style={styles.dateInputWrapper}>
-                    <TextInput style={styles.dateInputwon} placeholder="지출 금액을 입력하세요" />
-                    <Text style={styles.dateText}>원</Text>
-                </View>
-            </View>
-            <TextInput style={styles.memoInput} placeholder="메모를 입력하세요" multiline />
-            {/* 선택된 이미지 미리보기 */}
-            <View style={styles.imgSlide} >
-            {imageUris.length > 0 && (
-                <ImgSlideUpload images={imageUris.map(uri => ({ uri }))} itemsToShow={2} scale={85} handleDeleteImage={handleDeleteImage}/>
-            )}
-            </View>
-            {/* 이미지 선택 버튼 */}
-            <View style={styles.picup}>
-                <PlusButton onPress={handleImagePick} text="사진 추가하기" width={358} height={42} NoBorder={true} />
-            </View>
-            {/* 카테고리 선택*/}
-            <Text style={styles.categoryText}>카테고리를 선택하세요</Text>
-            <View style={styles.optionsContainer}>
-                <OptionList options={options} Buttonwidth={64}/>
-            </View>
-            {/*결제인 */}
-            <Text style={styles.categoryText}>누가 결제했나요?</Text>
-            <View style={styles.profileContainer}>
-                {members.map((member, index) => (
-                        <Profile
-                            key={index}
-                            name={member.name}
-                            leader={member.leader}
-                            sameName={member.sameName}
-                            image={member.image}
-                            color={member.color}
-                            selected={selectedMember === member.id}
-                            normal={false}
-                            onPress={() => handleProfilePress(member)}
-                        />
-                    
-                ))}
-            </View>
-            {/*지출 제외멤버 */}
-            <Text style={styles.categoryText}>지출에서 제외할 멤버가 있나요?</Text>
-            <Text style={styles.leaderSubText}>해당 금액 정산 시 제외됩니다</Text>
-            <View style={styles.profileContainer}>
-                {members.map((member, index) => (
-                        <Profile
-                            key={index}
-                            name={member.name}
-                            leader={member.leader}
-                            sameName={member.sameName}
-                            image={member.image}
-                            color={member.color}
-                            selected={excludedMember === member.id}
-                            normal={false}
-                            onPress={() => excludeProfilePress(member)}
-                        />
-                    
-                ))}
-            </View>
-            <TouchableOpacity onPress={openBottomSheet} style={styles.deleteButton}>
-                <Text style={styles.deleteButtonText}>기록 삭제하기</Text>
-            </TouchableOpacity>
-            <BlackButton text="기록 수정하기"  width={343} height={50} onPress={fetchExpense} ready/>
-        </View>
-    );
-
+  if (isLoading) {
     return (
-        <>
-            <FlatList
-                data={[{ key: 'form' }]} 
-                renderItem={renderContent}
-                keyExtractor={(item) => item.key}
-                contentContainerStyle={styles.container}
-            />
-
-            {isOpen && (
-                <CustomBottomSheet ref={bottomSheetRef} snapPoints={snapPoints} isOpen={isOpen}>
-                    <View style={styles.bottomSheetContent}>
-                        <Text style={styles.sheetText}>지출기록을 삭제할까요?</Text>
-                        <Text style={styles.sheetText2}>더 이상 지출 기록을 추가할 수 없어요</Text>
-                        <View style={styles.infoContainer}>
-                            <View style={styles.optionContainer}>
-                                    <Image source={selectedOptionData?.image} style={styles.optionImage} resizeMode='contain'/>
-                                    <Text style={styles.optionText}>{selectedOptionData?.text}</Text>
-                            </View>
-                            <Text style={styles.expenseTitle}>{title}</Text>
-                            <View style={styles.expenseMoneyWrapper}>
-                                    <Text style={styles.expenseMoneyText}>{money}</Text>
-                                    <Text style={styles.expenseMoneyText}> 원</Text>
-                                </View>
-                            <Text style={styles.travelMemo}>{memo}</Text>
-                        </View>
-                                <View style={styles.twobuttonwrap}>
-                                    <TwoButton 
-                                        width={360} 
-                                        height={42} 
-                                        textLeft='삭제' 
-                                        textRight='취소'
-                                        onPressLeft={deleteExpense}
-                                        onPressRight={deleteExitExpense}
-                                    />
-                                </View>
-                    </View>
-                </CustomBottomSheet>
-            )}
-        </>
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>로딩 중...</Text>
+      </View>
     );
+  }
+
+  if (isError) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'red' }}>데이터 로드 중 오류가 발생했습니다.</Text>
+      </View>
+    );
+  }
+  
+
+  return (
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={styles.travelNameInput}
+          placeholder="지출 제목을 입력하세요"
+          value={title}
+          onChangeText={setTitle}
+        />
+        <View style={styles.dateInputWrapper}>
+          <TextInput
+            style={styles.dateInputwon}
+            placeholder="지출 금액을 입력하세요"
+            keyboardType="numeric"
+            value={money}
+            onChangeText={setMoney}
+          />
+          <Text style={styles.dateText}>원</Text>
+        </View>
+      </View>
+      <TextInput
+        style={styles.memoInput}
+        placeholder="메모를 입력하세요"
+        multiline
+        value={memo}
+        onChangeText={setMemo}
+      />
+
+      <View style={styles.imgSlide}>
+        {imageUris.length > 0 && (
+          <ImgSlideUpload images={imageUris} itemsToShow={2} scale={85} handleDeleteImage={handleDeleteImage} />
+        )}
+      </View>
+      <View style={styles.picup}>
+        <PlusButton onPress={handleImagePick} text="사진 추가하기" width={358} height={42} NoBorder={true} />
+      </View>
+
+      <Text style={styles.categoryText}>카테고리를 선택하세요</Text>
+      <View style={styles.optionsContainer}>
+        <OptionList options={options}  setSelectedId={setSelectedOption} selectedId={selectedOption} onSelect={setSelectedOption} Buttonwidth={64} />
+      </View>
+
+      <Text style={styles.categoryText}>누가 결제했나요?</Text>
+      <View style={styles.profileContainer}>
+        {members.map((member, i) => (
+          <Profile
+          key={i}
+          name={member.name}
+          leader={member.leader}
+          sameName={member.sameName}
+          image={member.image}
+          color={member.color}
+          selected={selectedMember.includes(member.id)}
+          onPress={() => handleProfilePress(member)}
+          />
+        ))}
+      </View>
+
+      <Text style={styles.categoryText}>지출에서 제외할 멤버가 있나요?</Text>
+      <Text style={styles.leaderSubText}>해당 금액 정산 시 제외됩니다</Text>
+      <View style={styles.profileContainer}>
+        {members.map((member, i) => (
+          <Profile
+            key={i}
+            name={member.name}
+            leader={member.leader}
+            sameName={member.sameName}
+            image={member.image}
+            color={member.color}
+            selected={excludedMember.includes(member.id)}
+            onPress={() => excludeProfilePress(member)}
+          />
+        ))}
+      </View>
+
+      <TouchableOpacity onPress={openBottomSheet} style={styles.deleteButton}>
+        <Text style={styles.deleteButtonText}>기록 삭제하기</Text>
+      </TouchableOpacity>
+
+      <BlackButton text="기록 수정하기" width={343} height={50} onPress={fetchExpense} ready />
+
+      {isOpen && (
+        <CustomBottomSheet ref={bottomSheetRef} snapPoints={snapPoints} isOpen={isOpen}>
+          <View style={styles.bottomSheetContent}>
+            <Text style={styles.sheetText}>지출기록을 삭제할까요?</Text>
+            <Text style={styles.sheetText2}>더 이상 지출 기록을 추가할 수 없어요</Text>
+
+            <View style={styles.infoContainer}>
+              <View style={styles.optionContainer}>
+                <Image source={selectedOptionData?.image} style={styles.optionImage} resizeMode='contain' />
+                <Text style={styles.optionText}>{selectedOptionData?.text}</Text>
+              </View>
+              <Text style={styles.expenseTitle}>{title}</Text>
+              <View style={styles.expenseMoneyWrapper}>
+                <Text style={styles.expenseMoneyText}>{money}</Text>
+                <Text style={styles.expenseMoneyText}> 원</Text>
+              </View>
+              <Text style={styles.travelMemo}>{memo}</Text>
+            </View>
+
+            <View style={styles.twobuttonwrap}>
+              <TwoButton
+                width={360}
+                height={42}
+                textLeft='삭제'
+                textRight='취소'
+                onPressLeft={deleteExpense}
+                onPressRight={deleteExitExpense}
+              />
+            </View>
+          </View>
+        </CustomBottomSheet>
+      )}
+    </ScrollView>
+  );
 };
-
-export default WEditExpense;
-
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
@@ -468,3 +587,5 @@ const styles = StyleSheet.create({
         right:15,
     },
 });
+
+export default WEditExpense;

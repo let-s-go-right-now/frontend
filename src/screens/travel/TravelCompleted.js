@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { ImgSlide, PlusButton } from '../../components';
 import { FlatList, Text, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import loadImg from "../../assets/loadingOngoing.png";
+import axiosInstance from '../../utils/axiosInstance';
 
 const TravelCompleted = ({ navigation }) => {
   const [travelData, setTravelData] = useState([]);
@@ -12,21 +12,9 @@ const TravelCompleted = ({ navigation }) => {
   useEffect(() => {
     const fetchTravelData = async () => {
       try {
-        const token = await AsyncStorage.getItem('jwtToken');
-        if (!token) {
-          console.log('토큰이 없습니다.');
-          return;
-        }
-
-        const response = await fetch('https://letsgorightnow.shop/api/trip/ended', {
-          method: 'GET',
-          headers: {
-            'Authorization': `${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const result = await response.json();
+        // 토큰 확인, 헤더 주입 불필요 (axiosInstance 인터셉터에서 자동 처리)
+        const response = await axiosInstance.get('/api/trip/ended');
+        const result = response.data;
         console.log('서버 응답:', result);
         if (result.isSuccess) {
           setTravelData(result.result);
@@ -39,10 +27,10 @@ const TravelCompleted = ({ navigation }) => {
         setLoading(false);
       }
     };
-
+  
     fetchTravelData();
     const unsubscribe = navigation.addListener('focus', fetchTravelData);
-
+  
     return () => {
       unsubscribe();
     };
@@ -70,11 +58,12 @@ const TravelCompleted = ({ navigation }) => {
     if (selectedTravel) {
       navigation.navigate('ImgZoomInTab', {
         imageIndex: index,
-        images: selectedTravel.images,
+        images: selectedTravel.expenseImageUrls || [], 
         pretabVisible: true,
       });
     }
   };
+  
     //새여행 떠나기 함수
     const handleCreateTravel = () => {
       navigation.navigate('TravelCreate');

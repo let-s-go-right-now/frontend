@@ -11,6 +11,7 @@ import image6 from "../../assets/slides/image6.png";
 import loadImg from "../../assets/loadingOngoing.png";
 import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../../utils/axiosInstance';
 
 const TravelOngoing = ({navigation}) => {
   const [selectedId, setSelectedId] = useState(null); 
@@ -55,7 +56,7 @@ const TravelOngoing = ({navigation}) => {
 
   //새여행 떠나기 함수
   const handleCreateTravel = () => {
-    navigation.navigate('TravelCreate');
+    navigation.navigate('TravelCreate', { tripId: selectedId });
 };
 
   //여행 관리하기
@@ -86,6 +87,7 @@ const MoveExpenseReport = () => {
   const [travelData, setTravelData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  //진행중인 여행 목록
   useEffect(() => {
     const fetchTravelData = async () => {
       try {
@@ -95,18 +97,15 @@ const MoveExpenseReport = () => {
           return;
         }
 
-        const response = await fetch('https://letsgorightnow.shop/api/trip/ongoing', {
-          method: 'GET',
-          headers: {
-            'Authorization': `${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const result = await response.json();
-        console.log('서버 응답:', result);
+        const response = await axiosInstance.get('/api/trip/ongoing');
+        const result = response.data;
         if (result.isSuccess) {
           setTravelData(result.result);
+          if (result.isSuccess && result.result.length > 0) {
+            await AsyncStorage.setItem('tripId', result.result[0].id.toString());
+            setSelectedId(result.result[0].id);
+          }
+          
           if(result.result.length > 0){
             setSelectedId(result.result[0].id);}
         } else {
@@ -131,7 +130,7 @@ const MoveExpenseReport = () => {
   //특정 여행 id로 보내기
   const [travelDetailData, setTravelDetailData] = useState([]);  
   const [date,setDate] = useState(0);
-  const [memberImages,setMemberImages] = useState(); 
+  const [memberImages,setMemberImages] = useState([]); 
   
   const formatDate = (date) => {
     if (!date) return '';
@@ -149,75 +148,88 @@ const calculateDays = (startDate, endDate) => {
   return days;
 };
 
+//특정 여행 상세 정보 요청
+useEffect(() => {
+  const fetchTravelData = async () => {
+    if (selectedId === null) {
+      console.log("selectedId가 null이므로 여행 데이터를 조회하지 않습니다.");
+      return;
+    }
+    try {
+      const response = await axiosInstance.get(`/api/trip/${selectedId}`);
+      const result = response.data;
 
-  useEffect(() => {
-    //selectedId가 변경될때마다 asyncstorage에
-    // selectedId가 변경될 때마다 호출되는 fetchTravelData 함수
-    const fetchTravelData = async () => {
-      if (selectedId === null) {
-        console.log("selectedId가 null이므로 여행 데이터를 조회하지 않습니다.");
-        return;
+      if (result.isSuccess && result.result.length > 0) {
+        await AsyncStorage.setItem('tripId', result.result[0].id.toString());
+        setSelectedId(result.result[0].id);
+      } 
+
+      if (result.isSuccess) {
+        const expenses = result.result.expenses.map(expense => ({
+          id: expense.id,
+          title: expense.expenseName,
+          category: expense.category === 'TRANSPORTATION' ? '교통' : expense.category,
+          cost: `${expense.price.toLocaleString()}원`,
+          date: formatDate(expense.expenseDate),
+        }));
+        const imagesFromExpenses = result.result.expenses.reduce((acc, expense) => {
+          return [...acc, ...expense.imageUrls];
+        }, []);
+        setImages(imagesFromExpenses); 
+        setExpenditures(expenses);
+        setTravelDetailData(result.result);
+        setDate(calculateDays(result.result.startDate, result.result.endDate));
+        setMemberImages(result.result.members.map((member, index) => ({
+          id: index,
+          source: { uri: member.profileImageLink },
+        })));
+      } else {
+        console.error('데이터 가져오기 실패:', result.message);
       }
-      try {
-        const token = await AsyncStorage.getItem('jwtToken');
-        if (!token) {
-          console.log('토큰이 없습니다.');
-          return;
-        }
+    } catch (error) {
+      console.error('에러 발생:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchTravelData();
+}, [selectedId]);
 
-        // selectedId 값이 변경될 때마다 AsyncStorage에 'tripId'로 저장
-        await AsyncStorage.setItem('tripId', selectedId.toString());
 
-
-        // API 호출 URL을 selectedId에 맞춰 동적으로 설정
-        const response = await fetch(`https://letsgorightnow.shop/api/trip/${selectedId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const result = await response.json();
-        console.log('서버 응답:', result);
-        if (result.isSuccess) {
-          const expenses = result.result.expenses.map(expense => ({
-            title: expense.expenseName,
-            category: expense.category === 'TRANSPORTATION' ? '교통' : expense.category, // 예시로 'TRANSPORTATION'을 '교통'으로 변환
-            cost: `${expense.price.toLocaleString()}원`,  // 가격을 원 단위로 표시
-            date: formatDate(expense.expenseDate),  // 날짜 포맷
-          }));
-            // expenses의 imageUrls 추출하여 images 배열에 추가
-            const imagesFromExpenses = result.result.expenses.reduce((acc, expense) => {
-              return [...acc, ...expense.imageUrls]; // 모든 imageUrls를 하나의 배열로 합침
-            }, []);
-  
-            setImages(imagesFromExpenses); 
-          // expenditures 배열 업데이트
-          setExpenditures(expenses);
-          setTravelDetailData(result.result);
-          console.log('travelDetailData',travelDetailData);
-          setDate(calculateDays(travelDetailData.startDate, travelDetailData.endDate));
-          console.log('date',date);
-          setMemberImages(travelDetailData.members.map((member, index) => ({
-            id: index,
-            source: { uri: member.profileImageLink },
-          })));
-        } else {
-          console.error('데이터 가져오기 실패:', result.message);
-        }
-      } catch (error) {
-        console.error('에러 발생:', error);
-      } finally {
-        setLoading(false);
+//여행종료 함수 start
+const handleEndTravel = async () => {
+  try {
+    const token = await AsyncStorage.getItem('jwtToken');
+    if (!token) {
+      Alert.alert('오류', '로그인 정보가 없습니다.');
+      return;
+    }
+    if (!selectedId) {
+      Alert.alert('오류', '종료할 여행이 선택되지 않았습니다.');
+      return;
+    }
+    const response = await axiosInstance.put(
+      `/api/trip/${selectedId}/end`,
+      null,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    };
+    );
+    const result = response.data;
+    if (result.isSuccess) {
+      Alert.alert('성공', '여행이 종료되었습니다.');
+    } else {
+      Alert.alert('실패', result.message || '여행 종료에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('여행 종료 실패:', error);
+    Alert.alert('오류', '여행 종료 중 오류가 발생했습니다.');
+  }
+};
 
-    // selectedId가 변경될 때마다 데이터 가져오기
-    fetchTravelData();
-
-  }, [selectedId]); // selectedId가 변경될 때마다 실행
-
+//여행종료 함수 end
 
 
   return (
@@ -254,7 +266,7 @@ const calculateDays = (startDate, endDate) => {
               </View>
               <View style={styles.row}>
                 <Text style={styles.travelMemo}>{travelDetailData.introduce}</Text>
-                <TouchableOpacity onPress={() => {}} style={styles.finishButton}>
+                <TouchableOpacity onPress={handleEndTravel} style={styles.finishButton}>
                   <Text style={styles.finishButtonText}>여행 끝내기</Text>
                 </TouchableOpacity>
               </View>
