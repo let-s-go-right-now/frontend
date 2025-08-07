@@ -4,7 +4,7 @@ import profileImg01 from '../assets/profileImgs/profileImg01.png';
 import profileImg02 from '../assets/profileImgs/profileImg02.png';
 import profileImg03 from '../assets/profileImgs/profileImg03.png';
 
-const ProfileImgDump = ({ images }) => {
+const ProfileImgDump = ({ images = [] }) => {
   // images가 배열이거나 빈 배열일 경우에만 map 실행
   if (!Array.isArray(images)) {
     console.error('images는 배열이어야 합니다.', images);

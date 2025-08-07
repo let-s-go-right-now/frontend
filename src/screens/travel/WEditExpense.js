@@ -14,6 +14,7 @@ import axiosInstance from '../../utils/axiosInstance';
 const WEditExpense = ({ route, navigation }) => {
   useTabBarVisibility(false);
   const { expenditureId } = route.params;
+  console.log('expenditureId:', expenditureId);
   const bottomSheetRef = useRef(null);
   const snapPoints = ['70%'];
 
@@ -31,19 +32,26 @@ const WEditExpense = ({ route, navigation }) => {
   const mapCategoryToOptionId = (category) => {
     switch (category) {
       case 'TRANSPORTATION': return 1;
-      case 'FOOD': return 2;
-      case 'AMUSEMENT': return 3;
+      case 'MEALS': return 2;
+      case 'SIGHTSEEING': return 3;
       case 'SHOPPING': return 4;
-      case 'RENT': return 5;
+      case 'ACCOMMODATION': return 5;
       case 'ETC': return 6;
       default: return 6;
     }
   };
+  
 
   // React Query로 지출 상세 정보 조회 함수
   const fetchExpenseDetail = async () => {
-    const res = await axiosInstance.get(`/api/expense/${expenditureId}`);
-    return res.data;
+    try {
+      
+      const res = await axiosInstance.get(`/api/expense/${expenditureId}`);
+      return res.data;
+    } catch (error) {
+      console.error('API 요청 실패:', error);
+      throw error;
+    }
   };
 
   const { data, error, isLoading, isError } = useQuery({
@@ -64,35 +72,59 @@ const WEditExpense = ({ route, navigation }) => {
     { id: 2, name: "김철수", leader: false, sameName: false, image: profileImage2, color: "red" },
     { id: 3, name: "이영희", leader: false, sameName: true, image: profileImage3, color: "green" },
   ]);
-  const [selectedMember, setSelectedMember] = useState(1);
-  const [excludedMember, setExcludedMember] = useState(1);
+  const [selectedMember, setSelectedMember] = useState([]);
+  const [excludedMember, setExcludedMember] = useState([]); 
 
   // 서버 데이터가 불러와지면 local 상태 초기화 (한번만 실행)
   React.useEffect(() => {
     if (data && data.isSuccess && data.result) {
-      setTitle(data.result.name || '');
-      setMoney(data.result.price ? String(data.result.price) : '');
-      setMemo(data.result.details || '');
-      setSelectedOption(mapCategoryToOptionId(data.result.category));
-      if (data.result.expenseImages && Array.isArray(data.result.expenseImages)) {
-        setImageUris(data.result.expenseImages.map(url => ({ uri: url })));
-      } else {
-        setImageUris([]);
-      }
-      if (data.result.includedMember && Array.isArray(data.result.includedMember)) {
-        const apiMembers = data.result.includedMember.map((m, idx) => ({
-          id: idx + 1,
-          name: m.name,
-          leader: false,
-          sameName: false,
-          image: m.profileImageUrl ? { uri: m.profileImageUrl } : null, 
-          color: '#999',
-        }));
-        setMembers(apiMembers);
-        setSelectedMember(1);
-      }      
-    }
+      const res = data.result;
+      setTitle(res.name || '');
+      setMoney(res.price ? String(res.price) : '');
+      setMemo(res.details || '');
+      setSelectedOption(mapCategoryToOptionId(res.category));
+      setImageUris(
+        res.expenseImages && Array.isArray(res.expenseImages)
+          ? res.expenseImages.map(url => ({ uri: url }))
+          : []
+      );
+
+      // members setting
+      const includedMembers = res.includedMember || [];
+      const payerEmails = Array.isArray(res.payer) 
+        ? res.payer.map(p => p.email)
+        : res.payer?.email
+          ? [res.payer.email]
+          : [];
+      const apiMembers = includedMembers.map((m, idx) => ({
+        id: idx + 1,
+        name: m.name,
+        leader: payerEmails.includes(m.email),    // 여러 결제자 대응
+        sameName: false,
+        image: m.profileImageUrl ? { uri: m.profileImageUrl } : null,
+        color: '#999',
+        email: m.email,
+      }));
+      setMembers(apiMembers);
+
+      // === 수정 부분 시작 ===
+      // 다중 결제자(배열)로 상태 세팅
+      setSelectedMember(
+        apiMembers
+          .filter(m => payerEmails.includes(m.email))
+          .map(m => m.id)
+      );
+
+      // 제외된 멤버도 배열(email 배열 또는 id 배열로 세팅)
+      const excludedEmails = res.excludedMember || []; // 서버에서 email 배열로 내려줌
+      setExcludedMember(
+        apiMembers
+          .filter(m => excludedEmails.includes(m.email))
+          .map(m => m.id)
+      );
+        }
   }, [data]);
+  
 
   // 이미지 선택
   const handleImagePick = () => {
@@ -115,8 +147,21 @@ const WEditExpense = ({ route, navigation }) => {
     setImageUris((prev) => prev.filter(img => img.uri !== uri));
   };
 
-  const handleProfilePress = (member) => setSelectedMember(member.id);
-  const excludeProfilePress = (member) => setExcludedMember(member.id);
+  const handleProfilePress = (member) => {
+    setSelectedMember(prev =>
+      prev.includes(member.id)
+        ? prev.filter(id => id !== member.id)
+        : [...prev, member.id]
+    );
+  };
+  const excludeProfilePress = (member) => {
+    setExcludedMember(prev =>
+      prev.includes(member.id)
+        ? prev.filter(id => id !== member.id)
+        : [...prev, member.id]
+    );
+  };
+  
 
   const [isOpen, setIsOpen] = useState(false);
   const openBottomSheet = () => {
@@ -125,18 +170,83 @@ const WEditExpense = ({ route, navigation }) => {
   };
   const closeBottomSheet = () => setIsOpen(false);
 
-  const deleteExpense = () => {
-    Alert.alert('알림', '지출 기록을 삭제합니다.');
-    setIsOpen(false);
-    navigation.goBack();
+  const deleteExpense = async () => {
+    try {
+      const response = await axiosInstance.delete(`/api/expense/${expenditureId}`);
+  
+      if (response.data.isSuccess) {
+        // 삭제 성공 시 뒤로가기 처리
+        setIsOpen(false);
+        navigation.goBack();
+      } else {
+        // 실패 메시지 필요하면 커스텀 처리
+        console.log('삭제 실패:', response.data.message);
+      }
+    } catch (error) {
+      console.error('지출 삭제 에러:', error);
+      // 에러 처리 필요 시 여기서 처리
+    }
   };
+  
   const deleteExitExpense = () => setIsOpen(false);
 
-  // 저장 함수 (추후 API 연결)
-  const fetchExpense = () => {
-    Alert.alert('알림', '변경사항이 저장되었습니다.');
-    navigation.goBack();
-  };
+// 저장 함수: 다중 결제자/제외자 적용
+const fetchExpense = async () => {
+  try {
+    const categoryMap = {
+      1: 'TRANSPORTATION',
+      2: 'MEALS',
+      3: 'SIGHTSEEING',
+      4: 'SHOPPING',
+      5: 'ACCOMMODATION',
+      6: 'ETC',
+    };
+    const categoryName = categoryMap[selectedOption] || 'ETC';
+
+    // 결제자 다중 선택 -> email 배열
+    const payerEmails = selectedMember
+      .map(id => members.find(m => m.id === id)?.email)
+      .filter(Boolean);
+    if (!payerEmails.length) {
+      Alert.alert('오류', '한 명 이상의 결제자를 선택하세요');
+      return;
+    }
+    // 제외멤버 역시 다중 선택 -> email 배열
+    const excludedEmails = excludedMember
+      .map(id => members.find(m => m.id === id)?.email)
+      .filter(Boolean);
+
+    const formData = new FormData();
+    formData.append('expenseName', title);
+    formData.append('price', Number(money));
+    formData.append('details', memo);
+    formData.append('expenseDate', new Date().toISOString().split('.')[0]);
+    formData.append('categoryName', categoryName);
+    payerEmails.forEach(email => formData.append('payerEmail', email)); // 여러 결제자
+    excludedEmails.forEach(email => formData.append('excludedMember', email)); // 여러 제외자
+    imageUris.slice(0, 3).forEach((img, idx) => {
+      formData.append('images', {
+        uri: img.uri,
+        name: `image${idx + 1}.jpg`,
+        type: 'image/jpeg',
+      });
+    });
+    const response = await axiosInstance.put(`/api/expense/${expenditureId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (response.data.isSuccess) {
+      Alert.alert('성공', '지출 내역이 수정되었습니다.');
+      navigation.goBack();
+    } else {
+      Alert.alert('실패', response.data.message || '수정 실패');
+    }
+  } catch (error) {
+    console.error('지출 수정 에러:', error);
+    if (error.response) console.log('서버응답:', error.response.data);
+    Alert.alert('에러', '지출 수정 중 오류가 발생했습니다.');
+  }
+};
 
   const selectedOptionData = options.find(o => o.id === selectedOption);
 
@@ -156,6 +266,7 @@ const WEditExpense = ({ route, navigation }) => {
       </View>
     );
   }
+  
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
@@ -196,22 +307,21 @@ const WEditExpense = ({ route, navigation }) => {
 
       <Text style={styles.categoryText}>카테고리를 선택하세요</Text>
       <View style={styles.optionsContainer}>
-        <OptionList options={options} selectedId={selectedOption} onSelect={setSelectedOption} Buttonwidth={64} />
+        <OptionList options={options}  setSelectedId={setSelectedOption} selectedId={selectedOption} onSelect={setSelectedOption} Buttonwidth={64} />
       </View>
 
       <Text style={styles.categoryText}>누가 결제했나요?</Text>
       <View style={styles.profileContainer}>
         {members.map((member, i) => (
           <Profile
-            key={i}
-            name={member.name}
-            leader={member.leader}
-            sameName={member.sameName}
-            image={member.image}
-            color={member.color}
-            selected={selectedMember === member.id}
-            normal={false}
-            onPress={() => handleProfilePress(member)}
+          key={i}
+          name={member.name}
+          leader={member.leader}
+          sameName={member.sameName}
+          image={member.image}
+          color={member.color}
+          selected={selectedMember.includes(member.id)}
+          onPress={() => handleProfilePress(member)}
           />
         ))}
       </View>
@@ -227,8 +337,7 @@ const WEditExpense = ({ route, navigation }) => {
             sameName={member.sameName}
             image={member.image}
             color={member.color}
-            selected={excludedMember === member.id}
-            normal={false}
+            selected={excludedMember.includes(member.id)}
             onPress={() => excludeProfilePress(member)}
           />
         ))}

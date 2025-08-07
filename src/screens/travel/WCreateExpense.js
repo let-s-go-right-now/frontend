@@ -96,8 +96,8 @@ const WCreateExpense = ({ route, navigation }) => {
   const ownerEmail = data?.owner?.email || '';
 
   // 상태 및 함수 초기화 (기존 코드 유지)
-  const [selectedMember, setSelectedMember] = useState(1);
-  const [excludedMember, setExcludedMember] = useState(1);
+  const [selectedMember, setSelectedMember] = useState([]); 
+  const [excludedMember, setExcludedMember] = useState([]);
     
     const options = [
         { 
@@ -154,6 +154,7 @@ const WCreateExpense = ({ route, navigation }) => {
     const [details, setDetails] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('MEALS');
     const [excludedMembers, setExcludedMembers] = useState([]);
+
     const handleSaveExpense = async () => {
         const formData = new FormData();
         formData.append('expenseName', expenseName);
@@ -161,21 +162,23 @@ const WCreateExpense = ({ route, navigation }) => {
         formData.append('details', details);
         formData.append('expenseDate', formatDate(new Date()));
         formData.append('categoryName', selectedCategory);
-        // selectedMember ID로 이메일 찾아서 저장
-        const payerEmail = members.find(member => member.id === selectedMember)?.email;
-        if (payerEmail) {
-            formData.append('payerEmail', payerEmail);
-        } else {
-            console.log('결제자를 찾을 수 없습니다.');
-        }
 
-        // excludedMembers ID 목록을 이메일 목록으로 변환하여 저장
+        // multiple payerEmail (결제자)
+        const payerEmails = selectedMember
+          .map(id => members.find(member => member.id === id)?.email)
+          .filter(email => !!email);
+        
+        if (!payerEmails.length) {
+          alert('결제자를 최소 1명 선택하세요!');
+          return;
+        }
+        payerEmails.forEach(email => formData.append('payerEmail', email));
+
+        // multiple excludedMembers
         const excludedEmails = excludedMembers
             .map(excludedId => members.find(member => member.id === excludedId)?.email)
             .filter(email => email);  // 이메일이 존재하는 경우만 필터링
-        formData.append('excludedMember', excludedEmails.join(',')); // 제외할 멤버들 이메일 목록
-
-            
+        excludedEmails.forEach(email => formData.append('excludedMember', email));
 
         // 이미지를 업로드
         imageUris.forEach((uri, index) => {
@@ -253,14 +256,23 @@ const WCreateExpense = ({ route, navigation }) => {
     const handleDeleteImage = (uri) => {
         setImageUris((prevUris) => prevUris.filter((item) => item !== uri)); // 해당 이미지 삭제
     };
-// 멤버 선택 핸들러
-const handleProfilePress = (member) => {
-    setSelectedMember(member.id); // 선택된 멤버의 name 저장
-};
-//제외 멤버 핸들러
-const excludeProfilePress = (member) => {
-    setExcludedMember(member.id); // 선택된 멤버의 name 저장
-};
+    
+    // 멤버(결제자) 다중 선택 핸들러
+    const handleProfilePress = (member) => {
+      setSelectedMember(prev =>
+        prev.includes(member.id)
+          ? prev.filter(id => id !== member.id)
+          : [...prev, member.id]
+      );
+    };
+    // 제외 멤버 다중 선택 핸들러
+    const excludeProfilePress = (member) => {
+      setExcludedMembers(prev =>
+        prev.includes(member.id)
+          ? prev.filter(id => id !== member.id)
+          : [...prev, member.id]
+      );
+    };
 
 
 
@@ -304,8 +316,7 @@ const excludeProfilePress = (member) => {
                             sameName={member.sameName}
                             image={member.image}
                             color={member.color}
-                            selected={selectedMember === member.id}
-                            normal={false}
+                            selected={selectedMember.includes(member.id)}
                             onPress={() => handleProfilePress(member)}
                             email ={member.email}
                         />
@@ -324,8 +335,7 @@ const excludeProfilePress = (member) => {
                             sameName={member.sameName}
                             image={member.image}
                             color={member.color}
-                            selected={excludedMember === member.id}
-                            normal={false}
+                            selected={excludedMembers.includes(member.id)}
                             onPress={() => excludeProfilePress(member)}
                             email ={member.email}
                         />

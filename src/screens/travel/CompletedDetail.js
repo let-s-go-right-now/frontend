@@ -8,6 +8,9 @@ import image3 from "../../assets/slides/image3.png";
 import image4 from "../../assets/slides/image4.png";
 import image5 from "../../assets/slides/image5.png";
 import image6 from "../../assets/slides/image6.png";
+import profileImg01 from "../../assets/profileImgs/profileImg01.png";
+import profileImg02 from "../../assets/profileImgs/profileImg02.png";
+import profileImg03 from "../../assets/profileImgs/profileImg03.png";
 import { FlatList } from 'react-native-gesture-handler';
 import {useTabBarVisibility} from '../../utils';
 
@@ -16,12 +19,12 @@ const CompletedDetail = ({  route, navigation }) => {
 useTabBarVisibility(false);
   const { id } = route.params; //여행 id
   const [images] = useState([
-    { id: 1, image: image1 },
-    { id: 2, image: image2 },
-    { id: 3, image: image3 },
-    { id: 4, image: image4 },
-    { id: 5, image: image5 },
-    { id: 6, image: image6 }
+    { id: 1, source: image1 },
+    { id: 2, source: image2 },
+    { id: 3, source: image3 },
+    { id: 4, source: image4 },
+    { id: 5, source: image5 },
+    { id: 6, source: image6 }
   ]);
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
@@ -85,11 +88,18 @@ useTabBarVisibility(false);
 
     // 이미지 클릭 시 상세 이미지로 이동
     const handleImagePress = (index) => {
+      console.log('Pressed image:', images[index]); // 디버깅
       navigation.navigate("ImgZoomIn", {
         imageIndex: index,
-        images: images, // 전체 이미지 배열을 전달
+        images: images,
       });
     };
+
+    const [memberImages, setMemberImages] = useState([
+      { id: 1, source: profileImg01 },
+      { id: 2, source: profileImg02 },
+      { id: 3, source: profileImg03 },
+    ]);
     
 
   return (
@@ -111,13 +121,19 @@ useTabBarVisibility(false);
               </View>
               <View style={styles.row}>
                 <View style={styles.profileImageContainer}>
-                  <ProfileImgDump />
+                  <ProfileImgDump images={memberImages} />
                 </View>
                 <TouchableOpacity onPress={movePage} style={styles.manageButton}>
                   <Text style={styles.manageButtonText}>상세보기</Text>
                 </TouchableOpacity>
               </View>
-              <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} onImagePress={handleImagePress}  />
+              <ImgSlide
+                images={images}
+                itemsToShow={itemsToShow}
+                scale={scale}
+                style={styles.imgSlide}
+                onImagePress={handleImagePress}
+              />
             </View>
 
             {/* 지출 정보 */}
