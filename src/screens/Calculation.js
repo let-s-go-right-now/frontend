@@ -227,10 +227,11 @@ const CalcStateWrapper = styled.View`
 `
 
 const Calculation = ({ navigation, route }) => {
-    const [name, setName] = useState('이우경');
+    const [name, setName] = useState('');
     console.log('route.params',route.params);
     const { id } = route.params;
-    console.log('전달받은 id',id);
+    console.log('전달받은 id',id); // 여행 id
+    const [isSettlementFinish, setIsSettlementFinish] = useState();
     // 바텀 시트
     const [isOpen, setIsOpen] = useState(false);
     const snapPoints = ['70%'];
@@ -246,6 +247,19 @@ const Calculation = ({ navigation, route }) => {
     const [calcStatus, setCalcStatus] = useState([]); // 정산 현황 데이터
     const [calcRes, setCalcRes] = useState([]); // 정산 결과 데이터
     const [members, setMembers] = useState([]);
+
+    // 미리 걷은 금액 데이터
+    const [email, setEmail] = useState('');
+    const [money, setMoney] = useState();
+    console.log('-----------', id, email, money);
+
+    const handleEmail = (newEmail) => {
+        setEmail(newEmail);
+    }
+    
+    const handleMoney = (newMoney) => {
+        setMoney(newMoney);
+    }
 
     const openBottomSheet = () => {
         setIsOpen(!isOpen);
@@ -279,10 +293,10 @@ const Calculation = ({ navigation, route }) => {
     const handleCalcResult = async () => {
         try {
             const response = await axiosInstance.get(`/api/settlement/${id}/result`);
-            console.log('여행 정산 결과 가져오기 성공??????', response.data.result);
-            setCalcRes(response.data.result);
+            console.log('여행 정산 결과 가져오기 성공??????', response.data);
+            setCalcRes(response.data.result.settlementResults);
         } catch (error) {
-            console.log('여행 정산 결과 가져오기 에러', error);
+            console.log('여행 정산 결과 가져오기 에러', error.response);
         }
     }
 
@@ -293,7 +307,12 @@ const Calculation = ({ navigation, route }) => {
             console.log('정산 현황 가져오기', response);
             setCalcStatus(response.data.result);
         } catch (error) {
-            console.log('정산 현황 가져오기 에러', error.response);
+            if (error.status===403) {
+                setIsSettlementFinish(false);
+            } else {
+                console.log('정산 현황 가져오기 에러', error.response);
+                setIsSettlementFinish(false);
+            }
         }
     }
 
@@ -307,41 +326,6 @@ const Calculation = ({ navigation, route }) => {
             console.log('내가 포함된 지출 내역 가져오기 에러', error);
         }
     }
-
-    const CalcResList = [ // 정산 결과
-        {
-            id: 1,
-            sender: '이우경',
-            receiver: '박시우',
-            image: require('../assets/icons/user/박시우.png'),
-            amount: 518000, // 보내세요
-            status: 'progress' 
-        },
-        {
-            id: 2,
-            sender: '임서현',
-            receiver: '이우경',
-            image: require('../assets/icons/user/임서현.png'),
-            amount: 8000, // 받으세요
-            status: 'progress' 
-        },
-        {
-            id: 3,
-            sender: '이우경',
-            receiver: '박시우',
-            image: require('../assets/icons/user/박시우.png'),
-            amount: 518000, // 보냈어요
-            status: 'end' 
-        },
-        {
-            id: 4,
-            sender: '임서현',
-            receiver: '이우경',
-            image: require('../assets/icons/user/임서현.png'),
-            amount: 8000, // 받았어요
-            status: 'end' 
-        },
-    ]
 
     const getMyAmount = async () => {
         try {
@@ -371,9 +355,9 @@ const Calculation = ({ navigation, route }) => {
                 id: index,
                 name: member.name,
                 leader: index===0,
-                image: member.profileImageUrl && { uri: member.profileImageUrl }
+                image: member.profileImageUrl && { uri: member.profileImageUrl },
+                email: member.email
             }));
-            console.log(members);
             setMembers(members);
         } catch (error) {
             console.log('여행 멤버 불러오기 실패', error);
@@ -382,10 +366,16 @@ const Calculation = ({ navigation, route }) => {
 
     const handlePrepayment = async () => {
         try {
-            const response = await axiosInstance(`api/settlement/${id}/prepayment`);
-            console.log('handlePrepayment response',response);
+            console.log('미리 보낸 금액 요청 데이터', email, money);
+            console.log(`/api/settlement/${id}/prepayment`);
+            const response = await axiosInstance.put(`api/settlement/${id}/prepayment`, {
+                receiverEmail: email,
+                amount: money,
+            });
+            console.log('미리 보낸 금액 요청 성공', response);
+            openBottomSheet();
         } catch (error) {
-            console.log('handlePrepayment error',error);
+            console.log('미리 보낸 금액 요청 실패',error.response);
         }
     }
 
@@ -424,82 +414,86 @@ const Calculation = ({ navigation, route }) => {
                             <MiniGrayMedium>하여 정산을 완료하세요</MiniGrayMedium>
                         </GrayWrapper>
                         <ResWrapper>
-                            {CalcResList.map((data) => {
+                            {calcRes.map((data, index) => {
                                 return (
-                                    data.sender === name && data.status === 'progress' ?
-                                    <SendWrapper key={data.id}>
+                                    data.sender.name === name && data.settlementStatus === 'PROGRESS' ?
+                                    <SendWrapper key={index}>
                                         <RowWrapper>
-                                            <Back onPress={() => handleAccount(data.receiver, data.amount.toLocaleString())}>
-                                                <SendImg source={data.image !== null ? data.image : require('../assets/icons/user/profile.png')} />
-                                                <SendName>{data.receiver}</SendName>
+                                            <Back onPress={() => handleAccount(data.receiver.name, data.amount.toLocaleString())}>
+                                                <SendImg source={data.receiver.profileImageUrl !== null ? { uri: data.receiver.profileImageUrl } : require('../assets/icons/user/profile.png')} />
+                                                <SendName>{data.receiver.name}</SendName>
                                             </Back>
                                             <Ment>님에게 송금하세요</Ment>
                                         </RowWrapper>
                                         <ResPrice color='#1E5EFF'>{data.amount.toLocaleString()}원</ResPrice>
                                     </SendWrapper> :
-                                    data.sender === name && data.status === 'end' ? 
-                                    <ReceiveWrapper key={data.id}>
+                                    data.sender.name === name && data.settlementStatus !== 'PROGRESS' ? 
+                                    <ReceiveWrapper key={index}>
                                         <RowWrapper>
                                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                                <ReceiveImg source={data.image !== null ? data.image : require('../assets/icons/user/profile.png')} />
-                                                <ReceiveName>{data.sender}</ReceiveName>                                                
+                                                <ReceiveImg source={data.receiver.profileImageUrl !== null ? { uri: data.receiver.profileImageUrl } : require('../assets/icons/user/profile.png')} />
+                                                <ReceiveName>{data.sender.name}</ReceiveName>
                                             </View>
                                             <Ment>님에게 송금했어요</Ment>
                                         </RowWrapper>
                                         <ResPrice color='#1E5EFF'>{data.amount.toLocaleString()}원</ResPrice>
                                     </ReceiveWrapper> :
-                                    <ReceiveWrapper key={data.id}>
+                                    <ReceiveWrapper key={index}>
                                         <RowWrapper>
                                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                                <ReceiveImg source={data.image !== null ? data.image : require('../assets/icons/user/profile.png')} />
-                                                <ReceiveName>{data.sender}</ReceiveName>                                                
+                                                <ReceiveImg source={data.sender.profileImageUrl !== null ? { uri: data.sender.profileImageUrl } : require('../assets/icons/user/profile.png')} />
+                                                <ReceiveName>{data.sender.name}</ReceiveName>
                                             </View>
-                                            <Ment>{data.status==='progress' ? '님에게 받으세요' : '님에게 받았어요'}</Ment>
+                                            <Ment>{data.settlementStatus==='PROGRESS' ? '님에게 받으세요' : '님에게 받았어요'}</Ment>
                                         </RowWrapper>
                                         <ResPrice color='#FF1E1E'>{data.amount.toLocaleString()}원</ResPrice>
                                     </ReceiveWrapper>
                                 )
                             })}
                         </ResWrapper>
-                        <Bold>정산 현황</Bold>
-                        <CalcStateWrapper>
-                            {calcStatus.map((data) => {
-                                let receive = 0;
-                                let receiver = '';
-                                let receiverNum = 0;
-                                let send = 0;
-                                let sender = '';
-                                let senderNum = 0;
+                        {isSettlementFinish && (
+                            <>
+                                <Bold>정산 현황</Bold>
+                                <CalcStateWrapper>
+                                    {calcStatus.map((data) => {
+                                        let receive = 0;
+                                        let receiver = '';
+                                        let receiverNum = 0;
+                                        let send = 0;
+                                        let sender = '';
+                                        let senderNum = 0;
 
-                                data.settlementStatuses.forEach((item) => {
-                                    if (item && item.status === "RECEIVED") {
-                                        receive = item.amount;
-                                        receiver = item.relatedMemberName[0];
-                                        receiverNum = item.relatedMemberName.length;
-                                    } else {
-                                        send = item.amount;
-                                        sender = item.relatedMemberName[0];
-                                        senderNum = item.relatedMemberName.length;
-                                    }
-                                })
-                                
-                                return (
-                                    data.settlementStatuses.length>0 && (
-                                        <CalcStateContainer
-                                            key={data.id}
-                                            name={data.tripMemberProfile.name}
-                                            image={data.profileImageUrl}
-                                            receive={receive}
-                                            receiver={receiver}
-                                            receiverNum={receiverNum}
-                                            send={send}
-                                            sender={sender}
-                                            senderNum={senderNum}
-                                        />
-                                    )
-                                )
-                            })}                            
-                        </CalcStateWrapper>
+                                        data.settlementStatuses.forEach((item) => {
+                                            if (item && item.status === "RECEIVED") {
+                                                receive = item.amount;
+                                                receiver = item.relatedMemberName[0];
+                                                receiverNum = item.relatedMemberName.length;
+                                            } else {
+                                                send = item.amount;
+                                                sender = item.relatedMemberName[0];
+                                                senderNum = item.relatedMemberName.length;
+                                            }
+                                        })
+                                        
+                                        return (
+                                            data.settlementStatuses.length>0 && (
+                                                <CalcStateContainer
+                                                    key={data.id}
+                                                    name={data.tripMemberProfile.name}
+                                                    image={data.profileImageUrl}
+                                                    receive={receive}
+                                                    receiver={receiver}
+                                                    receiverNum={receiverNum}
+                                                    send={send}
+                                                    sender={sender}
+                                                    senderNum={senderNum}
+                                                />
+                                            )
+                                        )
+                                    })}
+                                </CalcStateWrapper>
+                            </>
+                        )}
                         <Bold>{name}님이 포함된 지출 내역</Bold>
                         <ExpenditureList2 data={expenditures} />
                         <BlackButton 
@@ -525,16 +519,17 @@ const Calculation = ({ navigation, route }) => {
                     <BottomWrapper contentContainerStyle={{ flexGrow: 1 }}>
                         <BottomBold>사전에 보낸 금액을 알려주세요</BottomBold>
                         <BottomDesc>누구에게 얼마를 보냈었나요?</BottomDesc>
-                        <ProfileSlide  members={members}/>
-                        <MoneyInput
+                        <ProfileSlide members={members} onDataChange={handleEmail}/>
+                        <MoneyInput // 미리 보낸 금액 입력창
                             height={50}
                             width={320}
+                            onDataChange={handleMoney}
                         />
-                        <BlackButton
+                        <BlackButton // 미리 보낸 금액 전송 버튼
                             text="확인"
                             width={343}
                             height={50}
-                            onPress={() => openBottomSheet()}
+                            onPress={() => handlePrepayment()}
                             style={{
                                 marignTop: 32
                             }}

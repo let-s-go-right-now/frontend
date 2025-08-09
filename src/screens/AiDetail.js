@@ -87,12 +87,12 @@ const Warning = styled.Text`
 const AiDetail = ({ route, navigation }) => {
     const tripData = route.params.tripData;
     const travelInfo = route.params.travelInfo;
-    const scrapId = route.params.scrapId ? route.params.scrapId : null;
 
     const [selectedDay, setSelectedDay] = useState(null);
     const [selectedItinerary, setSelectedItinerary] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isScraped, setIsScraped] = useState(route.params.isScraped);
+    const [scrapId, setScrapId] = useState(route.params.scrapId ? route.params.scrapId : null);
 
     const handleDay = (day) => {
         setSelectedDay(day);
@@ -147,9 +147,9 @@ const AiDetail = ({ route, navigation }) => {
             <TouchableOpacity onPress={() => {
                 if (isScraped) {
                     deleteScrap(scrapId);
-                    setIsScraped(false); // 상태 갱신도 필요
+                    setIsScraped(false);
                 } else {
-                    handleScrap();       // 이 괄호! 함수 실행
+                    handleScrap();
                 }
             }}>
                 <Image

@@ -51,8 +51,7 @@ const Value = styled.Text`
 const BarChartComponent = ({ barData=[] }) => {
     const [maxDay, setMaxDay] = useState(1);
     const [maxValue, setMaxValue] = useState(0);
-    const filteredData = barData.filter(item => item.day >= 1);
-
+    const filteredData = barData.filter(item => item.day !== null);
     const getMaxData = () => {
         try {
             console.log('BarChartComponent의 barData', barData);
@@ -71,12 +70,12 @@ const BarChartComponent = ({ barData=[] }) => {
             console.log('maxValue', maxValue);
         } catch (error) {
             console.log('barData')
-        }        
+        }
     }
 
     useEffect(() => {
         getMaxData();
-    }, )
+    }, [])
 
 
     return (

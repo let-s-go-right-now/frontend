@@ -8,136 +8,111 @@ import MoneyLight from '../assets/icons/spending/money_light.png';
 import PersonDark from '../assets/icons/spending/person_dark.png';
 import PersonLight from '../assets/icons/spending/person_light.png';
 import Trophy from '../assets/icons/spending/trophy.png';
-import 이우경 from '../assets/icons/user/이우경.png';
-import spark from '../assets/icons/spending/spark.png';
 import profile from '../assets/icons/user/profile.png';
+import spark from '../assets/icons/spending/spark.png';
 import LinearGradient from 'react-native-linear-gradient';
-import Calculation from './Calculation';
-import {useTabBarVisibility} from '../utils';
-import { axiosInstance } from '../utils';
+import { useTabBarVisibility, axiosInstance } from '../utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Report = ({ navigation,route }) => {
+const Report = ({ navigation, route }) => {
     useTabBarVisibility(false);
     const { completed, id } = route.params;
     const [mode, setMode] = useState('dark');
     const [isMvp, setIsMvp] = useState(false);
-    const [mvpName, setMvpName] = useState('이우경');
-    console.log('지출리포트에서 보여주는 여행의 id',id);
+    const [mvpInfo, setMvpInfo] = useState({});
+    const [mvpAmount, setMvpAmount] = useState(0);
     const [pieData, setPieData] = useState([]);
     const [barData, setBarData] = useState([]);
     const [selectedCategoryId, setSelectedCategoryId] = useState(1);
     const [memberData, setMemberData] = useState([]);
     const [totalAmount, setTotalAmount] = useState(0);
     const [memberCount, setMemberCount] = useState(0);
-    const [mvpInfo, setMvpInfo] = useState([]);
-    const [mvpAmount, setMvpAmount] = useState(0);
     const [myAmount, setMyAmount] = useState(0);
 
-    const backToTravelongoing = () =>{
-        if(completed===true){
-            navigation.reset({
-                index:0,
-                routes: [{name:'TravelCompleted'}]
-            });
-        }else{
-            navigation.reset({
-                index:0,
-                routes: [{name:'TravelOngoing'}]
-            });
-        }
+    const backToTravelongoing = () => {
+        navigation.reset({
+        index: 0,
+        routes: [{ name: completed ? 'TravelCompleted' : 'TravelOngoing' }],
+        })
     }
 
     const handleInfo = async () => {
         try {
             const response = await axiosInstance.get(`/api/expense/${id}/member-expenses`);
-
-            console.log('회원별 총 지출액', response.data.result);
             setTotalAmount(response.data.result.totalAmount);
             setMemberCount(response.data.result.memberCount);
-            // 나의 총 지출액
+
             const name = await AsyncStorage.getItem('name');
-            for (let i=0;i<response.data.result.memberCount;i++) {
-                if (response.data.result.memberTotalExpenses[i].memberProfile.name === name) {
-                    setMyAmount(response.data.result.memberTotalExpenses[i].amount);
-                    console.log('나의 총 지출액', myAmount);
-                    await AsyncStorage.setItem('myAmount', JSON.stringify(myAmount));
-                    break;
-                } else {
-                    console.log('나의 총 지출액 에러');
+            response.data.result.memberTotalExpenses.forEach((item) => {
+                if (item.memberProfile.name === name) {
+                setMyAmount(item.amount);
                 }
-            }
-            if (response.data.result.memberTotalExpenses.length===1) {
+            })
+            if (response.data.result.memberTotalExpenses.length > 0) {
+                const [top, second] = response.data.result.memberTotalExpenses;
+                if (!second || top.amount > second.amount) {
                 setIsMvp(true);
-                setMvpInfo(response.data.result.memberTotalExpenses[0].memberProfile);
-                setMvpAmount(response.data.result.memberTotalExpenses[0].amount);
-                console.log('mvp 존재함');
-            } else if (response.data.result.memberTotalExpenses.length>1) {
-                if (response.data.result.memberTotalExpenses[0].amount > response.data.result.memberTotalExpenses[1].amount) {
-                    setIsMvp(true);
-                    setMvpInfo(response.data.result.memberTotalExpenses[0].memberProfile);
-                    setMvpAmount(response.data.result.memberTotalExpenses[0].amount);
-                    console.log('mvp 존재함');
-                } else {
-                    setIsMvp(false);
-                    console.log('mvp 존재하지 않음');
+                setMvpInfo(top.memberProfile);
+                setMvpAmount(top.amount);
                 }
             }
         } catch (error) {
-            console.log('회원별 총 지출액 에러', error.response);
+            console.log('회원별 총 지출액 에러', error);
         }
     }
 
     const handleCategoryReport = async () => {
         try {
-            const response = await axiosInstance(`api/expense/${id}/category-report`);
-            console.log('handleCategoryReport 성공', response);
+            const response = await axiosInstance.get(`api/expense/${id}/category-report`);
             setPieData(response.data.result);
-        } catch(error) {
+        } catch (error) {
             console.log('handleCategoryReport 실패', error);
         }
     }
 
     const handleDailyExpense = async () => {
         try {
-            const response = await axiosInstance.get(`/api/expense/${id}/daily-expense`);
-            console.log('handleDailyExpense 성공', response.data.result);
-            setBarData(response.data.result);
-            console.log('바차트에 보낼 데이터',barData);
+        const response = await axiosInstance.get(`/api/expense/${id}/daily-expense`);
+        setBarData(response.data.result);
         } catch (error) {
-            console.log('handleDailyExpense 실패', error);
+        console.log('handleDailyExpense 실패', error);
         }
     }
-
-    const getCategoryId = (id) => {
-        switch (id) {
-            case 1: 
-                return 'TRANSPORTATION';
-            case 2: 
-                return "MEALS";
-            case 3: 
-                return "SIGHTSEEING";
-            case 4: 
-                return "SHOPPING";
-            case 5: 
-                return "ACCOMMODATION";
-            case 6: 
-                return "ETC";
-            default: 
-                return "ETC";
-        }
-    }
-
 
     const handleMember = async () => {
-        const category = getCategoryId(selectedCategoryId);
+        const getCategoryId = (id) => {
+        switch (id) {
+            case 1:
+            return 'TRANSPORTATION';
+            case 2:
+            return 'MEALS';
+            case 3:
+            return 'SIGHTSEEING';
+            case 4:
+            return 'SHOPPING';
+            case 5:
+            return 'ACCOMMODATION';
+            default:
+            return 'ETC';
+        }
+    }
+
         try {
-            const response = await axiosInstance.get(`/api/expense/${id}/member-category-report?category=${category}`);
-            console.log('handleMember 성공', response);
+            const response = await axiosInstance.get(
+            `/api/expense/${id}/member-category-report?category=${getCategoryId(selectedCategoryId)}`
+        )
             setMemberData(response.data.result);
-            console.log('response.data.result',response.data.result);
         } catch (error) {
             console.log('handleMember 실패', error);
+        }
+    }
+
+    const handleSettlement = async () => {
+        try {
+            await axiosInstance.post(`api/settlement/${id}`);
+            navigation.navigate('Calculation', { id });
+        } catch (error) {
+            console.log('금액 정산 실패', error);
         }
     }
 
@@ -146,18 +121,9 @@ const Report = ({ navigation,route }) => {
         handleCategoryReport();
         handleDailyExpense();
         handleMember();
-    }, []);
+        setMode(completed ? 'dark' : 'light');
+    }, [])
 
-    useEffect(() => {
-        console.log('pie chart 데이터 변경', pieData);
-    }, [pieData]);
-    
-    useEffect(() => {
-        if (id && selectedCategoryId) {
-            handleMember();
-        }
-    }, [selectedCategoryId]);
-    
     return (
         <ContainerWrapper>
             <Container1 mode={mode}>
@@ -165,95 +131,106 @@ const Report = ({ navigation,route }) => {
                     <HeaderTop>
                         <HeaderText mode={mode} fontSize={15}>지출리포트</HeaderText>
                         <TouchableOpacity onPress={backToTravelongoing} style={{ position: 'absolute', right: 16 }}>
-                            <Image source={CloseGray} style={{ width: 24, height: 24 }} />
-                        </TouchableOpacity>                   
+                        <Image source={CloseGray} style={{ width: 24, height: 24 }} />
+                        </TouchableOpacity>
                     </HeaderTop>
                     <HeaderBottom>
                         <HeaderText mode={mode}>총 지출액</HeaderText>
                         <InfoWrapper>
-                            <Image source={mode==='dark' ? MoneyDark : MoneyLight} style={{marginRight: 3}}/>
-                            <HeaderText mode={mode} style={{marginRight: 9}}>{totalAmount > 10000 ? `${Math.floor(totalAmount/10000)}만원` : `${totalAmount}원`}</HeaderText>
+                            <Image source={mode === 'dark' ? MoneyDark : MoneyLight} style={{ marginRight: 3 }} />
+                            <HeaderText mode={mode} style={{ marginRight: 9 }}>
+                                {totalAmount > 10000 ? `${Math.floor(totalAmount / 10000)}만원` : `${totalAmount}원`}
+                            </HeaderText>
                             <PersonWrapper mode={mode}>
-                                <Image source={mode==='dark' ? PersonDark : PersonLight}/>
+                                <Image source={mode === 'dark' ? PersonDark : PersonLight} />
                                 <Member mode={mode}>{memberCount}인</Member>
                             </PersonWrapper>
                         </InfoWrapper>
                     </HeaderBottom>
-                </Header> 
+                </Header>
             </Container1>
             <Container2>
-                <InfoWrapper style={{marginTop: 27}}>
-                    <ExtraTitle style={{marginRight: 20}}>나의 총 지출액</ExtraTitle>
-                    <Image source={MoneyLight} style={{marginRight: 3}}/>
-                        <SemiTitle>{myAmount> 10000 ? `${Math.floor(myAmount/10000)}만원` : `${myAmount}원`}</SemiTitle> {/* 여행 id 받아온 후 수정  */}
+                <InfoWrapper style={{ marginTop: 27 }}>
+                    <ExtraTitle style={{ marginRight: 20 }}>나의 총 지출액</ExtraTitle>
+                    <Image source={MoneyLight} style={{ marginRight: 3 }} />
+                    <SemiTitle>{myAmount > 10000 ? `${Math.floor(myAmount / 10000)}만원` : `${myAmount}원`}</SemiTitle>
                 </InfoWrapper>
                 {pieData.length > 0 && (
                     <>
-                        <ExtraTitle style={{marginTop: 44}}>
-                            {pieData[0].categoryName==="TRANSPORTATION" ? "교통"
-                            :pieData[0].categoryName==="MEALS" ? "식사"
-                            :pieData[0].categoryName==="SHOPPING" ? "쇼핑"
-                            :pieData[0].categoryName==="SIGHTSEEING" ? "관광"
-                            :pieData[0].categoryName==="ACCOMMODATION" ? "숙소"
-                            :pieData[0].categoryName==="ETC" ? "기타"
-                            :"기타"}
-                            에 가장 많이 썼어요</ExtraTitle>
-                        <PieChartComponent pieData={pieData}/>
+                        <ExtraTitle style={{ marginTop: 44 }}>
+                        {pieData[0].categoryName === 'TRANSPORTATION'
+                            ? '교통'
+                            : pieData[0].categoryName === 'MEALS'
+                            ? '식사'
+                            : pieData[0].categoryName === 'SHOPPING'
+                            ? '쇼핑'
+                            : pieData[0].categoryName === 'SIGHTSEEING'
+                            ? '관광'
+                            : pieData[0].categoryName === 'ACCOMMODATION'
+                            ? '숙소'
+                            : '기타'}
+                        <Text>에 가장 많이 썼어요</Text>
+                        </ExtraTitle>
+                        <PieChartComponent pieData={pieData} />
                     </>
                 )}
-                {barData.length > 0 && (<BarChartComponent barData={barData}/>)}
-                <ExtraTitle style={{marginTop: 60, marginBottom: 24}}>멤버별 지출을 알려드려요</ExtraTitle>
-                <Option>
-                    <CategoryOptionButton 
-                        style={{paddingRight: 64}} 
-                        selectedOptionId={selectedCategoryId}
-                        setSelectedOptionId={setSelectedCategoryId} 
-                    />
-                    <LinearGradient
-                        start={{x:0, y:0}}
-                        end={{x:1, y:0}}
-                        colors={['rgba(209, 48, 48, 0)', 'rgba(255, 255, 255, 1)']}
-                        style={{
-                            width: 120,
-                            height: 44,
-                            position: 'absolute',
-                            right: 0,
-                        }}
-                    />                    
-                </Option>
-                <MiniPieChart memberData={memberData}/>
+                {barData.length > 0 && <BarChartComponent barData={barData} />}
+                <ExtraTitle style={{ marginTop: 60, marginBottom: 24 }}>멤버별 지출을 알려드려요</ExtraTitle>
+                    <Option>
+                        <CategoryOptionButton
+                            style={{ paddingRight: 64 }}
+                            selectedOptionId={selectedCategoryId}
+                            setSelectedOptionId={setSelectedCategoryId}
+                        />
+                            <LinearGradient
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                colors={['rgba(209, 48, 48, 0)', 'rgba(255, 255, 255, 1)']}
+                                style={{
+                                width: 120,
+                                height: 44,
+                                position: 'absolute',
+                                right: 0,
+                                }}
+                            />
+                    </Option>
+                <MiniPieChart memberData={memberData} />
                 <MvpWrapper>
-                    { isMvp && (
+                    {isMvp && (
                         <>
-                            <InfoWrapper style={{marginRight: 'auto'}}>
+                            <InfoWrapper style={{ marginRight: 'auto' }}>
                                 <ExtraTitle>지출 MVP</ExtraTitle>
-                                <Image source={Trophy} style={{}} />                                
+                                <Image source={Trophy} />
                             </InfoWrapper>
-                            {mvpInfo.profileImageUrl!==null ? <Profile source={{uri: mvpInfo.profileImageUrl}} />
-                            :  <Profile source={profile} />}
+                            {mvpInfo.profileImageUrl ? (
+                                <Profile source={{ uri: mvpInfo.profileImageUrl }} />
+                            ) : (
+                                <Profile source={profile} />
+                            )}
                             <Name>{mvpInfo.name}</Name>
                             <InfoWrapper>
                                 <MvpText>총</MvpText>
-                                <MvpText3> {mvpAmount> 10000 ? `${Math.floor(mvpAmount/10000)}만원` : `${mvpAmount}원`}</MvpText3>
+                                <MvpText3>{mvpAmount > 10000 ? `${Math.floor(mvpAmount / 10000)}만원` : `${mvpAmount}원`}</MvpText3>
                                 <MvpText>지출</MvpText>
                             </InfoWrapper>
                             <InfoWrapper>
                                 <MvpText2>이번 여행에서 가장 많이 지출하셨어요</MvpText2>
-                                <SparkIcon source={spark}/>
+                                <SparkIcon source={spark} />
                             </InfoWrapper>
-                        </>                        
-                        )
-                    }
+                        </>
+                    )}
+                {mode === 'dark' && (
                     <BlackButton
                         text="금액 정산하기"
                         width={343}
                         image={MoneyDark}
                         style={{
                             marginTop: 53,
-                            marginBottom: 10
+                            marginBottom: 10,
                         }}
-                        onPress={() => navigation.navigate('Calculation', {id: id})}
+                        onPress={handleSettlement}
                     />
+                )}
                 </MvpWrapper>
             </Container2>
         </ContainerWrapper>
@@ -261,8 +238,8 @@ const Report = ({ navigation,route }) => {
 }
 
 const ContainerWrapper = styled.ScrollView`
-    flex: 1;
-    background-color: #FFFFFF;
+  flex: 1;
+  background-color: #ffffff;
 `
 
 const Container1 = styled.View`
@@ -277,7 +254,6 @@ const Container2 = styled.View`
 `
 
 const Header = styled.View`
-    /* height: 36px; */
     background-color: ${({mode}) => mode==='dark' ? '#1D1D1F' : '#FFFFFF'};
 `
 
