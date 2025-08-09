@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import LeaderBadge from '../assets/icons/user/leader_badge.png';
 import { Alert, Image, TouchableOpacity } from 'react-native';
+import defaultImg from '../assets/profileImgs/default.png';
 
 
 /// normal을 false로 입력하면 진하지 않게 됩니다!
@@ -10,7 +11,7 @@ const ProfileWrapper = styled(TouchableOpacity)`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    opacity: ${({normal,selected}) => (normal || selected ? 1 : 0.2)};
+    opacity: ${({normal, selected}) => (normal || selected ? 1 : 0.2)};
 `
 
 const ProfileImage = styled(Image)`
@@ -52,9 +53,9 @@ const Profile = ({
     selected,
     onPress,
     normal = false,  // 기본값을 true로 설정
-    email
+    email,
 }) => {
-    const imageSource = image ? image : null;  // image가 있으면 URL로 변환
+    const imageSource = image ? { uri: image } : defaultImg;  // image가 있으면 URL로 변환
 
     return (
         <ProfileWrapper selected={selected} onPress={onPress} normal={normal} email={email}>
