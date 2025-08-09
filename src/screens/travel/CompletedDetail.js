@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
 import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList, OptionList } from "../../components"; // 두 번째 임포트 제거
 import { theme } from '../../theme';
 import image1 from "../../assets/slides/image1.png";
@@ -128,7 +128,7 @@ useTabBarVisibility(false);
                 </TouchableOpacity>
               </View>
               <ImgSlide
-                images={images}
+                 images={images.map(img => Image.resolveAssetSource(img.source).uri)}
                 itemsToShow={itemsToShow}
                 scale={scale}
                 style={styles.imgSlide}
