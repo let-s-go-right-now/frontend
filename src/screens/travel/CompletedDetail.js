@@ -1,106 +1,123 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from "react-native";
-import { BlackButton, ImgSlide, OpenToggle, PlusButton, ProfileImgDump, GeneralOptionButton, CustomBottomSheet, TwoButton, ExpenditureList, OptionList } from "../../components"; // 두 번째 임포트 제거
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
+import {
+  BlackButton,
+  ImgSlide,
+  OpenToggle,
+  ProfileImgDump,
+  ExpenditureList,
+} from "../../components";
 import { theme } from '../../theme';
-import image1 from "../../assets/slides/image1.png";
-import image2 from "../../assets/slides/image2.png";
-import image3 from "../../assets/slides/image3.png";
-import image4 from "../../assets/slides/image4.png";
-import image5 from "../../assets/slides/image5.png";
-import image6 from "../../assets/slides/image6.png";
-import profileImg01 from "../../assets/profileImgs/profileImg01.png";
-import profileImg02 from "../../assets/profileImgs/profileImg02.png";
-import profileImg03 from "../../assets/profileImgs/profileImg03.png";
 import { FlatList } from 'react-native-gesture-handler';
-import {useTabBarVisibility} from '../../utils';
+import { useTabBarVisibility } from '../../utils';
+import axiosInstance from '../../utils/axiosInstance';
 
-const CompletedDetail = ({  route, navigation }) => {
+const CompletedDetail = ({ route, navigation }) => {
   //tabbar 삭제
-useTabBarVisibility(false);
-  const { id } = route.params; //여행 id
-  const [images] = useState([
-    { id: 1, source: image1 },
-    { id: 2, source: image2 },
-    { id: 3, source: image3 },
-    { id: 4, source: image4 },
-    { id: 5, source: image5 },
-    { id: 6, source: image6 }
-  ]);
-  const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
-  const [scale] = useState(94);
+  useTabBarVisibility(false);
 
-  const options = [
-    { id: 1, text: "강릉뿌시기" },
-    { id: 2, text: "별보러가자" },
-    { id: 3, text: "캠핑하러가자" },
-    { id: 4, text: "한강피크닉" },
-    { id: 5, text: "여수밤바다" },
-  ];
+  const { id } = route.params; // 여행 id
 
-  const [selectedId, setSelectedId] = useState(1);
-
-  
-  const expenditures = [
-    {
-      title: "강릉까지 택시",
-      category: "교통",
-      cost: "12,800원",
-      date: "12.22 14:29",
-    },
-    {
-      title: "강릉까지 택시",
-      category: "교통",
-      cost: "12,800원",
-      date: "12.22 14:29",
-    },
-    {
-      title: "강릉까지 택시",
-      category: "교통",
-      cost: "12,800원",
-      date: "12.22 14:29",
-    },
-    {
-      title: "강릉까지 택시",
-      category: "교통",
-      cost: "12,800원",
-      date: "12.22 14:29",
-    },
-  ];
-
-
-
-  //최신순
+  // 각종 상태
+  const [loading, setLoading] = useState(true);
+  const [travelDetail, setTravelDetail] = useState(null);
+  const [expenditures, setExpenditures] = useState([]);
+  const [images, setImages] = useState([]);
+  const [memberImages, setMemberImages] = useState([]);
+  const [dateDiff, setDateDiff] = useState({ nights: 0, days: 0 });
   const [selectedSort, setSelectedSort] = useState("최신순");
-
   const sortOptions = ["최신순", "오래된순", "적은지출", "많은지출"];
+  const [isOpen, setIsOpen] = useState(false);
 
-  //바텀시트
-  const [isOpen, setIsOpen] = useState(false); // BottomSheet의 열림/닫힘 상태 관리
-  const bottomSheetRef = useRef(null); 
- 
+  // 바텀시트
+  const bottomSheetRef = useRef(null);
+
+  // 날짜포맷/차이 구하기
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = String(d.getFullYear()).slice(2);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  };
+  const calcDateDiff = (start, end) => {
+    if (!start || !end) return { nights: 0, days: 0 };
+    const s = new Date(start);
+    const e = new Date(end);
+    const nights = Math.round((e - s) / (1000 * 60 * 60 * 24));
+    return { nights, days: nights + 1 };
+  };
+
+  useEffect(() => {
+    const fetchDetail = async () => {
+      setLoading(true);
+      try {
+        const res = await axiosInstance.get(`/api/trip/${id}`);
+        const result = res.data?.result;
+        setTravelDetail(result);
+
+        // 경비
+        if (result.expenses) {
+          setExpenditures(
+            result.expenses.map(exp => ({
+              id: exp.id,
+              title: exp.expenseName,
+              category: exp.category === 'TRANSPORTATION' ? '교통' : exp.category,
+              cost: `${exp.price?.toLocaleString() ?? 0}원`,
+              date: formatDate(exp.expenseDate),
+            }))
+          );
+          // 이미지 모으기 (imageUrls 배열 펼치기)
+          const allImageUrls = result.expenses
+            .flatMap(exp => exp.imageUrls)
+            .filter(u => !!u);
+          setImages(allImageUrls);
+        }
+
+        // 멤버 프로필
+        if (result.members) {
+          setMemberImages(result.members.map((mem, idx) => ({
+            id: idx,
+            source: { uri: mem.profileImageLink },
+          })));
+        }
+
+        // 날짜 차이 계산
+        setDateDiff(calcDateDiff(result.startDate, result.endDate));
+      } catch (err) {
+        Alert.alert('오류', '여행 상세정보를 불러오는 데 실패했습니다');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDetail();
+  }, [id]);
+
+  // 하단(리포트) 이동
   const openBottomSheet = () => {
     navigation.navigate('Report', { completed: true, id: id });
-
   };
-  const movePage= () => {
-    navigation.navigate("CompletedProfile", { id: id })
+  // 상세 정보(멤버페이지) 이동
+  const movePage = () => {
+    navigation.navigate("CompletedProfile", { id: id });
   };
 
-    // 이미지 클릭 시 상세 이미지로 이동
-    const handleImagePress = (index) => {
-      console.log('Pressed image:', images[index]); // 디버깅
-      navigation.navigate("ImgZoomIn", {
-        imageIndex: index,
-        images: images,
-      });
-    };
+  // 이미지 줌인
+  const handleImagePress = (index) => {
+    navigation.navigate("ImgZoomIn", {
+      imageIndex: index,
+      images: images, // URL 배열로 전달
+    });
+  };
 
-    const [memberImages, setMemberImages] = useState([
-      { id: 1, source: profileImg01 },
-      { id: 2, source: profileImg02 },
-      { id: 3, source: profileImg03 },
-    ]);
-    
+  if (loading || !travelDetail) {
+    return (
+      <View style={{ flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#fbfbfb' }}>
+        <Text style={{ color:'#888' }}>로딩 중...</Text>
+      </View>
+    );
+  }
 
   return (
     <>
@@ -112,12 +129,21 @@ useTabBarVisibility(false);
             <View style={styles.travelDetails}>
               <View style={styles.travelInfo}>
                 <View style={styles.leftInfo}>
-                  <Text style={styles.travelTitle}>강릉뿌시기 </Text><Text style={styles.travelLong}>2박 3일</Text>
+                  <Text style={styles.travelTitle}>
+                    {travelDetail.name}
+                  </Text>
+                  <Text style={styles.travelLong}>
+                    {dateDiff.nights}박 {dateDiff.days}일
+                  </Text>
                 </View>
-                <Text style={styles.travelDate}>24.12.20</Text>
+                <Text style={styles.travelDate}>
+                  {formatDate(travelDetail.startDate)}
+                </Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.travelMemo}>강릉에서 겨울바다 보고 오기!</Text>
+                <Text style={styles.travelMemo}>
+                  {travelDetail.introduce}
+                </Text>
               </View>
               <View style={styles.row}>
                 <View style={styles.profileImageContainer}>
@@ -127,45 +153,47 @@ useTabBarVisibility(false);
                   <Text style={styles.manageButtonText}>상세보기</Text>
                 </TouchableOpacity>
               </View>
+              
               <ImgSlide
                 images={images}
-                itemsToShow={itemsToShow}
-                scale={scale}
+                itemsToShow={3}
+                scale={94}
                 style={styles.imgSlide}
                 onImagePress={handleImagePress}
               />
             </View>
-
             {/* 지출 정보 */}
             <View style={styles.expenditure}>
               <View style={styles.expenditureHeader}>
                 <View style={styles.expenditureInfo}>
                   <Text style={styles.expenditureLabel}>현재 지출</Text>
-                  <Text style={styles.expenditureAmount}>| 22만원</Text>
+                  <Text style={styles.expenditureAmount}>
+                    | {Number(travelDetail.totalExpense ?? 0).toLocaleString()}원
+                  </Text>
                 </View>
                 <OpenToggle
                   options={sortOptions}
                   defaultOption={selectedSort}
-                  onSelect={(option) => setSelectedSort(option)}
+                  onSelect={setSelectedSort}
                 />
               </View>
-                {/* 지출 내역 */}
-            
-                <View style={styles.expenditureWrap}>
-                  <ExpenditureList data={expenditures} navigation={navigation} completed={true}/>
-                </View>
-                {/* 지출 리포트 보러가기*/}
-                <View style={styles.blackButtonText}><BlackButton text="여행 결과 보기" width={360} height={0} onPress={openBottomSheet}/></View>
+              {/* 지출 내역 */}
+              <View style={styles.expenditureWrap}>
+                <ExpenditureList data={expenditures} navigation={navigation} completed={true} />
+              </View>
+              {/* 지출 리포트 보러가기*/}
+              <View style={styles.blackButtonText}>
+                <BlackButton text="여행 결과 보기" width={360} height={0} onPress={openBottomSheet} />
+              </View>
             </View>
           </>
         }
         data={expenditures}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, idx) => item.id?.toString() ?? idx.toString()}
       />
-          </>
+    </>
   );
 };
-
 
 const styles = StyleSheet.create({
   row: {
