@@ -79,7 +79,9 @@ const CompletedDetail = ({ route, navigation }) => {
         if (result.members) {
           setMemberImages(result.members.map((mem, idx) => ({
             id: idx,
-            source: { uri: mem.profileImageLink },
+            source: mem.profileImageLink
+            ? { uri: mem.profileImageLink }
+            : require("../../assets/profileImgs/default.png"),
           })));
         }
 
@@ -179,7 +181,7 @@ const CompletedDetail = ({ route, navigation }) => {
               </View>
               {/* 지출 내역 */}
               <View style={styles.expenditureWrap}>
-                <ExpenditureList data={expenditures} navigation={navigation} completed={true} />
+                <ExpenditureList data={expenditures} completed={true} />
               </View>
               {/* 지출 리포트 보러가기*/}
               <View style={styles.blackButtonText}>

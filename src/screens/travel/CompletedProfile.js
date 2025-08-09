@@ -1,129 +1,123 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, Alert } from 'react-native';
 import { Profile } from '../../components';
 import CalendarIcon from "../../assets/icons/calender-black.png";
-
-// 이미지 예시 (본인 이미지로 교체)
-import profileImage1 from "../../assets/profileImgs/profileImg01.png";
-import profileImage2 from "../../assets/profileImgs/profileImg02.png";
-import profileImage3 from "../../assets/profileImgs/profileImg03.png";
 import { theme } from '../../theme';
 import { useTabBarNone } from '../../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from "../../utils/axiosInstance";
 
-const CompletedProfile = ({navigation,route}) => {
-  //tabbar 삭제
-useTabBarNone(false);
-  const { id } = route.params; //여행 id
-    const tripData = {
-        tripName: "부산바캉스",  // 여행 제목
-        startDate: "08. 12",  // 시작 날짜
-        endDate: "08. 15",  // 종료 날짜
-        memo: "해운대에서 걸스나잇",  // 여행 메모
-        leader: true,  // 방장 여부
-        members: [  // 여행에 참여한 멤버들
-          {
-            name: "홍길동",  // 이름
-            leader: true,  // 리더 여부
-            sameName: false,  // 같은 이름 여부
-            image: profileImage1,  // 프로필 이미지
-            color: "blue",  // 색상
-            onPress: () => {}  // 클릭 시 동작
-          },
-          {
-            name: "김철수",  // 이름
-            leader: false,  // 리더 여부
-            sameName: false,  // 같은 이름 여부
-            image: profileImage2,  // 프로필 이미지
-            color: "red",  // 색상
-            onPress: () => {}  // 클릭 시 동작
-          },
-          {
-            name: "이영희",  // 이름
-            leader: false,  // 리더 여부
-            sameName: true,  // 같은 이름 여부
-            image: profileImage3,  // 프로필 이미지
-            color: "green",  // 색상
-            onPress: () => {}  // 클릭 시 동작
-          },
-          {
-            name: "박지민",  // 이름
-            leader: false,  // 리더 여부
-            sameName: false,  // 같은 이름 여부
-            image: profileImage1,  // 프로필 이미지
-            color: "yellow",  // 색상
-            onPress: () => {}  // 클릭 시 동작
-          },
-          {
-            name: "최은지",  // 이름
-            leader: false,  // 리더 여부
-            sameName: false,  // 같은 이름 여부
-            image: profileImage2,  // 프로필 이미지
-            color: "purple",  // 색상
-            onPress: () => {}  // 클릭 시 동작
-          },          {
-            name: "최은지",  // 이름
-            leader: false,  // 리더 여부
-            sameName: false,  // 같은 이름 여부
-            image: profileImage2,  // 프로필 이미지
-            color: "purple",  // 색상
-            onPress: () => {}  // 클릭 시 동작
-          },          {
-            name: "최은지",  // 이름
-            leader: false,  // 리더 여부
-            sameName: false,  // 같은 이름 여부
-            image: profileImage2,  // 프로필 이미지
-            color: "purple",  // 색상
-            onPress: () => {}  // 클릭 시 동작
-          },          {
-            name: "최은지",  // 이름
-            leader: false,  // 리더 여부
-            sameName: false,  // 같은 이름 여부
-            image: profileImage2,  // 프로필 이미지
-            color: "purple",  // 색상
-            onPress: () => {}  // 클릭 시 동작
-          },
-        ],
-      };
-  const { tripName, startDate, endDate, memo, leader, members } = tripData;
+const CompletedProfile = ({ navigation, route }) => {
+  useTabBarNone(false);
+  const { id } = route.params; // 여행 id
 
-  const movePage = () => {
-    navigation.navigate("CompletedProfile")
+  // 상태
+  const [loading, setLoading] = useState(true);
+  const [ownerId, setOwnerId] = useState(null);     // ownerId 저장
+  const [members, setMembers] = useState([]);       // 여행 멤버들
+
+  // 여행 정보
+  const [tripName, setTripName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [memo, setMemo] = useState("");
+
+  // 날짜 포맷 함수
+  const formatToMonthDay = (dateString) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${month}. ${day}`;
   };
+
+  // API 호출
+  useEffect(() => {
+    const fetchTravelData = async () => {
+      try {
+        setLoading(true);
+        const token = await AsyncStorage.getItem('jwtToken');
+        if (!token) {
+          Alert.alert("오류", "로그인 정보를 찾을 수 없습니다.");
+          return;
+        }
+        // API 호출
+        const response = await axiosInstance.get(`/api/trip/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = response.data;
+        console.log("📌 API 응답 데이터:", data);
+        if (!data.isSuccess || !data.result) {
+          Alert.alert("오류", data.message || "정보를 불러오지 못했습니다.");
+          return;
+        }
+
+        // 여행 기본 정보 필드명 주의!
+        setTripName(data.result.name || "여행명");
+        setStartDate(formatToMonthDay(data.result.startDate));
+        setEndDate(formatToMonthDay(data.result.endDate));
+        setMemo(data.result.introduce || "");
+
+        setOwnerId(data.result.ownerId || null);
+
+        // 멤버 배열 세팅 (profileImageLink)
+        setMembers(Array.isArray(data.result.members) ? data.result.members : []);
+
+      } catch (err) {
+        console.error(err);
+        Alert.alert("오류", "네트워크 오류가 발생했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTravelData();
+  }, [id]);
+
+  // 멤버 중복 이름 처리
+  const nameCounts = {};
+  (members || []).forEach(m => {
+    nameCounts[m.name] = (nameCounts[m.name] || 0) + 1;
+  });
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* 여행 제목 */}
-      <Text style={styles.tripName}>{tripName}</Text>
+      {loading ? (
+        <Text style={{ marginTop: 20, color: '#aaa' }}>불러오는 중...</Text>
+      ) : (
+        <>
+          {/* 여행 제목 */}
+          <Text style={styles.tripName}>{tripName}</Text>
 
-      {/* 일정 */}
-      <View style={styles.dateContainer}>
-        <Image source={CalendarIcon} style={styles.calendarIcon} />
-        <Text style={styles.dateText}>
-          {startDate} - {endDate}
-        </Text>
-      </View>
+          {/* 일정 */}
+          <View style={styles.dateContainer}>
+            <Image source={CalendarIcon} style={styles.calendarIcon} />
+            <Text style={styles.dateText}>{startDate} - {endDate}</Text>
+          </View>
 
-      {/* 여행 메모 */}
-      <Text style={styles.memo}>{memo}</Text>
+          {/* 여행 메모 */}
+          <Text style={styles.memo}>{memo}</Text>
 
-      {/* 방장 여부 */}
-      <Text style={styles.leaderText}>이번 여행에서 방장을 맡았어요</Text>
-
-      {/* 프로필 이미지들 */}
-      <View style={styles.profileContainer}>
-        {members.map((member, index) => (
-          <Profile
-            key={index}
-            name={member.name}
-            leader={member.leader}
-            sameName={member.sameName}
-            image={member.image}
-            color={member.color}
-            selected={member.leader}
-            normal={true}
-            onPress={member.onPress}
-          />
-        ))}
-      </View>
+          {/* 멤버 프로필 리스트 */}
+          <View style={styles.profileContainer}>
+            {(members || []).map((m, i) => (
+              <Profile
+                key={i}
+                name={m.name}
+                leader={m.id === ownerId}
+                sameName={nameCounts[m.name] > 1}
+                image={m.profileImageLink
+                  ? { uri: m.profileImageLink }
+                  : require("../../assets/profileImgs/default.png")}
+                color={m.id === ownerId ? "#4383FF" : "blue"}
+                selected={m.id === ownerId}
+                normal={true}
+                onPress={() => {}}
+              />
+            ))}
+          </View>
+        </>
+      )}
     </ScrollView>
   );
 };

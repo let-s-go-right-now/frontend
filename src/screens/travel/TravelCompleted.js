@@ -111,18 +111,40 @@ const TravelCompleted = ({ navigation }) => {
                 onImagePress={(index) => handleImagePress(item.id, index)}
               />
             </View>
-
             {/* 하단 정보 (프로필 & 작성일) */}
             <View style={styles.footer}>
               <View style={styles.profileContainer}>
-                <Image source={{ uri: item.members[0]?.profileImageLink }} style={styles.profileImage} />
-                <Text style={styles.participants}>
-                  {item.name} 
-                  {item.people > 0 ? ` 외 ${item.people}인` : ''}
-                </Text>
+                {(() => {
+                  // 방장 찾기
+                  const ownerMember = item.members.find(m => m.email === item.ownerEmail);
+                  const ownerProfileImage = ownerMember?.profileImageUrl;
+                  const memberCount = item.members.length;
+                  
+                  // "장서원 외 2인" 형태 문자열
+                  const participantText =
+                    memberCount > 1
+                      ? `${ownerMember?.name ?? '대표자'} 외 ${memberCount - 1}인`
+                      : ownerMember?.name ?? '대표자';
+
+                  return (
+                    <>
+                      <Image
+                        source={
+                          ownerProfileImage
+                            ? { uri: ownerProfileImage }
+                            : require("../../assets/profileImgs/default.png")
+                        }
+                        style={styles.profileImage}
+                      />
+                      <Text style={styles.participants}>{participantText}</Text>
+                    </>
+                  );
+                })()}
               </View>
+
               <Text style={styles.date}>{formatDate(item.startDate)}</Text>
             </View>
+
           </TouchableOpacity>
         );
       }}
@@ -137,7 +159,7 @@ const styles = StyleSheet.create({
     marginTop:20,
     height:370,
     justifyContent: "space-between",
-    alignItems: 'center', 
+    alignItems: 'center',
     
   },
   container: {
@@ -152,7 +174,7 @@ const styles = StyleSheet.create({
 },
 card: {
 width: 343,
-height: 232,
+height: 212,
 backgroundColor: '#FFFFFF',
 padding: 16,
 borderBlockColor:'#1D1D1F',

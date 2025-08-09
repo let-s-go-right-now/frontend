@@ -181,7 +181,9 @@ useEffect(() => {
         setDate(calculateDays(result.result.startDate, result.result.endDate));
         setMemberImages(result.result.members.map((member, index) => ({
           id: index,
-          source: { uri: member.profileImageLink },
+          source: member.profileImageLink
+          ? { uri: member.profileImageLink }
+          : require("../../assets/profileImgs/default.png"),
         })));
       } else {
         console.error('데이터 가져오기 실패:', result.message);

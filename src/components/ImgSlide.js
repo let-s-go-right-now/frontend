@@ -18,15 +18,23 @@ const ImgSlide = ({ images, itemsToShow, scale = 100, onImagePress }) => {
             }}
         >
             <TouchableOpacity onPress={() => onImagePress(index)}>
-                <Image
-                    source={typeof item.source === 'string' ? { uri: item.source } : item.source}
-                    style={{
-                        width: imageSize,
-                        height: imageSize,
-                        resizeMode: 'cover',
-                    }}
-                />
+            <Image
+                source={typeof item === 'string'
+                ? { uri: item }
+                : typeof item.source === 'string'
+                ? { uri: item.source }
+                : item.source
+                }
+                style={{
+                width: imageSize,
+                height: imageSize,
+                borderRadius: 6,
+                marginHorizontal: 5,
+                }}
+                resizeMode="cover"
+            />
             </TouchableOpacity>
+
         </View>
     );
 
