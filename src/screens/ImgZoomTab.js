@@ -6,8 +6,6 @@ import { useTabBarNone, useTabBarVisibility } from '../utils';
 
 const ImgZoomIn = ({ navigation,route}) => {
   const {imageIndex, images} = route.params;
-  console.log('Received images:', images);
-  console.log('Received imageIndex:', imageIndex);
   useTabBarVisibility(false);
 
   return (
