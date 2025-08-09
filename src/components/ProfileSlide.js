@@ -15,9 +15,23 @@ const ProfileList = styled.ScrollView.attrs(() => ({
     height: 87px;
 `
 
-const ProfileSlide = ({ members }) => {
-    const [selected, setSelected] = useState(1);
-    console.log(members)
+const ProfileSlide = ({ members, onDataChange }) => {
+    const [selected, setSelected] = useState(); // 선택된 멤버 id
+    const [selectedEmail, setSelectedEmail] = useState(); // 선택된 멤버 이메일
+    console.log('members', members);
+    console.log('selected',selected);
+    console.log('selectedEmail', selectedEmail);
+
+    const handlePress = (id, email) => {
+        setSelected(id);
+        setSelectedEmail(email);
+        onDataChange(email);
+    }
+
+    // const sendDataToParent = () => {
+    //     onDataChange(selectedEmail);
+    // }
+
 
     return (
         <ProfileList horizontal={true}>
@@ -27,10 +41,11 @@ const ProfileSlide = ({ members }) => {
                     name={member.name}
                     leader={member.leader}
                     // sameName={member.sameName}
-                    image={member.image}
+                    image={member.image?.uri}
                     // color={member.color}
                     selected={selected === member.id}
-                    onPress={() => setSelected(member.id)}
+                    onPress={() => handlePress(member.id, member.email)}
+                    normal={selected === undefined}
                 />
             ))}
         </ProfileList>

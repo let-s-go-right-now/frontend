@@ -19,7 +19,7 @@ const ImgSlide = ({ images, itemsToShow, scale = 100, onImagePress }) => {
         >
             <TouchableOpacity onPress={() => onImagePress(index)}>
                 <Image
-                    source={{ uri: item }}  // 이미지 URL을 uri로 설정
+                    source={typeof item.source === 'string' ? { uri: item.source } : item.source}
                     style={{
                         width: imageSize,
                         height: imageSize,

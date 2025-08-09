@@ -8,12 +8,16 @@ import { axiosInstance } from '../utils';
 import Home from './Home';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const Wrapper = styled.View`
+    background-color: #FFFFFF;
+    flex: 1;
+`
+
 const LoginWrapper = styled.View`
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #FFFFFF;
 `
 
 const Top = styled.View`
@@ -133,7 +137,7 @@ const Login = ({ navigation, setIsLogin }) => {
                 setEmailError(false);
             }
             else {
-                 showAlert('이메일과 비밀번호를 다시 확인한 후 시도해주세요.');
+                showAlert('이메일과 비밀번호를 다시 확인한 후 시도해주세요.');
             }
         }
     }
@@ -158,71 +162,73 @@ const Login = ({ navigation, setIsLogin }) => {
     }, [email, password])
 
     return (
-        <LoginWrapper>
-            <Top>
-                <Title>로그인</Title>
-                <CloseDarkgray onPress={() => navigation.navigate('Main')}/>
-            </Top>
-            <Container style={{marginTop: 60}}>
-                <Info>
-                    <Category>이메일</Category>
-                    {emailError && <ErrorMessage>존재하는 이메일이 아닙니다</ErrorMessage>}
-                </Info>
-                <InputWrapper>
-                    <StyledInput
-                        placeholder="example@gmail.com"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        returnKeyType="next"
-                        onChangeText={setEmail} 
-                        onSubmitEditing={() => passwordRef.current.focus()}
-                        value={email}
+        <Wrapper>
+            <LoginWrapper>
+                <Top>
+                    <Title>로그인</Title>
+                    <CloseDarkgray onPress={() => navigation.navigate('Main')}/>
+                </Top>
+                <Container style={{marginTop: 60}}>
+                    <Info>
+                        <Category>이메일</Category>
+                        {emailError && <ErrorMessage>존재하는 이메일이 아닙니다</ErrorMessage>}
+                    </Info>
+                    <InputWrapper>
+                        <StyledInput
+                            placeholder="example@gmail.com"
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            returnKeyType="next"
+                            onChangeText={setEmail} 
+                            onSubmitEditing={() => passwordRef.current.focus()}
+                            value={email}
+                        />
+                        {email !== '' && <CloseGray onPress={() => setEmail('')} />} 
+                    </InputWrapper>
+                </Container>
+                <Container style={{marginTop: 28, marginBottom: 60}}>
+                    <Info>
+                        <Category>비밀번호</Category>
+                        {passwordError && <ErrorMessage>비밀번호가 회원정보와 일치하지 않습니다</ErrorMessage>}
+                    </Info>
+                    <InputWrapper>
+                        <StyledInput
+                            placeholder="8자 이상, 대문자와 특수문자를 포함하세요"
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            returnKeyType="done"
+                            onChangeText={setPassword} 
+                            ref={passwordRef}
+                            value={password}
+                        />
+                        {password !== '' && <CloseGray onPress={() => setPassword('')} />}
+                    </InputWrapper>
+                </Container>
+                {ready ? (
+                    <BlackButton 
+                        text="로그인"
+                        width={343}
+                        onPress={handleLogin}
+                        ready={ready}
                     />
-                    {email !== '' && <CloseGray onPress={() => setEmail('')} />} 
-                </InputWrapper>
-            </Container>
-            <Container style={{marginTop: 28, marginBottom: 60}}>
-                <Info>
-                    <Category>비밀번호</Category>
-                    {passwordError && <ErrorMessage>비밀번호가 회원정보와 일치하지 않습니다</ErrorMessage>}
-                </Info>
-                <InputWrapper>
-                    <StyledInput
-                        placeholder="8자 이상, 대문자와 특수문자를 포함하세요"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        returnKeyType="done"
-                        onChangeText={setPassword} 
-                        ref={passwordRef}
-                        value={password}
+                ) : (
+                    <GrayContainer
+                        text="로그인"
+                        width={343}
                     />
-                    {password !== '' && <CloseGray onPress={() => setPassword('')} />}
-                </InputWrapper>
-            </Container>
-            {ready ? (
-                <BlackButton 
-                    text="로그인"
-                    width={343}
-                    onPress={handleLogin}
-                    ready={ready}
+                )}
+                <CustomAlertModal
+                    visible={alertVisible}
+                    onClose={() => {
+                        hideAlert();
+                        if (isLoginSuccess) {
+                            navigation.navigate('Home');
+                        }
+                    }}
+                    message={alertMsg}
                 />
-            ) : (
-                <GrayContainer
-                    text="로그인"
-                    width={343}
-                />              
-            )}
-            <CustomAlertModal
-                visible={alertVisible}
-                onClose={() => {
-                    hideAlert();
-                    if (isLoginSuccess) {
-                        navigation.navigate('Home');
-                    }
-                }}
-                message={alertMsg}
-            />
-        </LoginWrapper>
+            </LoginWrapper>
+        </Wrapper>
     )
 }
 

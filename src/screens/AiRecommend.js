@@ -17,6 +17,7 @@ const AiRecommend = ({ navigation, route }) => {
     const [tripData, setTripData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isScraped, setIsScraped] = useState(false);
+    const [scrapId, setScrapId] = useState();
 
     const getRecommend = async () => {
         setLoading(true);
@@ -62,9 +63,20 @@ const AiRecommend = ({ navigation, route }) => {
                 itinerary: combinedData.itinerary,
             });
             console.log('스크랩 성공', response);
+            setScrapId(response.data.result.scrapId);
             setIsScraped(true);
         } catch (error) {
             console.log('스크랩 실패', error.response);
+        }
+    }
+    
+    const deleteScrap = async (scrapId) => {
+        try {
+            const response = await axiosInstance.delete(`/api/scrap/${scrapId}`);
+            setIsScraped(false);
+            console.log('스크랩 삭제', response);
+        } catch(error) {
+            console.log('스크랩 삭제 에러', error);
         }
     }
 
@@ -92,6 +104,7 @@ const AiRecommend = ({ navigation, route }) => {
                                 travelInfo: travelInfo,
                                 tripData: tripData,
                                 isScraped: isScraped,
+                                scrapId: scrapId,
                             });
                             }
                         }}
@@ -99,7 +112,14 @@ const AiRecommend = ({ navigation, route }) => {
                         <Img source={{ uri: tripData.tripImage}} />
                         <Top>
                             <Title>{tripData.title}</Title>
-                            <TouchableOpacity onPress={handleScrap}>
+                            <TouchableOpacity onPress={() => {
+                                if (isScraped) {
+                                    deleteScrap(scrapId);
+                                    setIsScraped(false);
+                                } else {
+                                    handleScrap();
+                                }
+                            }}>
                                 <Heart
                                     source={isScraped ? heartBlack : heartWhite}
                                 />
