@@ -4,9 +4,7 @@ import { FlatList, View, Text, StyleSheet, TouchableOpacity } from 'react-native
 const ExpenditureList = ({ data,navigation,completed }) => {
     const handlePress = (id) => {
     // 항목 클릭 시 WEditExpense로 이동
-    if(completed){
-      navigation.navigate('WCompletedExpense', { expenditureId: id });
-    }else{
+    if(!completed){
       navigation.navigate('WEditExpense', { expenditureId: id });
     }
 
