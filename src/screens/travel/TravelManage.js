@@ -177,15 +177,45 @@ const TravelManage = ({ navigation }) => {
     } catch (error) {
       console.error('방장 위임 요청 중 에러:', error);
     }
-    setIsOpen(false);
-    setNextBottomsheet('기본');
-  };
-  
-
-  const fetchKickout = () => {
-    // 멤버 내보내기 로직
     closeBottomSheet();
   };
+  
+  //멤버 내보내기
+  const fetchKickout = async () => {
+    try {
+      const tripId = await AsyncStorage.getItem('tripId');
+      if (!tripId) {
+        console.log('tripId가 없습니다.');
+        return;
+      }
+  
+      if (!selectedMember?.id) {
+        console.log('삭제할 멤버 ID가 없습니다.');
+        return;
+      }
+  
+      // API 호출
+      const response = await axiosInstance.delete(
+        `/api/trip/${tripId}/members/${selectedMember.id}`
+      );
+  
+      if (response.data.isSuccess) {
+        console.log('멤버 삭제 성공:', response.data.result);
+  
+        // 삭제 후 멤버 목록 갱신
+        fetchTravelData();
+  
+      } else {
+        console.log('멤버 삭제 실패:', response.data.message);
+      }
+  
+    } catch (error) {
+      console.error('멤버 삭제 중 에러 발생:', error);
+    } finally {
+      closeBottomSheet();
+    }
+  };
+  
 
     
     return (<>
