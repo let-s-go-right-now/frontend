@@ -24,7 +24,7 @@ const fetchJoinTrip = async (InviteToken) => {
   return data;
 };
 
-const InviteScreen = ({ route, navigation }) => {
+const InviteScreen = ({ route, navigation,isLogin }) => {
   const { InviteToken } = route.params;
 
   // react-query로 API 호출(InviteToken변화에 대응)
@@ -34,14 +34,12 @@ const InviteScreen = ({ route, navigation }) => {
     isError,
     isSuccess,
     isLoading,
-  } = useQuery(
-    ['invite-join', InviteToken], // 쿼리키
-    () => fetchJoinTrip(InviteToken), // fetcher
-    {
-      enabled: !!InviteToken, // InviteToken이 있을 때만 실행
-      retry: false,
-    }
-  );
+  } = useQuery({
+    queryKey: ['invite-join', InviteToken],
+    queryFn: () => fetchJoinTrip(InviteToken),
+    enabled: !!InviteToken, 
+    retry: false,
+  });
 
   // 토큰 없을 때: 네비게이션 바로 보내고 렌더 X(보호)
   React.useEffect(() => {
@@ -59,6 +57,7 @@ const InviteScreen = ({ route, navigation }) => {
 
   // 버튼 클릭시 홈/로그인으로 이동
   const navigateToHome = () => {
+    if(isLogin){
     if (isSuccess) {
       navigation.navigate('BottomTab');
     } else if (isError && error?.response?.status === 409) {
@@ -69,6 +68,7 @@ const InviteScreen = ({ route, navigation }) => {
     } else {
       navigation.navigate('BottomTab');
     }
+  }
   };
 
   let description = '오류';

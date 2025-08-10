@@ -17,7 +17,7 @@ const TravelOngoing = ({navigation}) => {
   const [selectedId, setSelectedId] = useState(null); 
   const ongoingid = 1;  //현재 진행중인 여행의 id
   const [images, setImages] = useState([]); 
-  
+  const [isOwner, setIsOwner] = useState(false);
   const [itemsToShow] = useState(3); // 한 번에 보여줄 이미지 개수
   const [scale] = useState(94);
 
@@ -151,20 +151,21 @@ const calculateDays = (startDate, endDate) => {
 //특정 여행 상세 정보 요청
 useEffect(() => {
   const fetchTravelData = async () => {
-    if (selectedId === null) {
-      console.log("selectedId가 null이므로 여행 데이터를 조회하지 않습니다.");
-      return;
-    }
+    if (selectedId === null) return;
+
     try {
       const response = await axiosInstance.get(`/api/trip/${selectedId}`);
       const result = response.data;
 
-      if (result.isSuccess && result.result.length > 0) {
-        await AsyncStorage.setItem('tripId', result.result[0].id.toString());
-        setSelectedId(result.result[0].id);
-      } 
-
       if (result.isSuccess) {
+        // AsyncStorage에서 내 로그인 유저 ID 불러오기
+        const myUserId = String(result.result.userId);
+
+        // 주인 여부 판단
+        setIsOwner(String(result.result.ownerId) === String(myUserId));
+        console.log("myYUserId", String(myUserId));
+
+        // 기존 데이터 세팅 로직
         const expenses = result.result.expenses.map(expense => ({
           id: expense.id,
           title: expense.expenseName,
@@ -175,18 +176,16 @@ useEffect(() => {
         const imagesFromExpenses = result.result.expenses.reduce((acc, expense) => {
           return [...acc, ...expense.imageUrls];
         }, []);
-        setImages(imagesFromExpenses); 
+        setImages(imagesFromExpenses);
         setExpenditures(expenses);
         setTravelDetailData(result.result);
         setDate(calculateDays(result.result.startDate, result.result.endDate));
         setMemberImages(result.result.members.map((member, index) => ({
           id: index,
           source: member.profileImageLink
-          ? { uri: member.profileImageLink }
-          : require("../../assets/profileImgs/default.png"),
+            ? { uri: member.profileImageLink }
+            : require("../../assets/profileImgs/default.png"),
         })));
-      } else {
-        console.error('데이터 가져오기 실패:', result.message);
       }
     } catch (error) {
       console.error('에러 발생:', error);
@@ -194,8 +193,10 @@ useEffect(() => {
       setLoading(false);
     }
   };
+
   fetchTravelData();
 }, [selectedId]);
+
 
 
 //여행종료 함수 start
@@ -278,17 +279,21 @@ const handleEndTravel = async () => {
               </View>
               <View style={styles.row}>
                 <Text style={styles.travelMemo}>{travelDetailData.introduce}</Text>
-                <TouchableOpacity onPress={handleEndTravel} style={styles.finishButton}>
-                  <Text style={styles.finishButtonText}>여행 끝내기</Text>
-                </TouchableOpacity>
+                  {isOwner && (
+                    <TouchableOpacity onPress={handleEndTravel} style={styles.finishButton}>
+                      <Text style={styles.finishButtonText}>여행 끝내기</Text>
+                    </TouchableOpacity>
+                  )}
               </View>
               <View style={styles.row}>
                 <View style={styles.profileImageContainer}>
                   <ProfileImgDump images={memberImages}/>
                 </View>
-                <TouchableOpacity onPress={handleManageTravel} style={styles.manageButton}>
-                  <Text style={styles.manageButtonText}>관리하기</Text>
-                </TouchableOpacity>
+                {isOwner && (
+                  <TouchableOpacity onPress={handleManageTravel} style={styles.manageButton}>
+                    <Text style={styles.manageButtonText}>관리하기</Text>
+                  </TouchableOpacity>
+                )}
               </View>
               <ImgSlide images={images} itemsToShow={itemsToShow} scale={scale} style={styles.imgSlide} onImagePress={handleImagePress}  />
             </View>

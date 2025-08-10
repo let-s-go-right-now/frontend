@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
   },
   flatcards:{
     paddingHorizontal:23,
+    marginBottom:20,
 },
 card: {
 width: 343,
