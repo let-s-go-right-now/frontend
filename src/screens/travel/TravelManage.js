@@ -10,6 +10,7 @@ import { useTabBarVisibility } from '../../utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import axiosInstance from '../../utils/axiosInstance';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 
 const COLORS = [
@@ -126,7 +127,8 @@ const TravelManage = ({ navigation }) => {
       }
       const response = await axiosInstance.post(`/api/trip/${tripId}/invite`, {});
       if (response.data.isSuccess) {
-        console.log('초대 링크:', response.data.result.invitelink);
+        const inviteLink = response.data.result.invitelink;
+        Clipboard.setString(inviteLink);
         setInvitePopupVisible(true);
         setTimeout(() => setInvitePopupVisible(false), 3000);
       } else {
