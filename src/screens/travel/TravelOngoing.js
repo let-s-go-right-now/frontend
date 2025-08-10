@@ -222,6 +222,7 @@ const handleEndTravel = async () => {
     const result = response.data;
     if (result.isSuccess) {
       Alert.alert('성공', '여행이 종료되었습니다.');
+      handleSettlement();
     } else {
       Alert.alert('실패', result.message || '여행 종료에 실패했습니다.');
     }
@@ -230,6 +231,15 @@ const handleEndTravel = async () => {
     Alert.alert('오류', '여행 종료 중 오류가 발생했습니다.');
   }
 };
+
+  const handleSettlement = async () => {
+    try {
+      const response = await axiosInstance.post(`api/settlement/${selectedId}`);
+      console.log('금액 정산 성공', response)
+    } catch (error) {
+      console.log('금액 정산 실패', error);
+    }
+  }
 
 //여행종료 함수 end
 

@@ -30,10 +30,7 @@ const Report = ({ navigation, route }) => {
     const [myAmount, setMyAmount] = useState(0);
 
     const backToTravelongoing = () => {
-        navigation.reset({
-        index: 0,
-        routes: [{ name: completed ? 'TravelCompleted' : 'TravelOngoing' }],
-        })
+        navigation.goBack();
     }
 
     const handleInfo = async () => {
@@ -104,15 +101,6 @@ const Report = ({ navigation, route }) => {
             setMemberData(response.data.result);
         } catch (error) {
             console.log('handleMember 실패', error);
-        }
-    }
-
-    const handleSettlement = async () => {
-        try {
-            await axiosInstance.post(`api/settlement/${id}`);
-            navigation.navigate('Calculation', { id });
-        } catch (error) {
-            console.log('금액 정산 실패', error);
         }
     }
 
@@ -228,7 +216,7 @@ const Report = ({ navigation, route }) => {
                             marginTop: 53,
                             marginBottom: 10,
                         }}
-                        onPress={handleSettlement}
+                        onPress={()=>navigation.navigate('Calculation', { id })}
                     />
                 )}
                 </MvpWrapper>

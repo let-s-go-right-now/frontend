@@ -230,8 +230,7 @@ const Calculation = ({ navigation, route }) => {
     const [name, setName] = useState('');
     console.log('route.params',route.params);
     const { id } = route.params;
-    console.log('전달받은 id',id); // 여행 id
-    const [isSettlementFinish, setIsSettlementFinish] = useState();
+    console.log('여행 id', id);
     // 바텀 시트
     const [isOpen, setIsOpen] = useState(false);
     const snapPoints = ['70%'];
@@ -239,9 +238,13 @@ const Calculation = ({ navigation, route }) => {
     const [myAmount, setMyAmount] = useState(0);
     const [bottom, setBottom] = useState('amount');
     const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedEmail, setSelectedEmail] = useState(null);
     const [selectedAmount, setSelectAmount] = useState(null);
-    const [selectedAccount, setSelectAccount] = useState('국민 123-45A-678901');
+    const [selectedAccount, setSelectAccount] = useState('');
     const [clickedAccount, setClickedAccount] = useState(false);
+    const [settlementId, setSettlementId] = useState();
+    const [isSettlementDone, setIsSettlementDone] = useState(false); // 내 정산이 모두 DONE인지
+    const [isSettlementFinish, setIsSettlementFinish] = useState(); // 내 정산이 종료되었는지
     // 받아오는 데이터들
     const [expenditures, setExpenditures] = useState([]); // 사용자가 포함된 지출 내역
     const [calcStatus, setCalcStatus] = useState([]); // 정산 현황 데이터
@@ -251,7 +254,6 @@ const Calculation = ({ navigation, route }) => {
     // 미리 걷은 금액 데이터
     const [email, setEmail] = useState('');
     const [money, setMoney] = useState();
-    console.log('-----------', id, email, money);
 
     const handleEmail = (newEmail) => {
         setEmail(newEmail);
@@ -272,29 +274,41 @@ const Calculation = ({ navigation, route }) => {
         setIsOpen(true);
     }
 
-    const handleAccount = (user, amount) => {
-        setBottom('account');
-        setSelectedUser(user);
-        setSelectAmount(amount);
-        setIsOpen(true);
-    }
-
-    const handleFinish = () => {
+    const handleFinishBottomSheet = () => {
         setBottom('finish');
         setIsOpen(true);
     }
 
-    const copyAccount = () => {
-        Clipboard.setString('국민 123-45A-678901');
-        setClickedAccount(true);
+    const handleAccount = (user, amount, email, id) => {
+        setBottom('account');
+        setSelectedUser(user);
+        setSelectAmount(amount);
+        setSelectedEmail(email);
+        setSettlementId(id);
+        setIsOpen(true);
+    }
+
+    const handleFinish = async () => {
+        try {
+            setBottom('finish');
+            setIsOpen(true);
+            const response = await axiosInstance.put(`api/trip-member/${id}/settlement-finish`);
+            console.log('정산 완료', response.data);
+            navigation.navigate('Finish');
+        } catch(error) {
+            console.log('정산 완료 실패', error.response);
+        }
     }
 
     // 정산 결과
     const handleCalcResult = async () => {
         try {
             const response = await axiosInstance.get(`/api/settlement/${id}/result`);
-            console.log('여행 정산 결과 가져오기 성공??????', response.data);
-            setCalcRes(response.data.result.settlementResults);
+            const result = response.data.result.settlementResults;
+            console.log('여행 정산 결과', result);
+            setCalcRes(result);
+            const finish = result.length > 0 && result.every(item => item.settlementStatus === 'DONE');
+            setIsSettlementDone(finish);
         } catch (error) {
             console.log('여행 정산 결과 가져오기 에러', error.response);
         }
@@ -309,10 +323,26 @@ const Calculation = ({ navigation, route }) => {
         } catch (error) {
             if (error.status===403) {
                 setIsSettlementFinish(false);
+                console.log('아직 정산이 마무리 되지 않아 현황을 가져올 수 없습니다.');
             } else {
                 console.log('정산 현황 가져오기 에러', error.response);
                 setIsSettlementFinish(false);
             }
+        }
+    }
+    
+    // 미리 보낸 금액
+    const handlePrepayment = async () => {
+        try {
+            const response = await axiosInstance.put(`api/settlement/${id}/prepayment`, {
+                receiverEmail: email,
+                amount: money,
+            });
+            console.log('미리 보낸 금액 요청 성공', response);
+            handleCalcResult();
+            openBottomSheet();
+        } catch (error) {
+            console.log('미리 보낸 금액 요청 실패',error.response);
         }
     }
 
@@ -324,6 +354,38 @@ const Calculation = ({ navigation, route }) => {
             setExpenditures(response.data.result);
         } catch (error) {
             console.log('내가 포함된 지출 내역 가져오기 에러', error);
+        }
+    }
+    
+    // 계좌번호 가져오기
+    const copyAccount = async () => {
+        try {
+            const response = await axiosInstance.get('/api/member/account-number', {
+                params: {
+                    userEmail: selectedEmail,
+                },
+            })
+            console.log('계좌번호', response.data.result);
+            setClickedAccount(false);
+            setSelectAccount(response.data.result);
+            Clipboard.setString(response.data.result);
+            setClickedAccount(true);
+        } catch(error) {
+            console.log('계좌번호 가져오기 실패', error.response);
+        }
+    }
+
+    // 송금
+    const handleSettlementSend = async () => {
+        try {
+            const response = await axiosInstance.put(`api/settlement/${settlementId}/send`);
+            console.log('송금 성공', response);
+            setIsOpen(!isOpen);
+            bottomSheetRef.current?.expand();
+            handleCalcResult();
+            setClickedAccount(false);
+        } catch(error) {
+            console.log('송금 실패', error.response);
         }
     }
 
@@ -364,35 +426,20 @@ const Calculation = ({ navigation, route }) => {
         }
     }
 
-    const handlePrepayment = async () => {
-        try {
-            console.log('미리 보낸 금액 요청 데이터', email, money);
-            console.log(`/api/settlement/${id}/prepayment`);
-            const response = await axiosInstance.put(`api/settlement/${id}/prepayment`, {
-                receiverEmail: email,
-                amount: money,
-            });
-            console.log('미리 보낸 금액 요청 성공', response);
-            openBottomSheet();
-        } catch (error) {
-            console.log('미리 보낸 금액 요청 실패',error.response);
-        }
-    }
-
     useEffect(() => {
         getMyAmount();
         handleCalcResult();
         handleCalcStatus();
         handleMyExpenditure();
         getMember();
-    }, [])
+    }, []);
 
     return (
         <>
             <FlatList
                 style={{ flex: 1, backgroundColor: '#FFFFFF'}}
                 data={[1]}
-                keyExtractor={(item,index) => index.toString()}
+                keyExtractor={(item, index) => index.toString()}
                 renderItem={() => (
                     <CalcWrapper>
                         <TopWrapper>
@@ -419,7 +466,7 @@ const Calculation = ({ navigation, route }) => {
                                     data.sender.name === name && data.settlementStatus === 'PROGRESS' ?
                                     <SendWrapper key={index}>
                                         <RowWrapper>
-                                            <Back onPress={() => handleAccount(data.receiver.name, data.amount.toLocaleString())}>
+                                            <Back onPress={() => handleAccount(data.receiver.name, data.amount.toLocaleString(), data.receiver.email, data.id)}>
                                                 <SendImg source={data.receiver.profileImageUrl !== null ? { uri: data.receiver.profileImageUrl } : require('../assets/icons/user/profile.png')} />
                                                 <SendName>{data.receiver.name}</SendName>
                                             </Back>
@@ -432,7 +479,7 @@ const Calculation = ({ navigation, route }) => {
                                         <RowWrapper>
                                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                                 <ReceiveImg source={data.receiver.profileImageUrl !== null ? { uri: data.receiver.profileImageUrl } : require('../assets/icons/user/profile.png')} />
-                                                <ReceiveName>{data.sender.name}</ReceiveName>
+                                                <ReceiveName>{data.receiver.name}</ReceiveName>
                                             </View>
                                             <Ment>님에게 송금했어요</Ment>
                                         </RowWrapper>
@@ -499,14 +546,14 @@ const Calculation = ({ navigation, route }) => {
                         <BlackButton 
                             text="정산 완료하기"
                             width={343}
-                            ready={false}
+                            ready={isSettlementDone}
                             image={MoneyDark}
                             style={{
                                 marginBottom: 10
                             }}
-                            onPress={handleFinish}
+                            onPress={handleFinishBottomSheet}
                         />
-                    </CalcWrapper>                
+                    </CalcWrapper>
                 )}
             >
             </FlatList>
@@ -533,7 +580,7 @@ const Calculation = ({ navigation, route }) => {
                             style={{
                                 marignTop: 32
                             }}
-                        />  
+                        />
                     </BottomWrapper>
                 </CustomBottomSheet>
                 )
@@ -562,7 +609,8 @@ const Calculation = ({ navigation, route }) => {
                                 height={45}
                                 textLeft="송금 완료"
                                 textRight="취소"
-                                onPressLeft={() => openBottomSheet()}
+                                disableLeft={clickedAccount}
+                                onPressLeft={handleSettlementSend}
                                 onPressRight={() => openBottomSheet()}
                             />
                     </BottomWrapper>
@@ -581,7 +629,7 @@ const Calculation = ({ navigation, route }) => {
                                 text="여행 종료하기"
                                 width={343}
                                 height={50}
-                                onPress={() => navigation.navigate('Finish')}
+                                onPress={handleFinish}
                             />
                     </BottomWrapper>
                 </CustomBottomSheet>

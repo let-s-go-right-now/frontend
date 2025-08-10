@@ -98,7 +98,7 @@ const CompletedDetail = ({ route, navigation }) => {
 
   // 하단(리포트) 이동
   const openBottomSheet = () => {
-    navigation.navigate('Report', { completed: true, id: id });
+    navigation.navigate('Report', { completed: false, id: id });
   };
   // 상세 정보(멤버페이지) 이동
   const movePage = () => {

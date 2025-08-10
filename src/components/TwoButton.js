@@ -20,7 +20,7 @@ const Button = styled.TouchableOpacity`
   font-weight: bold;
   font-size: 16px;
   border-width: 1px;
-  border-color: #1D1D1F;
+  border-color: ${(props) => props.disableLeft ? '#1D1D1F' : '#E4E4E4' };
   border-style: solid;
 `;
 
@@ -31,13 +31,13 @@ const Title = styled.Text`
   line-height: 23.8px;
 `;
 
-const TwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, bgColorLeft, bgColorRight, onPressLeft, onPressRight }) => {
+const TwoButton = ({ width, height, textLeft, textRight, imageLeft, imageRight, bgColorLeft, bgColorRight, onPressLeft, onPressRight, disableLeft=true }) => {
   const leftWidth = (width / 2) - 10;
   const rightWidth = (width / 2) - 10;
 
   return (
     <ButtonContainer width={width}>
-      <Button width={leftWidth} bgColor={bgColorLeft || '#1D1D1F'} height={height} onPress={onPressLeft}>
+      <Button width={leftWidth} bgColor={ disableLeft  ? (bgColorLeft || '#1D1D1F') : '#E4E4E4'} height={height} onPress={disableLeft ? onPressLeft : undefined}>
         {imageLeft && imageLeft}
         <Title color="#FFFFFF">{textLeft}</Title>
       </Button>
@@ -60,6 +60,7 @@ TwoButton.propTypes = {
   bgColorRight: PropTypes.string,
   onPressLeft: PropTypes.func,
   onPressRight: PropTypes.func,
+  disableLeft: PropTypes.bool,
 };
 
 export default TwoButton;

@@ -11,6 +11,7 @@ const Wrapper = styled.View`
     height: ${({height}) => height}px;
     width: ${({width}) => width}px;
     align-self: center;
+    margin-bottom: 20px;
 `
 
 const Top = styled.Text`

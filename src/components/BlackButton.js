@@ -16,9 +16,10 @@ const BlackButton = ({ text, width, image, onPress, style, ready = true }) => {
                 { width, backgroundColor: isPressed ? pressedBackgroundColor : backgroundColor }, // 동적 배경색 적용
                 style
             ]}
-            onPress={onPress}
-            onPressIn={() => setIsPressed(true)}  // 버튼 눌렸을 때
-            onPressOut={() => setIsPressed(false)} // 버튼에서 손 뗄 때
+            onPress={ready ? onPress : undefined}
+            onPressIn={() => {ready && setIsPressed(true)}}  // 버튼 눌렸을 때
+            onPressOut={() => {ready && setIsPressed(false)}} // 버튼에서 손 뗄 때
+            disabled={!ready}
         >
             {image && <Image style={styles.image} source={image}/>}
             <Text style={styles.title}>{text}</Text>
