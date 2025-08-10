@@ -49,6 +49,14 @@ const CompletedDetail = ({ route, navigation }) => {
     return { nights, days: nights + 1 };
   };
 
+  const categoryMap = {
+    TRANSPORTATION: '교통',
+    MEALS: '식사',
+    SHOPPING: '쇼핑',
+    SIGHTSEEING: '관광',
+    ACCOMMODATION: '숙소',
+    ETC: '기타',
+  };
   useEffect(() => {
     const fetchDetail = async () => {
       setLoading(true);
@@ -63,7 +71,7 @@ const CompletedDetail = ({ route, navigation }) => {
             result.expenses.map(exp => ({
               id: exp.id,
               title: exp.expenseName,
-              category: exp.category === 'TRANSPORTATION' ? '교통' : exp.category,
+              category: categoryMap[exp.category] || exp.category,
               cost: `${exp.price?.toLocaleString() ?? 0}원`,
               date: formatDate(exp.expenseDate),
             }))

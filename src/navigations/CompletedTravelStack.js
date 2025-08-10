@@ -57,7 +57,6 @@ const CompletedTravelStack = ({ navigation, route }) => {
                 headerStyle: {
                     backgroundColor: 'white',  // 흰색으로 배경 설정
                 }, }}
-                
             />
             <Stack.Screen
                 name="Report"

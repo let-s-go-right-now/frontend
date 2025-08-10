@@ -307,7 +307,7 @@ const Calculation = ({ navigation, route }) => {
             const result = response.data.result.settlementResults;
             console.log('여행 정산 결과', result);
             setCalcRes(result);
-            const finish = result.length > 0 && result.every(item => item.settlementStatus === 'DONE');
+            const finish = result.every(item => item.settlementStatus === 'DONE');
             setIsSettlementDone(finish);
         } catch (error) {
             console.log('여행 정산 결과 가져오기 에러', error.response);
