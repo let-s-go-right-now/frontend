@@ -16,7 +16,11 @@ const ImgZoomIn = ({ navigation,route}) => {
           <Image source={CloseGray} style={{ width: 24, height: 24 }} />
         </TouchableOpacity>
         <Text style={styles.imageText} >이미지 상세보기</Text>
-        <Image source={images[imageIndex].image} resizeMode="contain" style={styles.imgconetent} />
+        <Image 
+          source={{ uri: images[imageIndex] }} 
+          resizeMode="contain" 
+          style={styles.imgconetent} 
+        />
       </View>
     </GestureHandlerRootView>
   );
@@ -36,11 +40,14 @@ const styles = StyleSheet.create({
   },
   imageText:{
     color: 'white',
+    
 
   },
   imgconetent:{
     maxWidth:363,
     maxHeight:600,
+    width: 363,
+    height: 600,
   }
 });
 

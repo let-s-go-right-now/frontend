@@ -49,7 +49,7 @@ const Navigation = () => {
         {(props) => <LoginStack {...props} setIsLogin={setIsLogin} InviteToken={InviteToken} />}
       </Stack.Screen>
     )}
-    <Stack.Screen name="InviteScreen" component={InviteScreen} />
+    <Stack.Screen name="InviteScreen" component={InviteScreen} isLogin={isLogin}/>
   </Stack.Navigator>
   );
 };

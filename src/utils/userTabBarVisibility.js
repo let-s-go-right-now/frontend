@@ -14,15 +14,15 @@ const useTabBarVisibility = (visible) => {
     if (parentNavigator) {
       parentNavigator.setOptions({
       // 실제 사용하고 있는 하단바 스타일
-        tabBarStyle: {
-          display: visible
-            ? {
-                width: 200,
-                height: 42,
-                elevation: 0 
-              }
-            : "none",
-        },
+        tabBarStyle: visible
+          ? {
+              width: 200,
+              height: 42,
+              elevation: 0,
+            }
+          : {
+              display: 'none',
+            },
       });
     }
 
@@ -33,8 +33,8 @@ const useTabBarVisibility = (visible) => {
           tabBarStyle: {
             width: 200,
             height: 42,
-            elevation: 0 
-          }, 
+            elevation: 0,
+          },
         });
       }
     };

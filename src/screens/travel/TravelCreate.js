@@ -32,44 +32,48 @@ useTabBarVisibility(false);
         setTopComponentWidth(width); // 상단 컴포넌트의 너비 상태 업데이트
     };
 
-    const handleCreateTravel = async () => {
-        const token = await AsyncStorage.getItem('jwtToken'); // JWT 토큰 가져오기
-    
-        if (!token) {
-            // 토큰이 없다면 오류 처리
-            alert('로그인 상태가 아닙니다.');
-            return;
-        }
-    
-        // 여행 생성 API 요청 본문
-        const requestBody = {
-            name: travelName,
-            introduce: travelIntroduce,
-            startDate: selectedDates?.startDate,
-            endDate: selectedDates?.endDate,
-        };
-    
-        console.log('요청 본문:', requestBody); // 요청 본문 출력
-    
-        try {
-            const response = await axiosInstance.post('/api/trip', requestBody);
-    
-            console.log('서버 응답:', response); // 응답 출력
-    
-        // 여행 생성 성공 시 처리
-        const tripId = response.data?.result?.tripId;
-                    // tripId를 string으로 변환 (문자열로 저장)
-                    const tripIdString = String(tripId);
+    const [invitePopupVisible, setInvitePopupVisible] = useState(false); // 팝업 상태
 
-                    // tripId를 AsyncStorage에 저장
-                    await AsyncStorage.setItem('tripId', tripIdString);
-            navigation.navigate('TravelInvite'); // 여행 초대 화면으로 이동
-        }catch (error) {
-            // 네트워크 오류 등 예외 처리
-            console.error('여행 만들기 실패:', error); // 에러 출력
-            alert('여행 만들기 중 오류가 발생했습니다.');
+    const handleCreateTravel = async () => {
+      const token = await AsyncStorage.getItem('jwtToken');
+    
+      if (!token) {
+        alert('로그인 상태가 아닙니다.');
+        return;
+      }
+    
+      const requestBody = {
+        name: travelName,
+        introduce: travelIntroduce,
+        startDate: selectedDates?.startDate,
+        endDate: selectedDates?.endDate,
+      };
+    
+      try {
+        const response = await axiosInstance.post('/api/trip', requestBody);
+        const tripId = response.data?.result?.tripId;
+        if (!tripId) throw new Error('tripId 없음');
+    
+        // tripId 저장
+        await AsyncStorage.setItem('tripId', String(tripId));
+    
+        // 여기서 초대 링크 생성
+        const inviteRes = await axiosInstance.post(`/api/trip/${tripId}/invite`, {});
+        if (inviteRes.data.isSuccess) {
+          console.log('초대 링크:', inviteRes.data.result.invitelink);
+          setInvitePopupVisible(true);
+          setTimeout(() => setInvitePopupVisible(false), 3000); // 3초 후 닫기
+        } else {
+          console.warn('초대 링크 생성 실패:', inviteRes.data.message);
         }
+    
+    
+      } catch (error) {
+        console.error('여행 만들기 실패:', error);
+        alert('여행 만들기 중 오류가 발생했습니다.');
+      }
     };
+    
     
 
     // 상위 컴포넌트에서 날짜 선택 완료 버튼 클릭 시 호출되는 함수
@@ -134,7 +138,16 @@ useTabBarVisibility(false);
                 <TouchableOpacity style={styles.button} onPress={handleCreateTravel}>
                     <Text style={styles.buttonText}>여행 만들기</Text>
                 </TouchableOpacity>
+
+                            {/* 초대 링크 복사 팝업 */}
+                {invitePopupVisible && (
+                    <View style={styles.invitePopup}>
+                        <Text style={styles.invitePopupTextBold}>멤버 초대 링크가 복사되었습니다</Text>
+                        <Text style={styles.invitePopupTextMedium}>친구에게 링크를 공유하세요</Text>
+                    </View>
+                )}
             </ScrollView>
+            
 
             {isOpen ? (
                 <CustomBottomSheet ref={bottomSheetRef} onSheetChange={handleSheetChanges} snapPoints={snapPoints} isOpen={isOpen}>
@@ -241,5 +254,25 @@ const styles = StyleSheet.create({
         height: 50,
         marginBottom: 20,
         marginLeft:-20
+    },
+    invitePopup: {
+        position: 'absolute',
+        bottom: 30,
+        alignSelf: 'center',
+        width: 343,
+        height: 61,
+        backgroundColor: '#6E6E6E',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    invitePopupTextBold: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+    },
+    invitePopupTextMedium: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: '#CCCCCC',
     },
 });

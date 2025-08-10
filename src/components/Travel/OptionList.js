@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FlatList, View, StyleSheet } from 'react-native';
 import { GeneralOptionButton } from '..';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OptionList = ({ options, selectedId, setSelectedId, Buttonwidth, containerWidth }) => {
   console.log(options);
@@ -16,7 +17,11 @@ const OptionList = ({ options, selectedId, setSelectedId, Buttonwidth, container
             key={item.id}
             text={item.text}
             OptionImage={selectedId === item.id ? item.image_clicked : item.image}
-            onPress={() => setSelectedId(item.id)} // 선택된 아이템 ID 업데이트
+            onPress={async () => {
+              setSelectedId(item.id);
+              await AsyncStorage.setItem('tripId', item.id.toString());
+            }}
+            
             isSelected={selectedId === item.id}
             style={{ width: Buttonwidth }}
           />
