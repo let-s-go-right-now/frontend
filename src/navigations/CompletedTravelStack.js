@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Calculation, CompletedDetail, CompletedProfile, Finish, ImgZoomIn, ImgZoomInTab, Report, TravelCompleted, WCompletedExpense } from '../screens';
+import { Calculation, CompletedDetail, CompletedProfile, Finish, ImgZoomIn, ImgZoomInTab, Report, TravelCompleted, WCompletedExpense, Home } from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -57,9 +57,8 @@ const CompletedTravelStack = ({ navigation, route }) => {
                 headerStyle: {
                     backgroundColor: 'white',  // 흰색으로 배경 설정
                 }, }}
-                
             />
-                                    <Stack.Screen
+            <Stack.Screen
                 name="Report"
                 component={Report}
                 options={{ headerShown: false, mode: 'light' }}
@@ -86,9 +85,14 @@ const CompletedTravelStack = ({ navigation, route }) => {
                 component={ImgZoomIn}
                 options={{ headerShown: false, mode: 'light' }}
             />
-                                    <Stack.Screen
+            <Stack.Screen
                 name="ImgZoomInTab"
                 component={ImgZoomInTab}
+                options={{ headerShown: false, mode: 'light' }}
+            />
+            <Stack.Screen
+                name="Home"
+                component={Home}
                 options={{ headerShown: false, mode: 'light' }}
             />
         </Stack.Navigator>

@@ -49,7 +49,7 @@ const OngoingTravelStack = () => {
                     },
                 }} 
             />
-                        <Stack.Screen
+            <Stack.Screen
                 name="WriteExpense"  //AI화면 연결
                 component={WriteExpense}
                 options={{
@@ -88,7 +88,7 @@ const OngoingTravelStack = () => {
                     backgroundColor: 'white',  // 흰색으로 배경 설정
                 }, }}
             />
-                        <Stack.Screen
+            <Stack.Screen
                 name="Report"
                 component={Report}
                 options={{ headerShown: false, mode: 'light' }}
@@ -115,13 +115,13 @@ const OngoingTravelStack = () => {
                 component={ImgZoomIn}
                 options={{ headerShown: false, mode: 'light' }}
             />
-                        <Stack.Screen
+            <Stack.Screen
                 name="ImgZoomInTab"
                 component={ImgZoomInTab}
                 options={{ headerShown: false, mode: 'light' }}
             />
             <Stack.Screen
-                name="TravelInvite"  
+                name="TravelInvite"
                 component={TravelInvite}
                 options={{ title: '여행 초대', mode: 'light' }}
             />

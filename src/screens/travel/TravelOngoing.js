@@ -40,11 +40,6 @@ const TravelOngoing = ({navigation}) => {
     console.log('handleSheetChanges', index);
   }, []);
 
-  const openBottomSheet = () => {
-    setIsOpen(!isOpen);
-    bottomSheetRef.current?.expand();
-  };
-
   // 상단 컴포넌트의 크기를 측정
   const onLayout = (event) => {
     const { width } = event.nativeEvent.layout;
@@ -164,12 +159,19 @@ useEffect(() => {
         // 주인 여부 판단
         setIsOwner(String(result.result.ownerId) === String(myUserId));
         console.log("myYUserId", String(myUserId));
-
+        const categoryMap = {
+          TRANSPORTATION: '교통',
+          MEALS: '식사',
+          SHOPPING: '쇼핑',
+          SIGHTSEEING: '관광',
+          ACCOMMODATION: '숙소',
+          ETC: '기타',
+        };
         // 기존 데이터 세팅 로직
         const expenses = result.result.expenses.map(expense => ({
           id: expense.id,
           title: expense.expenseName,
-          category: expense.category === 'TRANSPORTATION' ? '교통' : expense.category,
+          category: categoryMap[expense.category] || expense.category,
           cost: `${expense.price.toLocaleString()}원`,
           date: formatDate(expense.expenseDate),
         }));
@@ -197,7 +199,10 @@ useEffect(() => {
   fetchTravelData();
 }, [selectedId]);
 
-
+const openBottomSheet = () => {
+    setIsOpen(!isOpen);
+    bottomSheetRef.current?.expand();
+}
 
 //여행종료 함수 start
 const handleEndTravel = async () => {
@@ -223,6 +228,8 @@ const handleEndTravel = async () => {
     const result = response.data;
     if (result.isSuccess) {
       Alert.alert('성공', '여행이 종료되었습니다.');
+      handleSettlement();
+      navigation.navigate('Report', { completed: true, id: selectedId })
     } else {
       Alert.alert('실패', result.message || '여행 종료에 실패했습니다.');
     }
@@ -231,6 +238,15 @@ const handleEndTravel = async () => {
     Alert.alert('오류', '여행 종료 중 오류가 발생했습니다.');
   }
 };
+
+  const handleSettlement = async () => {
+    try {
+      const response = await axiosInstance.post(`api/settlement/${selectedId}`);
+      console.log('금액 정산 성공', response)
+    } catch (error) {
+      console.log('금액 정산 실패', error);
+    }
+  }
 
 //여행종료 함수 end
 
@@ -270,7 +286,7 @@ const handleEndTravel = async () => {
               <View style={styles.row}>
                 <Text style={styles.travelMemo}>{travelDetailData.introduce}</Text>
                   {isOwner && (
-                    <TouchableOpacity onPress={handleEndTravel} style={styles.finishButton}>
+                    <TouchableOpacity onPress={openBottomSheet} style={styles.finishButton}>
                       <Text style={styles.finishButtonText}>여행 끝내기</Text>
                     </TouchableOpacity>
                   )}
@@ -308,7 +324,7 @@ const handleEndTravel = async () => {
                   <ExpenditureList data={expenditures} navigation={navigation} completed={false}/>
                 </View>
                 {/* 지출 리포트 보러가기*/}
-                <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0} onPress={openBottomSheet}/></View>
+                <View style={styles.blackButtonText}><BlackButton text="지출 리포트 보러가기" width={360} height={0} onPress={MoveExpenseReport}/></View>
             </View>
           </>
         }
@@ -321,7 +337,7 @@ const handleEndTravel = async () => {
           <View style={styles.bottomSheetContent}>
             <Text style={styles.sheetText}>일정을 모두 마무리 하셨나요?</Text>
             <Text style={styles.sheetText2}>더 이상 지출 기록을 추가할 수 없어요</Text>
-            <BlackButton text="여행 끝내고 지출리포트&정산결과 보기" width={343} height={50} onPress={MoveExpenseReport}/>
+            <BlackButton text="여행 끝내고 지출리포트&정산결과 보기" width={343} height={50} onPress={handleEndTravel}/>
           </View>
         </CustomBottomSheet>
       ) : null}
