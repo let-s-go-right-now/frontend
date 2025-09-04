@@ -308,7 +308,6 @@ const Calculation = ({ navigation, route }) => {
             console.log('여행 정산 결과', result);
             setCalcRes(result);
             const finish = result.every(item => item.settlementStatus === 'DONE');
-            setIsSettlementDone(finish);
         } catch (error) {
             console.log('여행 정산 결과 가져오기 에러', error.response);
         }
@@ -318,8 +317,13 @@ const Calculation = ({ navigation, route }) => {
     const handleCalcStatus = async () => { 
         try {
             const response = await axiosInstance.get(`/api/settlement/${id}/status`);
-            console.log('정산 현황 가져오기', response);
+            console.log('정산 현황 가져오기', response.data.result);
             setCalcStatus(response.data.result);
+            if (response.data.result.length > 0) {
+                setIsSettlementFinish(true);
+            } else {
+                setIsSettlementFinish(false);
+            }
         } catch (error) {
             if (error.status===403) {
                 setIsSettlementFinish(false);
@@ -328,6 +332,7 @@ const Calculation = ({ navigation, route }) => {
                 console.log('정산 현황 가져오기 에러', error.response);
                 setIsSettlementFinish(false);
             }
+            console.log('정산 현황 가져오기 에러', error.response);
         }
     }
     
@@ -378,14 +383,19 @@ const Calculation = ({ navigation, route }) => {
     // 송금
     const handleSettlementSend = async () => {
         try {
-            const response = await axiosInstance.put(`api/settlement/${settlementId}/send`);
+            const response = await axiosInstance.post(`/api/settlement/send-settlement/${settlementId}`);
             console.log('송금 성공', response);
+            setIsSettlementDone(response.data.result.status);
+            if (response.status===200) {
+                handleCalcStatus();
+                setIsOpen(!isOpen);
+            }
             setIsOpen(!isOpen);
             bottomSheetRef.current?.expand();
             handleCalcResult();
             setClickedAccount(false);
         } catch(error) {
-            console.log('송금 실패', error.response);
+            console.log('송금 실패', error);
         }
     }
 
@@ -493,7 +503,7 @@ const Calculation = ({ navigation, route }) => {
                                             </View>
                                             <Ment>{data.settlementStatus==='PROGRESS' ? '님에게 받으세요' : '님에게 받았어요'}</Ment>
                                         </RowWrapper>
-                                        <ResPrice color='#FF1E1E'>{data.amount.toLocaleString()}원</ResPrice>
+                                        <ResPrice color="#FF1E1E">{data.amount.toLocaleString()}원</ResPrice>
                                     </ReceiveWrapper>
                                 )
                             })}
@@ -546,7 +556,7 @@ const Calculation = ({ navigation, route }) => {
                         <BlackButton 
                             text="정산 완료하기"
                             width={343}
-                            ready={isSettlementDone}
+                            ready={isSettlementFinish}
                             image={MoneyDark}
                             style={{
                                 marginBottom: 10

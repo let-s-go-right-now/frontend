@@ -109,7 +109,7 @@ const Report = ({ navigation, route }) => {
         handleCategoryReport();
         handleDailyExpense();
         handleMember();
-        setMode(completed ? 'dark' : 'light');
+        setMode('dark');
     }, [])
 
     return (
